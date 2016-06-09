@@ -1,6 +1,5 @@
 node_modules
 Thumbs.db
 .idea/
-/build/
 /releases/
 dist
