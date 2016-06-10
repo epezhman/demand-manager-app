@@ -6,7 +6,7 @@
     "postinstall": "install-app-deps",
     "start": "electron ./app ",
     "pack": "build --target dir",
-    "dist": "build --win --x64"
+    "dist": "build --platform win32 --arch ia32"
   },
   "author": "Pezhman Nasirifard <epezhman@gmail.com>",
   "homepage":"https://github.com/epezhman/demand-manager-app",

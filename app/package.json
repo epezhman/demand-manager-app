@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "Simple TODO application built with Electron and AngularJS.",
   "author": "Pezhman Nasirifard <epezhman@gmail.com>",
-  "main": "main.js",
+  "main": "./main.js",
   "license": "MIT",
   "homepage":"https://github.com/epezhman/demand-manager-app",
   "dependencies": {
