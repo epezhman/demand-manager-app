@@ -1,83 +1,65 @@
+
+
 if (require('electron-squirrel-startup')) return;
 
 const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
-
+const {app} = electron;
+const {BrowserWindow} = electron;
+const os = require('os');
 // //var crashReporter = require('./crash-reporter')
 const {crashReporter} = require('electron');
-// const app = require('app');
-//
-// // this should be placed at top of main.js to handle setup events quickly
-// if (handleSquirrelEvent()) {
-//     // squirrel event handled and app will exit in 1000ms, so don't do anything else
-//     return;
-// }
-//
-// function handleSquirrelEvent() {
-//     if (process.argv.length === 1) {
-//         return false;
-//     }
-//
-//     const ChildProcess = require('child_process');
-//     const path = require('path');
-//
-//     const appFolder = path.resolve(process.execPath, '..');
-//     const rootAtomFolder = path.resolve(appFolder, '..');
-//     const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
-//     const exeName = path.basename(process.execPath);
-//
-//     const spawn = function (command, args) {
-//         let spawnedProcess, error;
-//
-//         try {
-//             spawnedProcess = ChildProcess.spawn(command, args, {detached: true});
-//         } catch (error) {
-//         }
-//
-//         return spawnedProcess;
-//     };
-//
-//     const spawnUpdate = function (args) {
-//         return spawn(updateDotExe, args);
-//     };
-//
-//     const squirrelEvent = process.argv[1];
-//     switch (squirrelEvent) {
-//         case '--squirrel-install':
-//         case '--squirrel-updated':
-//             // Optionally do things such as:
-//             // - Add your .exe to the PATH
-//             // - Write to the registry for things like file associations and
-//             //   explorer context menus
-//
-//             // Install desktop and start menu shortcuts
-//             spawnUpdate(['--createShortcut', exeName]);
-//
-//             setTimeout(app.quit, 1000);
-//             return true;
-//
-//         case '--squirrel-uninstall':
-//             // Undo anything you did in the --squirrel-install and
-//             // --squirrel-updated handlers
-//
-//             // Remove desktop and start menu shortcuts
-//             spawnUpdate(['--removeShortcut', exeName]);
-//
-//             setTimeout(app.quit, 1000);
-//             return true;
-//
-//         case '--squirrel-obsolete':
-//             // This is called on the outgoing version of your app before
-//             // we update to the new version - it's the opposite of
-//             // --squirrel-updated
-//
-//             app.quit();
-//             return true;
-//     }
-// };
-
+const {autoUpdater} = electron;
 let mainWindow
+
+var updateFeed = 'http://188.166.160.83/auto_update/download/latest';
+var isDevelopment = process.env.NODE_ENV == 'development';
+var feedURL = "";
+
+// Don't use auto-updater if we are in development
+if (!isDevelopment) {
+    // if (os.platform() === 'darwin') {
+    //     updateFeed = 'http://ea-todo.herokuapp.com/updates/latest';
+    // }
+    // else if (os.platform() === 'win32') {
+    //     updateFeed = 'http://eatodo.s3.amazonaws.com/updates/latest/win' + (os.arch() === 'x64' ? '64' : '32');
+    // }
+
+    autoUpdater.addListener("update-available", function (event) {
+        console.log("A new update is available")
+        if (mainWindow) {
+            mainWindow.webContents.send('update-message', 'update-available');
+        }
+    });
+    autoUpdater.addListener("update-downloaded", function (event, releaseNotes, releaseName, releaseDate, updateURL) {
+        console.log("A new update is ready to install", `Version ${releaseName} is downloaded and will be automatically installed on Quit`)
+        if (mainWindow) {
+            mainWindow.webContents.send('update-message', 'update-downloaded');
+        }
+    });
+    autoUpdater.addListener("error", function (error) {
+        console.log(error)
+        if (mainWindow) {
+            mainWindow.webContents.send('update-message', 'update-error');
+        }
+    });
+    autoUpdater.addListener("checking-for-update", function (event) {
+        console.log("checking-for-update")
+        if (mainWindow) {
+            mainWindow.webContents.send('update-message', 'checking-for-update');
+        }
+    });
+    autoUpdater.addListener("update-not-available", function () {
+        console.log("update-not-available")
+        if (mainWindow) {
+            mainWindow.webContents.send('update-message', 'update-not-available');
+        }
+    });
+
+    const appVersion = require('./package.json').version;
+     feedURL = updateFeed ;//+ '?v=' + appVersion;
+    autoUpdater.setFeedURL(feedURL);
+}
+
 
 function createWindow() {
 
@@ -90,6 +72,14 @@ function createWindow() {
     mainWindow.on('closed', function () {
         mainWindow = null
     })
+    
+    if (!isDevelopment) {
+        mainWindow.webContents.on('did-frame-finish-load', function() {
+            console.log("Checking for updates: " + feedURL);
+            autoUpdater.checkForUpdates();
+        });
+    }
+    
 }
 
 app.on('ready', createWindow)
@@ -101,14 +91,14 @@ app.on('window-all-closed', function () {
 
 app.on('will-finish-launching', function () {
     crashReporter.start({
-      productName: 'Demand Management App',
-      companyName: 'TUM',
-      submitURL: 'http://46.101.145.118:1127/post',
-      autoSubmit: true,
-      extra: {
-        'extra1': 'extra1',
-        'extra2': 'extra2',
-      }
+        productName: 'Demand Management App',
+        companyName: 'TUM',
+        submitURL: 'http://188.166.160.83/crash_report/post',
+        autoSubmit: true,
+        extra: {
+            'extra1': 'extra1',
+            'extra2': 'extra2',
+        }
     });
 })
 

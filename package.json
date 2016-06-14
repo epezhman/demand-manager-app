@@ -1,25 +1,43 @@
 {
-  "name": "eatodo",
+  "name": "dmdesktop",
   "productName": "Demand Manager Desktop",
-  "description": "Simple TODO application built with Electron and AngularJS.",
+  "description": "Demand Manager for Computers.",
+  "author": "TUM <epezhman@gmail.com>",
   "scripts": {
     "postinstall": "install-app-deps",
-    "start": "electron ./app ",
-    "pack": "build --target dir",
-    "dist": "build --platform win32 --arch ia32"
+    "start": "electron ./app --enable-logging --remote-debugging-port=9222",
+    "dev": "set NODE_ENV=development&& npm start",
+    "dist:win32": "build -w --x64 && build -w --ia32"
   },
-  "author": "Pezhman Nasirifard <epezhman@gmail.com>",
-  "homepage":"https://github.com/epezhman/demand-manager-app",
-  "license": "MIT",
-  "version": "0.0.1",
-
   "devDependencies": {
     "electron-builder": "^5.0.0",
     "electron-prebuilt": "^1.2.2"
   },
   "build": {
-    "app-bundle-id": "hr.creaticon.eatodo",
+    "appId": "de.tum.dm",
     "app-category-type": "public.app-category.utilities",
-    "iconUrl": "http://eatodo.s3.amazonaws.com/icon.ico"
+    "iconUrl": "http://188.166.160.83/icons/icon.ico",
+    "win": {
+      "remoteReleases": "https://github.com/epezhman/demand-manager-app"
+    },
+    "osx": {
+      "title": "Demand Manager Desktop",
+      "background": "build/background.png",
+      "icon": "build/icon.icns",
+      "icon-size": 128,
+      "contents": [
+        {
+          "x": 355,
+          "y": 125,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 155,
+          "y": 125,
+          "type": "file"
+        }
+      ]
+    }
   }
 }
