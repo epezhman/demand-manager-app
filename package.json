@@ -18,7 +18,7 @@
   "build": {
     "appId": "de.tum.dm",
     "app-category-type": "public.app-category.utilities",
-    "iconUrl": "http://188.166.160.83/icons/icon.ico",
+    "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico",
     "win": {
       "remoteReleases": "https://github.com/epezhman/demand-manager-app"
     },

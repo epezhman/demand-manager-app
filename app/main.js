@@ -17,12 +17,12 @@ var feedURL = "";
 
 // Don't use auto-updater if we are in development
 if (!isDevelopment) {
-    // if (os.platform() === 'darwin') {
-    //     updateFeed = 'http://ea-todo.herokuapp.com/updates/latest';
-    // }
-    // else if (os.platform() === 'win32') {
-    //     updateFeed = 'http://eatodo.s3.amazonaws.com/updates/latest/win' + (os.arch() === 'x64' ? '64' : '32');
-    // }
+    if (os.platform() === 'darwin') {
+        updateFeed = 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/osx';
+    }
+    else if (os.platform() === 'win32') {
+        updateFeed = 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win' + (os.arch() === 'x64' ? '64' : '32');
+    }
 
     autoUpdater.addListener("update-available", function (event) {
         console.log("A new update is available")
@@ -56,7 +56,7 @@ if (!isDevelopment) {
     });
 
     const appVersion = require('./package.json').version;
-     feedURL = updateFeed ;//+ '?v=' + appVersion;
+     feedURL = updateFeed + '?v=' + appVersion;
     autoUpdater.setFeedURL(feedURL);
 }
 
@@ -97,7 +97,7 @@ app.on('will-finish-launching', function () {
         autoSubmit: true,
         extra: {
             'extra1': 'extra1',
-            'extra2': 'extra2',
+            'extra2': 'extra2'
         }
     });
 })

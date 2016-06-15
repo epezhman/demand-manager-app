@@ -2,7 +2,7 @@
   "name": "dmdesktop",
   "productName": "Demand Manager Desktop",
   "description": "Demand Manager for Computers.",
-  "version": "0.1.2",
+  "version": "0.1.7",
   "author": "TUM <epezhman@gmail.com>",
   "main": "./main.js",
   "license": "MIT",
