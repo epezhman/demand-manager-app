@@ -1,13 +1,18 @@
 {
-  "name": "dmdesktop",
-  "productName": "Demand Manager Desktop",
-  "description": "Demand Manager for Computers.",
+  "name": "tumdmdesktop",
+  "productName": "TUM Demand Manager",
+  "description": "TUM Demand Manager for Computers.",
   "version": "0.1.7",
-  "author": "TUM <p.nasirifard@tum.de>",
+  "author": {
+    "name": "TUM, Institute of Informatics",
+    "email": "p.nasirifard@tum.de",
+    "url": ""
+  },
   "main": "./main.js",
   "license": "MIT",
   "homepage": "https://github.com/epezhman/demand-manager-app",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "application-config": "^0.2.2"
   }
 }

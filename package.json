@@ -1,8 +1,12 @@
 {
-  "name": "dmdesktop",
-  "productName": "Demand Manager Desktop",
-  "description": "Demand Manager for Computers.",
-  "author": "TUM <p.nasirifard@tum.de>",
+  "name": "tumdmdesktop",
+  "productName": "TUM Demand Manager",
+  "description": "TUM Demand Manager for Computers.",
+  "author": {
+    "name": "TUM, Institute of Informatics",
+    "email": "p.nasirifard@tum.de",
+    "url": ""
+  },
   "scripts": {
     "postinstall": "install-app-deps",
     "start": "electron ./app --enable-logging --remote-debugging-port=9222",
@@ -26,11 +30,11 @@
     "yargs": "^4.7.1"
   },
   "build": {
-    "appId": "de.tum.dm",
+    "appId": "de.tum.tumdmdesktop",
     "app-category-type": "public.app-category.utilities",
     "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico",
     "osx": {
-      "title": "Demand Manager Desktop",
+      "title": "TUM Demand Manager",
       "background": "build/background.png",
       "icon": "build/icon.icns",
       "icon-size": 128,
