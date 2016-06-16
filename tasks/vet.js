@@ -2,7 +2,7 @@
 
 const gulp = require('gulp')
 const args = require('yargs').argv
-const config = require('./gulp.config')()
+const config = require('./gulp.config')
 
 const $ = require('gulp-load-plugins')({lazy: true})
 

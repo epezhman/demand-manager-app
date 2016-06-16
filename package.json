@@ -13,6 +13,7 @@
     "dev": "set NODE_ENV=development&& npm start"
   },
   "devDependencies": {
+    "async": "^2.0.0-rc.6",
     "aws-sdk": "^2.4.0",
     "electron-builder": "^5.0.0",
     "electron-prebuilt": "^1.2.2",
@@ -52,5 +53,8 @@
         }
       ]
     }
+  },
+  "dependencies": {
+    "application-config": "^0.2.2"
   }
 }

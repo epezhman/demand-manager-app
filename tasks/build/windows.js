@@ -1,24 +1,24 @@
 'use strict'
 
-const gutil = require('gulp-util')
 const Q = require('q')
 const builder = require('electron-builder')
 const Platform = builder.Platform
 const Arch = builder.Arch
+const utils = require('../utils')
 
 var init = () => {
     return new Q()
 }
 
 var buildWin32 = () => {
-    gutil.log(gutil.colors.blue('Building Windows 32-bit'))
+    utils.log('Building Windows 32-bit')
     return builder.build({
         targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
     })
 }
 
 var buildWin64 = () => {
-    gutil.log(gutil.colors.blue('Building Windows 64-bit'))
+    utils.log('Building Windows 64-bit')
     return builder.build({
         targets: Platform.WINDOWS.createTarget(null, Arch.x64),
         devMetadata: {
