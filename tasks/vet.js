@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
-var gulp = require('gulp');
-var args = require('yargs').argv;
-var config = require('./gulp.config')()
+const gulp = require('gulp')
+const args = require('yargs').argv
+const config = require('./gulp.config')()
 
-var $ = require('gulp-load-plugins')({lazy: true})
+const $ = require('gulp-load-plugins')({lazy: true})
 
-gulp.task('vet', function () {
+gulp.task('vet', () => {
 
     return gulp
         .src(config.appjs)
@@ -14,5 +14,5 @@ gulp.task('vet', function () {
         .pipe($.jshint())
         .pipe($.jshint.reporter('jshint-stylish', {verbose: true}))
         .pipe($.jshint.reporter('fail'))
-        .pipe($.jscs());
-});
+        .pipe($.jscs())
+})

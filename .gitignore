@@ -1,6 +1,4 @@
 node_modules
-Thumbs.db
 .idea/
-/releases/
 dist
 *.log

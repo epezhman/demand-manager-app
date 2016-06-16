@@ -1,10 +1,11 @@
 module.exports = ()=> {
     var config = {
 
-        // All app js which is needed for vet
+        // All js which is needed to be vet
         appjs:[
             './app/**/*.js',
-            '!./app/node_modules/**'
+            '!./app/node_modules/**',
+            './tasks/**/*.js'
         ]
     }
 

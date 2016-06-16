@@ -3,7 +3,7 @@
   "productName": "Demand Manager Desktop",
   "description": "Demand Manager for Computers.",
   "version": "0.1.7",
-  "author": "TUM <epezhman@gmail.com>",
+  "author": "TUM <p.nasirifard@tum.de>",
   "main": "./main.js",
   "license": "MIT",
   "homepage": "https://github.com/epezhman/demand-manager-app",
