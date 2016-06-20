@@ -15,6 +15,7 @@
   "devDependencies": {
     "async": "^2.0.0-rc.6",
     "aws-sdk": "^2.4.0",
+    "del": "^2.2.0",
     "electron-builder": "^5.0.0",
     "electron-prebuilt": "^1.2.2",
     "gulp": "^3.9.1",
@@ -27,6 +28,7 @@
     "gulp-util": "^3.0.7",
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.2.0",
+    "mkdirp": "^0.5.1",
     "q": "^1.4.1",
     "yargs": "^4.7.1"
   },
