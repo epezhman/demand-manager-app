@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const gulp = require('gulp')
 const Q = require('q')
+const mv = require('mv')
 const builder = require('electron-builder')
 const Platform = builder.Platform
 const Arch = builder.Arch
@@ -12,6 +13,12 @@ const utils = require('./utils')
 const config = require('./gulp.config.js')
 const vet = require('./vet')
 
+const baseDistDir = config.baseDir + config.distDir
+
+var addBuildVersionFile = (platformDist)=> {
+    fs.writeFile(baseDistDir + platformDist + config.latestBuildVersionFile,
+        'v' + config.appVersion)
+}
 
 var buildForOS = (platform) => {
 
@@ -20,17 +27,26 @@ var buildForOS = (platform) => {
             utils.log('Building for Linux 64-bit')
             return builder.build({
                 targets: Platform.LINUX.createTarget(null, Arch.x64)
+            }).then(()=> {
+                var fileName = config.appName + '-' + config.appVersion + '.deb'
+                mv(baseDistDir + fileName,
+                    baseDistDir + config.distLinux64Dir + fileName,
+                    {mkdirp: true}, () => {
+                        addBuildVersionFile(config.distLinux64Dir)
+                    })
             })
         }).then(()=> {
-            return fs.writeFile(config.baseDir + config.distDir + config.distLinux64Dir + config.latestBuildVersionFile,
-                'v' + config.appVersion)
-        }).then(()=> {
+            utils.log('Building for Linux 32-bit')
             return builder.build({
                 targets: Platform.LINUX.createTarget(null, Arch.ia32)
+            }).then(()=> {
+                var fileName = config.appName + '-' + config.appVersion + '-ia32.deb'
+                mv(baseDistDir + fileName,
+                    baseDistDir + config.distLinux32Dir + fileName,
+                    {mkdirp: true}, ()=> {
+                        addBuildVersionFile(config.distLinux32Dir)
+                    })
             })
-        }).then(()=> {
-            return fs.writeFile(config.baseDir + config.distDir + config.distLinux32Dir + config.latestBuildVersionFile,
-                'v' + config.appVersion)
         })
     }
     else if (platform === 'osx') {
@@ -40,8 +56,7 @@ var buildForOS = (platform) => {
                 targets: Platform.OSX.createTarget()
             })
         }).then(()=> {
-            return fs.writeFile(config.baseDir + config.distDir + config.distOSXDir + config.latestBuildVersionFile,
-                'v' + config.appVersion)
+            addBuildVersionFile(config.distOSXDir)
         })
     }
     else if (platform === 'windows') {
@@ -52,16 +67,14 @@ var buildForOS = (platform) => {
                 devMetadata: {}
             })
         }).then(()=> {
-            return fs.writeFile(config.baseDir + config.distDir + config.distWin64Dir + config.latestBuildVersionFile,
-                'v' + config.appVersion)
+            addBuildVersionFile(config.distWin64Dir)
         }).then(()=> {
             utils.log('Building for Windows 32-bit')
             return builder.build({
                 targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
             })
         }).then(()=> {
-            return fs.writeFile(config.baseDir + config.distDir + config.distWin32Dir + config.latestBuildVersionFile,
-                'v' + config.appVersion)
+            addBuildVersionFile(config.distWin32Dir)
         })
     }
 }
