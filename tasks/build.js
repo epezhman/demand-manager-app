@@ -64,7 +64,13 @@ var buildForOS = (platform) => {
             utils.log('Building for Windows 64-bit')
             return builder.build({
                 targets: Platform.WINDOWS.createTarget(null, Arch.x64),
-                devMetadata: {}
+                devMetadata: {
+                    'build': {
+                        'win': {
+                            'remoteReleases': config.appRepo
+                        }
+                    }
+                }
             })
         }).then(()=> {
             addBuildVersionFile(config.distWin64Dir)

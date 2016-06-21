@@ -23,16 +23,25 @@ gulp.task('clean:release', ()=> {
     ])
 })
 
-var uploadLatestRelease = (s3PlatformDir, distPlatformDir, deferredPromise)=> {
+var platformReleaseDirs = (awsDir, distDir) => {
+    var deferred = Q.defer()
+    return {
+        awsDir: awsDir,
+        distDir: distDir,
+        deferredPromised: deferred
+    }
+}
+
+var uploadLatestRelease = (platformDirs)=> {
     var toUploadFiles = []
-    toUploadFiles = fs.readdirSync(baseDistDir + distPlatformDir)
+    toUploadFiles = fs.readdirSync(baseDistDir + platformDirs.distDir)
     var cnt = 0
     if (toUploadFiles.length) {
         async.each(toUploadFiles, (localFile) => {
-            var uploadBody = fs.createReadStream(baseDistDir + distPlatformDir + localFile)
+            var uploadBody = fs.createReadStream(baseDistDir + platformDirs.distDir + localFile)
             utils.logInfo('Uploading: ' + localFile)
             s3.upload({
-                Key: config.awsS3UpdateKeyPrefix + s3PlatformDir + localFile,
+                Key: config.awsS3UpdateKeyPrefix + platformDirs.awsDir + localFile,
                 Body: uploadBody,
                 ACL: 'public-read-write',
                 StorageClass: 'REDUCED_REDUNDANCY'
@@ -42,28 +51,25 @@ var uploadLatestRelease = (s3PlatformDir, distPlatformDir, deferredPromise)=> {
                 }
                 utils.logInfo('Uploaded: ' + data.Key)
                 if (++cnt === toUploadFiles.length) {
-                    deferredPromise.resolve()
+                    platformDirs.deferredPromised.resolve()
                 }
             })
         })
     }
 }
 
-var copyLatestVersionRelease = (s3PlatformDir, distPlatformDir, deferredPromise, version) => {
-    s3.listObjects({Prefix: config.awsS3UpdateKeyPrefix + s3PlatformDir}, (err, toCopyFiles) => {
+var copyLatestVersionRelease = (platformDirs, version) => {
+    s3.listObjects({Prefix: config.awsS3UpdateKeyPrefix + platformDirs.awsDir}, (err, toCopyFiles) => {
         if (err) {
             utils.logError(err)
         }
         var cnt = 0
         if (toCopyFiles.Contents.length) {
             async.each(toCopyFiles.Contents, (s3File) => {
-                
-                utils.log(config.awsS3ArchivedUpdateKeyPrefix + version + '/' + s3PlatformDir)
-                
                 s3.copyObject({
-                    CopySource: config.awsS3BucketName + s3File.Key,
-                    Key: s3File.Key.replace(config.awsS3UpdateKeyPrefix + s3PlatformDir,
-                        config.awsS3ArchivedUpdateKeyPrefix + version + '/' + s3PlatformDir),
+                    CopySource: config.awsS3BucketName + '/' + s3File.Key,
+                    Key: s3File.Key.replace(config.awsS3UpdateKeyPrefix + platformDirs.awsDir,
+                        config.awsS3ArchivedUpdateKeyPrefix + version + '/' + platformDirs.awsDir),
                     ACL: 'public-read-write',
                     StorageClass: 'REDUCED_REDUNDANCY'
                 }).on('success', () => {
@@ -71,27 +77,24 @@ var copyLatestVersionRelease = (s3PlatformDir, distPlatformDir, deferredPromise,
                     s3.deleteObject({Key: s3File.Key}).on('success', ()=> {
                         utils.logInfo('Deleted: ' + s3File.Key)
                         if (++cnt === toCopyFiles.Contents.length) {
-                            uploadLatestRelease(s3PlatformDir, distPlatformDir, deferredPromise)
+                            uploadLatestRelease(platformDirs)
                         }
                     }).send()
-                }).on('error', function(response) {
-                    console.log(response);
                 }).send()
             })
         }
     })
 }
 
-var getLatestReleasedVersionAndUploadNewRelease = (s3PlatformDir, distPlatformDir, deferredPromise)=> {
-    var latestVersionPath = config.baseDir + config.latestBuildVersionDir + s3PlatformDir
+var getLatestReleasedVersionAndUploadNewRelease = (platformDirs)=> {
+    var latestVersionPath = config.baseDir + config.latestBuildVersionDir + platformDirs.awsDir
     mkdirp.sync(latestVersionPath)
     var latestVersionFileName = latestVersionPath + '/' + config.latestBuildVersionFile
     var latestVersionFile = fs.createWriteStream(latestVersionFileName)
     s3.getObject({
-        Key: config.awsS3UpdateKeyPrefix + s3PlatformDir + config.latestBuildVersionFile
+        Key: config.awsS3UpdateKeyPrefix + platformDirs.awsDir + config.latestBuildVersionFile
     }).createReadStream().pipe(latestVersionFile).on('close', ()=> {
-        copyLatestVersionRelease(s3PlatformDir, distPlatformDir,
-            deferredPromise, fs.readFileSync(latestVersionFileName))
+        copyLatestVersionRelease(platformDirs, fs.readFileSync(latestVersionFileName))
     })
 }
 
@@ -99,33 +102,33 @@ var releaseForOS = (platform) => {
     if (platform === 'linux') {
         return Q.fcall(()=> {
             utils.log('Releasing for Linux 64-bit')
-            var deferred = Q.defer()
-            getLatestReleasedVersionAndUploadNewRelease(config.awsS3Linux64Dir, config.distLinux64Dir, deferred)
-            return deferred.promise
+            var pDirs = platformReleaseDirs(config.awsS3Linux64Dir, config.distLinux64Dir)
+            getLatestReleasedVersionAndUploadNewRelease(pDirs)
+            return pDirs.deferredPromised.promise
         }).then(()=> {
             utils.log('Releasing for Linux 32-bit')
-            var deferred = Q.defer()
-            getLatestReleasedVersionAndUploadNewRelease(config.awsS3Linux32Dir, config.distLinux32Dir, deferred)
-            return deferred.promise
+            var pDirs = platformReleaseDirs(config.awsS3Linux32Dir, config.distLinux32Dir)
+            getLatestReleasedVersionAndUploadNewRelease(pDirs)
+            return pDirs.deferredPromised.promise
         })
     }
     else if (platform === 'osx') {
         utils.log('Releasing for OSX 64-bit')
-        var deferred = Q.defer()
-        getLatestReleasedVersionAndUploadNewRelease(config.awsS3OSXDir, config.distOSXDir, deferred)
-        return deferred.promise
+        var pDirs = platformReleaseDirs(config.awsS3OSXDir, config.distOSXDir)
+        getLatestReleasedVersionAndUploadNewRelease(pDirs)
+        return pDirs.deferredPromised.promise
     }
     else if (platform === 'windows') {
         return Q.fcall(()=> {
             utils.log('Releasing for Windows 64-bit')
-            var deferred = Q.defer()
-            getLatestReleasedVersionAndUploadNewRelease(config.awsS3Win64Dir, config.distWin64Dir, deferred)
-            return deferred.promise
+            var pDirs = platformReleaseDirs(config.awsS3Win64Dir, config.distWin64Dir)
+            getLatestReleasedVersionAndUploadNewRelease(pDirs)
+            return pDirs.deferredPromised.promise
         }).then(()=> {
             utils.log('Releasing for Windows 32-bit')
-            var deferred = Q.defer()
-            getLatestReleasedVersionAndUploadNewRelease(config.awsS3Win32Dir, config.distWin32Dir, deferred)
-            return deferred.promise
+            var pDirs = platformReleaseDirs(config.awsS3Win32Dir, config.distWin32Dir)
+            getLatestReleasedVersionAndUploadNewRelease(pDirs)
+            return pDirs.deferredPromised.promise
         })
     }
 }

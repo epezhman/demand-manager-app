@@ -13,6 +13,7 @@ module.exports = {
     ],
     appVersion: appPackage.version,
     appName: appPackage.name,
+    appRepo: 'https://github.com/epezhman/demand-manager-app',
     awsRegion: 'eu-central-1',
     awsS3BucketName: 'demand-manager-resources',
     awsS3UpdateKeyPrefix: 'updates/latest/',
