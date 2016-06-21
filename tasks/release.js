@@ -57,9 +57,9 @@ var copyLatestVersionRelease = (s3PlatformDir, distPlatformDir, deferredPromise,
         var cnt = 0
         if (toCopyFiles.Contents.length) {
             async.each(toCopyFiles.Contents, (s3File) => {
-                
+
                 utils.log(config.awsS3ArchivedUpdateKeyPrefix + version + '/' + s3PlatformDir)
-                
+
                 s3.copyObject({
                     CopySource: config.awsS3BucketName + s3File.Key,
                     Key: s3File.Key.replace(config.awsS3UpdateKeyPrefix + s3PlatformDir,
@@ -74,7 +74,7 @@ var copyLatestVersionRelease = (s3PlatformDir, distPlatformDir, deferredPromise,
                             uploadLatestRelease(s3PlatformDir, distPlatformDir, deferredPromise)
                         }
                     }).send()
-                }).on('error', function(response) {
+                }).on('error', function (response) {
                     console.log(response);
                 }).send()
             })
