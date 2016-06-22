@@ -18,7 +18,7 @@ const baseDistDir = config.baseDir + config.distDir
 
 var addBuildVersionFile = (platformDist)=> {
     fs.writeFile(baseDistDir + platformDist + config.latestBuildVersionFile,
-        'v' + config.appVersion)
+        config.appVersion)
 }
 
 var buildForOS = (platform) => {
@@ -57,7 +57,8 @@ var buildForOS = (platform) => {
                 targets: Platform.OSX.createTarget()
             })
         }).then(()=> {
-            rmdir(baseDistDir + config.distOSXDir+config.appProductName + '.app', () => {})
+            rmdir(baseDistDir + config.distOSXDir + config.appProductName + '.app', () => {
+            })
             addBuildVersionFile(config.distOSXDir)
         })
     }

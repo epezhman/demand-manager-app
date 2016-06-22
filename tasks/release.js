@@ -69,7 +69,7 @@ var copyLatestVersionRelease = (platformDirs, version) => {
                 s3.copyObject({
                     CopySource: config.awsS3BucketName + '/' + s3File.Key,
                     Key: s3File.Key.replace(config.awsS3UpdateKeyPrefix + platformDirs.awsDir,
-                        config.awsS3ArchivedUpdateKeyPrefix + version + '/' + platformDirs.awsDir),
+                        config.awsS3ArchivedUpdateKeyPrefix + 'v' + version + '/' + platformDirs.awsDir),
                     ACL: 'public-read-write',
                     StorageClass: 'REDUCED_REDUNDANCY'
                 }).on('success', () => {
