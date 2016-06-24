@@ -1,7 +1,6 @@
 'use strict'
 
 const fs = require('fs')
-const path = require('path')
 const gulp = require('gulp')
 const Q = require('q')
 const mv = require('mv')

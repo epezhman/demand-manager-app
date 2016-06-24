@@ -5,11 +5,12 @@ module.exports = {
 }
 
 const os = require('os')
+const path = require('path')
 const {autoUpdater, BrowserWindow, app} = require('electron')
 const request = require('request')
-const {download} = require('electron-dl');
-var https = require('https');
-var fs = require('fs');
+const {download} = require('electron-dl')
+var https = require('https')
+var fs = require('fs')
 const config = require('../config')
 const log = require('../lib/log')
 
@@ -19,8 +20,7 @@ function init() {
     if (process.platform === 'linux') {
         initLinux()
     } else {
-        initLinux()
-        //initDarwinWin32()
+        initDarwinWin32()
     }
 }
 
@@ -36,12 +36,12 @@ var onLinuxResponse = (err, res, data) => {
     }
     if (res.statusCode === 200) {
         data = JSON.parse(data)
-        var newVersionFile = fs.createWriteStream(process.env.HOME || process.env.USERPROFILE + `/${data.file}`);
+        var newVersionFile = fs.createWriteStream(path.resolve(process.env.HOME || process.env.USERPROFILE) + `/${data.file}`)
         https.get(data.url, (response) => {
             response.pipe(newVersionFile).on('close', ()=> {
                 log('downloaded')
             })
-        });
+        })
 
     } else if (res.statusCode === 204) {
         // No update available
