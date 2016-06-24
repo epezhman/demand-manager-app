@@ -38,10 +38,8 @@
     "appId": "de.tum.tumdmdesktop",
     "app-category-type": "public.app-category.utilities",
     "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico",
-    "osx": {
+    "dmg": {
       "title": "TUM Demand Manager",
-      "background": "build/background.png",
-      "icon": "build/icon.icns",
       "icon-size": 128,
       "contents": [
         {
