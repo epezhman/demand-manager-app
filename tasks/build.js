@@ -4,6 +4,7 @@ const fs = require('fs')
 const gulp = require('gulp')
 const Q = require('q')
 const mv = require('mv')
+const del = require('del')
 const rmdir = require('rimraf')
 const builder = require('electron-builder')
 const Platform = builder.Platform
@@ -14,6 +15,13 @@ const config = require('./gulp.config.js')
 const vet = require('./vet')
 
 const baseDistDir = config.baseDir + config.distDir
+
+
+gulp.task('clean:build', ()=> {
+    return del([
+        './dist/**/*'
+    ])
+})
 
 var addBuildVersionFile = (platformDist)=> {
     fs.writeFile(baseDistDir + platformDist + config.latestBuildVersionFile,
@@ -87,6 +95,6 @@ var buildForOS = (platform) => {
     }
 }
 
-gulp.task('build', ['vet'], () => {
+gulp.task('build', ['vet', 'clean:build'], () => {
     return buildForOS(utils.os())
 })

@@ -1,13 +1,13 @@
 'use strict'
 
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 const Q = require('q')
-var del = require('del')
-var mkdirp = require('mkdirp')
+const del = require('del')
+const mkdirp = require('mkdirp')
 const gulp = require('gulp')
 const utils = require('./utils')
-var async = require('async')
+const async = require('async')
 const config = require('./gulp.config')
 
 var AWS = require('aws-sdk')
@@ -19,7 +19,7 @@ const baseDistDir = config.baseDir + config.distDir
 
 gulp.task('clean:release', ()=> {
     return del([
-        '../dist/latest-release/**/*'
+        './dist/latest-release/**/*'
     ])
 })
 

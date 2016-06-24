@@ -1,6 +1,6 @@
 'use strict'
 
-var path = require('path')
+const path = require('path')
 
 const appPackage = require('../app/package.json')
 

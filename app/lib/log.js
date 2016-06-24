@@ -6,10 +6,10 @@ module.exports.error = error
 const {app} = require('electron')
 
 function log(...args) {
-    console.log('log', ...args)
+    console.log('LOG: ', ...args)
 }
 
 function error(...args) {
-    console.error('log', ...args)
+    console.error('ERROR: ', ...args)
 
 }

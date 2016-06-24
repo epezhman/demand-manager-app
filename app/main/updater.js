@@ -6,9 +6,8 @@ module.exports = {
 
 const os = require('os')
 const path = require('path')
-const {autoUpdater, BrowserWindow, app} = require('electron')
+const {autoUpdater} = require('electron')
 const request = require('request')
-const {download} = require('electron-dl')
 var https = require('https')
 var fs = require('fs')
 const config = require('../config')
@@ -16,19 +15,6 @@ const log = require('../lib/log')
 
 var feedURL = ''
 
-function init() {
-    if (process.platform === 'linux') {
-        initLinux()
-    } else {
-        initDarwinWin32()
-    }
-}
-
-var initLinux = () => {
-    feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
-        + '?v=' + config.APP_VERSION
-    request(feedURL, onLinuxResponse)
-}
 
 var onLinuxResponse = (err, res, data) => {
     if (err) {
@@ -36,19 +22,34 @@ var onLinuxResponse = (err, res, data) => {
     }
     if (res.statusCode === 200) {
         data = JSON.parse(data)
-        var newVersionFile = fs.createWriteStream(path.resolve(process.env.HOME || process.env.USERPROFILE) + `/${data.file}`)
-        https.get(data.url, (response) => {
-            response.pipe(newVersionFile).on('close', ()=> {
-                log('downloaded')
-            })
+        var downloadPath = path.resolve(process.env.HOME || process.env.USERPROFILE) +
+            `/${data.file}`
+        fs.access(downloadPath, fs.F_OK, (error)=> {
+            if (error) {
+                var newVersionFile = fs.createWriteStream(downloadPath)
+                https.get(data.url, (response) => {
+                    response.pipe(newVersionFile).on('close', ()=> {
+                        log('downloaded')
+                    })
+                })
+            }
+            else {
+                log('file exist')
+            }
         })
 
     } else if (res.statusCode === 204) {
-        // No update available
+        log('No updates for linux')
     } else {
         // Unexpected status code
         log.error(`Update error: Unexpected status code: ${res.statusCode}`)
     }
+}
+
+var initLinux = () => {
+    feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
+        '?v=' + config.APP_VERSION
+    request(feedURL, onLinuxResponse)
 }
 
 var initDarwinWin32 = () => {
@@ -88,4 +89,13 @@ var initDarwinWin32 = () => {
     feedURL += '?v=' + config.appVersion
     autoUpdater.setFeedURL(feedURL)
     autoUpdater.checkForUpdates()
+}
+
+
+function init() {
+    if (process.platform === 'linux') {
+        initLinux()
+    } else {
+        initDarwinWin32()
+    }
 }
