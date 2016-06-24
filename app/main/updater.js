@@ -13,6 +13,8 @@ var fs = require('fs')
 const config = require('../config')
 const log = require('../lib/log')
 
+const index = require('./index')
+
 var feedURL = ''
 
 
@@ -63,7 +65,10 @@ var initDarwinWin32 = () => {
 
     autoUpdater.on(
         'error',
-        (err) => log.error(`Update error: ${err.message}`)
+        (err) => {
+            index.messs(err.message)
+            log.error(`Update error: ${err.message}`)
+        }
     )
 
     autoUpdater.on(

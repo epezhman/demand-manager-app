@@ -17,6 +17,12 @@ const update = require('./updater')
 var isDevelopment = process.env.NODE_ENV === 'development'
 
 
+module.exports.messs = function messs(msg) {
+
+    mainWindow.webContents.send('update-message', msg);
+
+}
+
 function createWindow() {
 
     mainWindow = new BrowserWindow({width: 800, height: 600})
