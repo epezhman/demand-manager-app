@@ -2,7 +2,7 @@
   "name": "tumdmdesktop",
   "productName": "TUM Demand Manager",
   "description": "TUM Demand Manager for Computers.",
-  "version": "0.1.9",
+  "version": "0.1.8",
   "author": {
     "name": "TUM, Institute of Informatics",
     "email": "p.nasirifard@tum.de",
@@ -12,7 +12,9 @@
   "license": "MIT",
   "homepage": "https://github.com/epezhman/demand-manager-app",
   "dependencies": {
+    "application-config": "^0.2.2",
+    "electron-dl": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
-    "application-config": "^0.2.2"
+    "request": "^2.72.0"
   }
 }
