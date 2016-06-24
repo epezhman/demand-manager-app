@@ -23,7 +23,7 @@ function createWindow() {
 
     mainWindow.loadURL(config.WINDOW_INDEX)
 
-    //mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
 
     mainWindow.on('closed', function () {
         mainWindow = null

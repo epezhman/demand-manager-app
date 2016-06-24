@@ -30,7 +30,7 @@ module.exports = {
     distWin32Dir: 'win-ia32/',
     distLinux64Dir: 'linux-release/',
     distLinux32Dir: 'linux-ia32-release/',
-    distOSXDir: 'osx/',
+    distOSXDir: 'mac/',
     latestBuildVersionFile: 'buildVersion',
     latestBuildVersionDir: 'dist/latestReleased/'
 }
