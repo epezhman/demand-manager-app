@@ -11,5 +11,4 @@ function log(...args) {
 
 function error(...args) {
     console.error('ERROR: ', ...args)
-
 }

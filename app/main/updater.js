@@ -57,7 +57,7 @@ var initLinux = () => {
 var initDarwinWin32 = () => {
 
     if (process.platform === 'darwin') {
-        feedURL = config.AUTO_UPDATE_LINUX_BASE_URL
+        feedURL = config.AUTO_UPDATE_OSX_BASE_URL
     }
     else if (process.platform === 'win32') {
         feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
@@ -66,7 +66,7 @@ var initDarwinWin32 = () => {
     autoUpdater.on(
         'error',
         (err) => {
-            index.messs(err.message)
+            process.crash()
             log.error(`Update error: ${err.message}`)
         }
     )
@@ -91,7 +91,7 @@ var initDarwinWin32 = () => {
         (e, notes, name, date, url) => log(`Update downloaded: ${name}: ${url}`)
     )
 
-    feedURL += '?v=' + config.appVersion
+    feedURL += '?v=' + config.APP_VERSION
     autoUpdater.setFeedURL(feedURL)
     autoUpdater.checkForUpdates()
 }
@@ -103,4 +103,6 @@ function init() {
     } else {
         initDarwinWin32()
     }
+
+    setTimeout(init, config.AUTO_UPDATE_CHECK_INTERVAL)
 }

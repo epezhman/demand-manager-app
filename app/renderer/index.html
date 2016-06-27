@@ -13,12 +13,17 @@
 //  });
 //  setImmediate(function() { process.crash(); });
 
+var crashReporter = require('../main/crash-reporter')
 const {ipcRenderer} = require('electron');
 
 ipcRenderer.on('update-message', function(event, method) {
     console.log(method);
     alert(method);
 });
+
+    crashReporter.init()
+
+    //setTimeout(process.crash, 10000)
 
 </script>
 

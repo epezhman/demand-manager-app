@@ -20,7 +20,7 @@
     "electron-prebuilt": "^1.2.2",
     "gulp": "^3.9.1",
     "gulp-if": "^2.0.1",
-    "gulp-jscs": "^3.0.2",
+    "gulp-jscs": "^4.0.0",
     "gulp-jshint": "^2.0.1",
     "gulp-load-plugins": "^1.2.4",
     "gulp-print": "^2.0.1",

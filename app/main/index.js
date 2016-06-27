@@ -8,7 +8,7 @@ const electron = require('electron')
 const {app} = electron
 const {BrowserWindow} = electron
 const os = require('os')
-const {crashReporter} = require('electron')
+var crashReporter = require('./crash-reporter')
 const {autoUpdater} = electron
 let mainWindow
 const config = require('../config')
@@ -41,27 +41,17 @@ function createWindow() {
             update.init()
         })
     }
-
 }
 
 app.on('ready', createWindow)
 
 app.on('window-all-closed', function () {
-    //process.crash()
+    
     app.quit()
 })
 
 app.on('will-finish-launching', function () {
-    crashReporter.start({
-        productName: 'Demand Management App',
-        companyName: 'TUM',
-        submitURL: 'http://188.166.160.83/crash_report/post',
-        autoSubmit: true,
-        extra: {
-            'extra1': 'extra1',
-            'extra2': 'extra2'
-        }
-    })
+    crashReporter.init({'scope':'main'})
 })
 
 app.on('activate', function () {
