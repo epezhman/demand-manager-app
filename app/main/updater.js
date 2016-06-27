@@ -66,7 +66,6 @@ var initDarwinWin32 = () => {
     autoUpdater.on(
         'error',
         (err) => {
-            process.crash()
             log.error(`Update error: ${err.message}`)
         }
     )
