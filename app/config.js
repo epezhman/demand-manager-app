@@ -8,11 +8,10 @@ const appPackage = require('./package.json')
 const APP_NAME = appPackage.productName
 const APP_TEAM = appPackage.author.name
 const APP_VERSION = appPackage.version
+const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 
 module.exports = {
-
     APP_COPYRIGHT: 'Copyright © 2016 ' + APP_NAME,
-
     APP_NAME: APP_NAME,
     APP_TEAM: APP_TEAM,
     APP_VERSION: APP_VERSION,
@@ -29,14 +28,16 @@ module.exports = {
     GITHUB_URL: 'https://github.com/epezhman/demand-manager-app',
     GITHUB_URL_ISSUES: 'https://github.com/epezhman/demand-manager-app/issues',
 
-    HOME_PAGE_URL: '',
-
     ROOT_PATH: __dirname,
+    BASE_ASSETS_IMG: path.resolve(__dirname, 'assets/img') + '/',
+    APP_ICON: path.resolve(__dirname, 'assets/img') + '/icon',
 
-    WINDOW_INDEX: 'file://' + path.join(__dirname, 'renderer', 'index.html'),
+    WINDOW_OPTIONS: path.join(__dirname, 'renderer', 'options.html'),
+    APP_WINDOW_TITLE: APP_NAME,
+    WINDOW_MIN_HEIGHT: 250,
+    WINDOW_MIN_WIDTH: 425,
 
-    WINDOW_MIN_HEIGHT: 300,
-    WINDOW_MIN_WIDTH: 400
+    IS_DEVELOPMENT: IS_DEVELOPMENT
 }
 
 function getConfigPath() {

@@ -16,7 +16,7 @@
     "async": "^2.0.0-rc.6",
     "aws-sdk": "^2.4.0",
     "del": "^2.2.0",
-    "electron-builder": "^5.0.0",
+    "electron-builder": "^5.10.2",
     "electron-prebuilt": "^1.2.2",
     "gulp": "^3.9.1",
     "gulp-if": "^2.0.1",
@@ -24,6 +24,7 @@
     "gulp-jshint": "^2.0.1",
     "gulp-load-plugins": "^1.2.4",
     "gulp-print": "^2.0.1",
+    "gulp-sass": "^2.3.2",
     "gulp-task-listing": "^1.0.1",
     "gulp-util": "^3.0.7",
     "jshint": "^2.9.2",
@@ -38,6 +39,10 @@
     "appId": "de.tum.tumdmdesktop",
     "app-category-type": "public.app-category.utilities",
     "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico",
+    "files": [
+      "**\/*",
+      "!assets/stylesheets/sass"
+    ],
     "dmg": {
       "title": "TUM Demand Manager",
       "icon-size": 128,

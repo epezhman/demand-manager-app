@@ -95,6 +95,6 @@ var buildForOS = (platform) => {
     }
 }
 
-gulp.task('build', ['vet', 'clean:build'], () => {
+gulp.task('build', ['vet', 'sass', 'clean:build'], () => {
     return buildForOS(utils.os())
 })

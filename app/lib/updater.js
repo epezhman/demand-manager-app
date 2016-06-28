@@ -8,15 +8,12 @@ const os = require('os')
 const path = require('path')
 const {autoUpdater} = require('electron')
 const request = require('request')
-var https = require('https')
-var fs = require('fs')
+const https = require('https')
+const fs = require('fs')
 const config = require('../config')
-const log = require('../lib/log')
-
-const index = require('./index')
+const log = require('./log')
 
 var feedURL = ''
-
 
 var onLinuxResponse = (err, res, data) => {
     if (err) {

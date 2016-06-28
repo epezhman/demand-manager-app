@@ -1,0 +1,20 @@
+.container {
+    padding: 10px;
+
+    .setting-form {
+        width: 200px
+    }
+    select:disabled {
+        background-color: lightgray;
+    }
+
+    .error {
+        color: red;
+    }
+
+    .notification-close-window {
+        position: fixed;
+        bottom: 15px;
+        right: 27px;
+    }
+}

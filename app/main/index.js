@@ -1,61 +1,31 @@
 'use strict'
 
-if (require('electron-squirrel-startup')) {
-    return
-}
+if (require('electron-squirrel-startup')) return
 
 const electron = require('electron')
-const {app} = electron
-const {BrowserWindow} = electron
-const os = require('os')
-var crashReporter = require('./crash-reporter')
-const {autoUpdater} = electron
-let mainWindow
+const app = electron.app
+
 const config = require('../config')
-const update = require('./updater')
 
-var isDevelopment = process.env.NODE_ENV === 'development'
+const windows = require('./windows')
 
+const crashReporter = require('../lib/crash-reporter')
+const tray = require('../lib/tray')
+const autoStart = require('../lib/auto-start')
+const machineId = require('../lib/machine-id')
 
-module.exports.messs = function messs(msg) {
-
-    mainWindow.webContents.send('update-message', msg);
-
-}
-
-function createWindow() {
-
-    mainWindow = new BrowserWindow({width: 800, height: 600})
-
-    mainWindow.loadURL(config.WINDOW_INDEX)
-
-    mainWindow.webContents.openDevTools()
-
-    mainWindow.on('closed', function () {
-        mainWindow = null
-    })
-
-    if (!isDevelopment) {
-        mainWindow.webContents.on('did-frame-finish-load', function () {
-            console.log('Checking for updates: ')
-            update.init()
-        })
-    }
-}
-
-app.on('ready', createWindow)
-
-app.on('window-all-closed', function () {
-    
-    app.quit()
+app.on('will-finish-launching', () => {
+    crashReporter.init({'scope': 'main'})
 })
 
-app.on('will-finish-launching', function () {
-    crashReporter.init({'scope':'main'})
+app.on('window-all-closed', () => {
 })
 
-app.on('activate', function () {
-    if (mainWindow === null) {
-        createWindow()
-    }
+app.on('quit', () => {
+})
+
+app.on('ready', () => {
+    tray.init()
+    autoStart.init()
+    machineId.init()
 })

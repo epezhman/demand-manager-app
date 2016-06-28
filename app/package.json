@@ -13,8 +13,13 @@
   "homepage": "https://github.com/epezhman/demand-manager-app",
   "dependencies": {
     "application-config": "^0.2.2",
-    "electron-dl": "^1.2.0",
+    "auto-launch": "^2.0.1",
+    "electron-json-storage": "^2.0.0",
+    "electron-positioner": "^3.0.0",
     "electron-squirrel-startup": "^1.0.0",
+    "firebase": "^3.0.0",
+    "node-uuid": "^1.4.7",
+    "q": "^1.4.1",
     "request": "^2.72.0"
   }
 }
