@@ -1,15 +1,14 @@
 'use strict'
 
-const crashReporter = remote.require('../lib/crash-reporter')
-crashReporter.init({'scope': 'preferences'})
-
 const remote = require('electron').remote
+const crashReporter = require('../lib/crash-reporter')
+crashReporter.init({'scope': 'preferences'})
 
 const storage = require('electron-json-storage')
 const AutoLaunch = require('auto-launch')
 const config = remote.require('../config')
 const log = remote.require('../lib/log')
-
+const notify = remote.require('../lib/notify')
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox
@@ -24,7 +23,9 @@ var appLauncher = new AutoLaunch({
 function enableAutoStart() {
     log('enabling auto start')
     appLauncher.isEnabled().then((enabled) => {
-        if (enabled) return
+        if (enabled) {
+            return
+        }
         return appLauncher.enable()
     }).then((enabled) => {
         storage.set('run-on-start-up', {run: true}, (error)=> {
@@ -47,8 +48,9 @@ function disableAutoStart() {
 function checkIfAutoStartRunning() {
     log('checking if auto start running')
     storage.get('run-on-start-up', (error, data) => {
-        if (data.run)
+        if (data.run) {
             runStartUpCheckBox.prop('checked', true)
+        }
     })
 }
 
@@ -88,8 +90,9 @@ function checkIfLimitedActivitySet() {
     storage.has('limited-activity-start-time', (error, hasKey)=> {
         if (hasKey) {
             storage.get('limited-activity-start-time', (error, data) => {
-                if (data.limited_start_time)
-                    timeLimitStart.val(data.limited_start_time)
+                if (data.limitedStartTime) {
+                    timeLimitStart.val(data.limitedStartTime)
+                }
             })
         }
     })
@@ -97,24 +100,24 @@ function checkIfLimitedActivitySet() {
     storage.has('limited-activity-end-time', (error, hasKey)=> {
         if (hasKey) {
             storage.get('limited-activity-end-time', (error, data)=> {
-                if (data.limited_end_time)
-                    timeLimitUpEnd.val(data.limited_end_time)
+                if (data.limitedEndTime) {
+                    timeLimitUpEnd.val(data.limitedEndTime)
+                }
             })
         }
     })
 }
 
 function checkEndTimeValidation() {
-    var start_time = timeLimitStart.val()
-    var end_time = timeLimitUpEnd.val()
-    if (parseInt(start_time) >= parseInt(end_time)) {
+    var startTime = timeLimitStart.val()
+    var endTime = timeLimitUpEnd.val()
+    if (parseInt(startTime) >= parseInt(endTime)) {
         timeValidatorError.show()
         return false
     }
     timeValidatorError.hide()
     return true
 }
-
 
 $(document).ready(function () {
 
@@ -128,8 +131,6 @@ $(document).ready(function () {
     checkIfLimitedActivitySet()
 
     runStartUpCheckBox.click(()=> {
-        process.crash()
-        log('rash')
         if (runStartUpCheckBox.prop('checked')) {
             enableAutoStart()
         }
@@ -148,19 +149,21 @@ $(document).ready(function () {
     })
 
     timeLimitStart.change(()=> {
-        if (checkEndTimeValidation())
+        if (checkEndTimeValidation()) {
             storage.set('limited-activity-start-time', {
-                limited_start_time: timeLimitStart.val()
+                limitedStartTime: timeLimitStart.val()
             }, (error) => {
             })
+        }
     })
 
     timeLimitUpEnd.change(()=> {
-        if (checkEndTimeValidation())
+        if (checkEndTimeValidation()) {
             storage.set('limited-activity-end-time', {
-                limited_end_time: timeLimitUpEnd.val()
+                limitedEndTime: timeLimitUpEnd.val()
             }, (error)=> {
             })
+        }
 
     })
 })

@@ -30,7 +30,7 @@ function getMenu() {
         label: 'Help',
         submenu: [{
             label: 'Check for Updates',
-            click: () => updater.checkUpdate()
+            click: () => updater.checkUpdate(true)
         }, {
             type: 'separator'
         }, {

@@ -33,7 +33,6 @@ module.exports = {
     BASE_ASSETS_IMG: path.resolve(__dirname, 'assets/img') + '/',
     APP_ICON: path.resolve(__dirname, 'assets/img') + '/icon.png',
 
-    WINDOW_NOTIFICATION: path.join(__dirname, 'renderer', 'notification.html'),
     WINDOW_PREFERENCES: path.join(__dirname, 'renderer', 'preferences.html'),
     WINDOW_STATUS: path.join(__dirname, 'renderer', 'status.html'),
     WINDOW_ABOUT: path.join(__dirname, 'renderer', 'about.html'),

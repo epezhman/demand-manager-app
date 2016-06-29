@@ -9,7 +9,7 @@ const storage = require('electron-json-storage')
 
 const config = require('../config')
 
-var machine_id
+var machineId
 
 function init() {
     storage.has('machine-uuid', (error, hasKey) => {
@@ -18,10 +18,10 @@ function init() {
             })
         }
         storage.get('machine-uuid', (error, data)=> {
-            machine_id = data.uuid
+            machineId = data.uuid
         })
     })
 }
 function getMachineId(){
-    return machine_id
+    return machineId
 }

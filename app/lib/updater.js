@@ -13,14 +13,19 @@ const https = require('https')
 const fs = require('fs')
 const config = require('../config')
 const log = require('./log')
+const notify = require('./notify')
 
 var feedURL = ''
+var manualUpdate = false
 
 var onLinuxResponse = (err, res, data) => {
     if (err) {
         return log.error(`Update error: ${err.message}`)
     }
     if (res.statusCode === 200) {
+        if (manualUpdate) {
+            notify('Update is available and will be downloaded to your home directory.')
+        }
         data = JSON.parse(data)
         var downloadPath = path.resolve(process.env.HOME || process.env.USERPROFILE) +
             `/${data.file}`
@@ -39,6 +44,9 @@ var onLinuxResponse = (err, res, data) => {
         })
 
     } else if (res.statusCode === 204) {
+        if (manualUpdate) {
+            notify('No new update is available.')
+        }
         log('No updates for linux')
     } else {
         // Unexpected status code
@@ -64,23 +72,36 @@ var initDarwinWin32 = () => {
     autoUpdater.on(
         'error',
         (err) => {
+            notify(`Update error: ${err.message}`)
             log.error(`Update error: ${err.message}`)
         }
     )
 
     autoUpdater.on(
         'checking-for-update',
-        () => log('Checking for update')
+        () => {
+            log('Checking for update')
+        }
     )
 
     autoUpdater.on(
         'update-available',
-        () => log('Update available')
+        () => {
+            if (manualUpdate) {
+                notify('Update is available and will be installed automatically.')
+            }
+            log('Update available')
+        }
     )
 
     autoUpdater.on(
         'update-not-available',
-        () => log('Update not available')
+        () => {
+            if (manualUpdate) {
+                notify('No new update is available.')
+            }
+            log('Update not available')
+        }
     )
 
     autoUpdater.on(
@@ -93,7 +114,8 @@ var initDarwinWin32 = () => {
     autoUpdater.checkForUpdates()
 }
 
-function checkUpdate() {
+function checkUpdate(manual) {
+    manualUpdate = !!manual
     if (process.platform === 'linux') {
         initLinux()
     } else {

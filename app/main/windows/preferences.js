@@ -30,9 +30,10 @@ function init() {
     win.loadURL(config.WINDOW_PREFERENCES)
 
     win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
-    
+
     win.webContents.on('did-finish-load', () => {
     })
 
     win.once('closed', (e) => preferences.win = null)
+    
 }
