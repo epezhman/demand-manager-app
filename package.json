@@ -9,8 +9,9 @@
   },
   "scripts": {
     "postinstall": "install-app-deps",
-    "start": "electron ./app --enable-logging --remote-debugging-port=9222",
-    "dev": "set NODE_ENV=development&& npm start"
+    "start": "electron ./app --remote-debugging-port=9222",
+    "dev": "set NODE_ENV=development&& npm start",
+    "reload": "live-reload app --port 35729"
   },
   "devDependencies": {
     "async": "^2.0.0-rc.6",
@@ -29,6 +30,7 @@
     "gulp-util": "^3.0.7",
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.2.0",
+    "live-reload": "^1.1.0",
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
     "q": "^1.4.1",
@@ -40,7 +42,7 @@
     "app-category-type": "public.app-category.utilities",
     "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico",
     "files": [
-      "**\/*",
+      "**/*",
       "!assets/stylesheets/sass"
     ],
     "dmg": {

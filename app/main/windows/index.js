@@ -1,4 +1,6 @@
 'use strict'
 
-exports.options = require('./options')
-exports.monitor  = require('./monitor')
+exports.preferences = require('./preferences')
+exports.about  = require('./about')
+exports.notification  = require('./notification')
+exports.status  = require('./status')

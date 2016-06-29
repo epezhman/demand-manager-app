@@ -28,4 +28,5 @@ app.on('ready', () => {
     tray.init()
     autoStart.init()
     machineId.init()
+    windows.about.init()
 })

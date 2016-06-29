@@ -1,12 +1,28 @@
-.container {
+p, h1, h2, h3, h4, h5 {
+  -webkit-user-select: text; }
+
+body {
+  font-family: BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif; }
+
+.preferences, .status {
   padding: 10px; }
-  .container .setting-form {
+  .preferences .setting-form, .status .setting-form {
     width: 200px; }
-  .container select:disabled {
+  .preferences select:disabled, .status select:disabled {
     background-color: lightgray; }
-  .container .error {
+  .preferences .error, .status .error {
     color: red; }
-  .container .notification-close-window {
+  .preferences .notification-close-window, .status .notification-close-window {
     position: fixed;
     bottom: 15px;
     right: 27px; }
+
+.about {
+  background-color: #ECECEC;
+  text-align: center;
+  overflow: hidden;
+  font-size: 16px;
+  -webkit-user-select: none; }
+  .about .main-logo {
+    width: 140px;
+    height: 140px; }

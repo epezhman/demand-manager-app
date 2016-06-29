@@ -10,7 +10,7 @@ const app = electron.app
 
 const config = require('../config')
 const powerToggle = require('../lib/power-control')
-const options = require('../main/windows/options')
+const windows = require('../main/windows')
 
 var tray
 
@@ -59,11 +59,11 @@ var checkLinuxTraySupport = (cb)=> {
 }
 
 var createTray = ()=> {
-    tray = new electron.Tray(getIconPath())
+    tray = new electron.Tray(config.APP_ICON)
 
     // On Windows, left click opens the app, right click opens the context menu.
     // On Linux, any click (left or right) opens the context menu.
-    //tray.on('click', () => windows.main.show())
+    tray.on('click', () => windows.about.init())
 
     // Show the tray context menu, and keep the available commands up to date
     updateTrayMenu()
@@ -78,23 +78,17 @@ var updateTrayMenu = () => {
 var getMenuTemplate = () => {
     return [
         {
-            label: 'Toggle Power Mode',
-            click: () => powerToggle()
+            label: 'Status',
+            click: () => windows.status.init()
         },
         {
-            label: 'Show Status',
-            click: () => options.createOptionsWindow()
-        },
-        {
-            label: 'Settings',
-            click: ()=> {
-                //createManagerWindow(enums.WindowType.SETTINGS)
-            }
+            label: 'Preferences',
+            click: () => windows.preferences.init()
         },
         {type: 'separator'},
         {
             label: 'About',
-            click: () => electron.shell.openExternal('https://www.i13.in.tum.de/')
+            click: () => windows.about.init()
         },
         {type: 'separator'},
         {
@@ -102,10 +96,4 @@ var getMenuTemplate = () => {
             click: () => app.quit()
         }
     ]
-}
-
-var getIconPath = () => {
-    return process.platform === 'win32'
-        ? config.APP_ICON + '.ico'
-        : config.APP_ICON + '.png'
 }

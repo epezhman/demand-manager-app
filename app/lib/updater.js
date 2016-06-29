@@ -1,7 +1,8 @@
 'use strict'
 
 module.exports = {
-    init
+    init,
+    checkUpdate
 }
 
 const os = require('os')
@@ -92,13 +93,17 @@ var initDarwinWin32 = () => {
     autoUpdater.checkForUpdates()
 }
 
-
-function init() {
+function checkUpdate() {
     if (process.platform === 'linux') {
         initLinux()
     } else {
         initDarwinWin32()
     }
+}
+
+function init() {
+    checkUpdate()
 
     setTimeout(init, config.AUTO_UPDATE_CHECK_INTERVAL)
 }
+

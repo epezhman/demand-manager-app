@@ -1,49 +1,39 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>DR Desktop App</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../assets/stylesheets/photon/css/photon.css">
     <link href="../assets/stylesheets/css/main.css" rel="stylesheet" type="text/css">
-
-    <script src="../lib/external-links.js"></script>
-
-    <script src="../main/windows/options.js"></script>
 </head>
 <body>
 <div class="window">
-
     <div class="window-content">
         <div class="pane-group">
             <div class="pane pane-sm sidebar">
                 <nav class="nav-group">
-                    <h5 class="nav-group-title">Manager</h5>
-              <span class="nav-group-item" id="status-menu-item" data-manager-pane-id="status-pane">
-                <span class="icon icon-info"></span>
-                Status
-              </span>
-              <span class="nav-group-item" id="settings-menu-item" data-manager-pane-id="settings-pane">
-                <span class="icon icon-tools"></span>
-                Settings
-              </span>
-
+                    <span class="nav-group-item" id="settings-menu-item">
+                        <span class="icon icon-tools"></span>
+                        Settings
+                    </span>
                 </nav>
             </div>
 
             <div class="pane">
-                <div class="container">
-                    <div id="status-pane" class="manager-pane" >
-                        <h3>
-                            <span class="icon icon-check"></span>
-                            Running
-                        </h3>
-                    </div>
-                    <div id="settings-pane" class="manager-pane" style="display: none;">
+                <div class="preferences">
+                    <div id="settings-pane" class="manager-pane">
                         <div class="setting-form">
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="limited-activity"> Active all day long
+                                    <input type="checkbox" id="run-at-start-up"> Run when the computer starts
+                                </label>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="setting-form">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="limited-activity"> Run without time limit
                                 </label>
                             </div>
                             <div class="form-group error" id="end-time-error" style="display: none">
@@ -109,12 +99,6 @@
                                     <option value="24" selected="selected">24</option>
                                 </select>
                             </div>
-
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox" id="run-at-start-up"> Run when computer starts up
-                                </label>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -122,5 +106,14 @@
         </div>
     </div>
 </div>
+<script>
+    if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }
+</script>
+<script src="../node_modules/jquery/dist/jquery.js"></script>
+<script src="preferences.js"></script>
+<script src="http://localhost:35729/livereload.js"></script>
 </body>
 </html>
