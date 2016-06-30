@@ -30,8 +30,8 @@ module.exports = {
     GITHUB_URL_ISSUES: 'https://github.com/epezhman/demand-manager-app/issues',
 
     ROOT_PATH: __dirname,
-    BASE_ASSETS_IMG: path.resolve(__dirname, 'assets/img') + '/',
-    APP_ICON: path.resolve(__dirname, 'assets/img') + '/icon.png',
+    BASE_ASSETS_IMG: path.resolve(__dirname, 'assets', 'img') + '/',
+    APP_ICON: path.resolve(__dirname, 'assets', 'img') + '/icon.png',
 
     WINDOW_PREFERENCES: path.join(__dirname, 'renderer', 'preferences.html'),
     WINDOW_STATUS: path.join(__dirname, 'renderer', 'status.html'),

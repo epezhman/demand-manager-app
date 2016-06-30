@@ -1,11 +1,19 @@
 'use strict'
 
-if (require('electron-squirrel-startup')) {
+const electron = require('electron')
+const app = electron.app
+
+const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+})
+
+if (shouldQuit) {
+    app.quit()
     return
 }
 
-const electron = require('electron')
-const app = electron.app
+if (require('electron-squirrel-startup')) {
+    return
+}
 
 const config = require('../config')
 
@@ -16,6 +24,8 @@ const tray = require('../lib/tray')
 const autoStart = require('../lib/auto-start')
 const machineId = require('../lib/machine-id')
 const updater = require('../lib/updater')
+
+
 
 app.on('will-finish-launching', () => {
     crashReporter.init({'scope': 'main'})

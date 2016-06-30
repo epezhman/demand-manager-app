@@ -45,7 +45,9 @@
       "**/*",
       "!assets/stylesheets/sass"
     ],
-    "asar": false,
+    "asar": {
+      "unpackDir": "{assets, node_modules}"
+    },
     "dmg": {
       "title": "TUM Demand Manager",
       "icon-size": 128,

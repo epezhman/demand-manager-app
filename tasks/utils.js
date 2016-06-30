@@ -2,7 +2,7 @@
 
 const os = require('os')
 const gutil = require('gulp-util')
-const awsSecrets = require('./aws.secrets.config.js')
+const secrets = require('./secrets.config')
 const config = require('./gulp.config')
 
 module.exports.os = ()=> {
@@ -33,7 +33,7 @@ module.exports.logInfo = (msg)=> {
 module.exports.awsConfig = ()=> {
     return {
         region: config.awsRegion,
-        accessKeyId: awsSecrets.AWS_ACCESS_KEY_ID,
-        secretAccessKey: awsSecrets.AWS_SECRET_ACCESS_KEY
+        accessKeyId: secrets.AWS_ACCESS_KEY_ID,
+        secretAccessKey: secrets.AWS_SECRET_ACCESS_KEY
     }
 }

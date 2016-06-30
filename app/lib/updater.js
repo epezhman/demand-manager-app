@@ -15,7 +15,6 @@ const config = require('../config')
 const log = require('./log')
 const notify = require('./notify')
 
-var feedURL = ''
 var manualUpdate = false
 
 var onLinuxResponse = (err, res, data) => {
@@ -55,59 +54,61 @@ var onLinuxResponse = (err, res, data) => {
 }
 
 var initLinux = () => {
+    var feedURL = ''
     feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
         '?v=' + config.APP_VERSION
     request(feedURL, onLinuxResponse)
 }
 
-var initDarwinWin32 = () => {
 
+autoUpdater.on(
+    'error',
+    (err) => {
+        notify(`Update error: ${err.message}`)
+        log.error(`Update error: ${err.message}`)
+    }
+)
+
+autoUpdater.on(
+    'checking-for-update',
+    () => {
+        log('Checking for update')
+    }
+)
+
+autoUpdater.on(
+    'update-available',
+    () => {
+        if (manualUpdate) {
+            notify('Update is available and will be installed automatically.')
+        }
+        log('Update available')
+    }
+)
+
+autoUpdater.on(
+    'update-not-available',
+    () => {
+        if (manualUpdate) {
+            notify('No new update is available.')
+        }
+        log('Update not available')
+    }
+)
+
+autoUpdater.on(
+    'update-downloaded',
+    (e, notes, name, date, url) => log(`Update downloaded: ${name}: ${url}`)
+)
+
+var initDarwinWin32 = () => {
+    var feedURL = ''
     if (process.platform === 'darwin') {
         feedURL = config.AUTO_UPDATE_OSX_BASE_URL
     }
     else if (process.platform === 'win32') {
         feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
     }
-
-    autoUpdater.on(
-        'error',
-        (err) => {
-            notify(`Update error: ${err.message}`)
-            log.error(`Update error: ${err.message}`)
-        }
-    )
-
-    autoUpdater.on(
-        'checking-for-update',
-        () => {
-            log('Checking for update')
-        }
-    )
-
-    autoUpdater.on(
-        'update-available',
-        () => {
-            if (manualUpdate) {
-                notify('Update is available and will be installed automatically.')
-            }
-            log('Update available')
-        }
-    )
-
-    autoUpdater.on(
-        'update-not-available',
-        () => {
-            if (manualUpdate) {
-                notify('No new update is available.')
-            }
-            log('Update not available')
-        }
-    )
-
-    autoUpdater.on(
-        'update-downloaded',
-        (e, notes, name, date, url) => log(`Update downloaded: ${name}: ${url}`)
-    )
 
     feedURL += '?v=' + config.APP_VERSION
     autoUpdater.setFeedURL(feedURL)

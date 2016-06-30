@@ -10,6 +10,7 @@ const builder = require('electron-builder')
 const Platform = builder.Platform
 const Arch = builder.Arch
 
+const secrets = require('./secrets.config')
 const utils = require('./utils')
 const config = require('./gulp.config.js')
 const vet = require('./vet')
@@ -21,6 +22,11 @@ gulp.task('clean:build', ()=> {
     return del([
         './dist/**/*'
     ])
+})
+
+gulp.task('set-code-signing-vars', function () {
+    process.env.CSC_LINK = secrets.CSC_LINK
+    process.env.CSC_KEY_PASSWORD = secrets.CSC_KEY_PASSWORD
 })
 
 var addBuildVersionFile = (platformDist)=> {
@@ -73,28 +79,34 @@ var buildForOS = (platform) => {
         return Q.fcall(()=> {
             utils.log('Building for Windows 64-bit')
             return builder.build({
-                targets: Platform.WINDOWS.createTarget(null, Arch.x64),
-                devMetadata: {
-                    'build': {
-                        'win': {
-                            'remoteReleases': config.appRepo
-                        }
-                    }
-                }
+                targets: Platform.WINDOWS.createTarget(null, Arch.x64)
             })
-        }).then(()=> {
-            addBuildVersionFile(config.distWin64Dir)
-        }).then(()=> {
-            utils.log('Building for Windows 32-bit')
-            return builder.build({
-                targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
-            })
-        }).then(()=> {
-            addBuildVersionFile(config.distWin32Dir)
         })
+        // return Q.fcall(()=> {
+        //     utils.log('Building for Windows 64-bit')
+        //     return builder.build({
+        //         targets: Platform.WINDOWS.createTarget(null, Arch.x64),
+        //         devMetadata: {
+        //             'build': {
+        //                 'win': {
+        //                     'remoteReleases': config.appRepo
+        //                 }
+        //             }
+        //         }
+        //     })
+        // }).then(()=> {
+        //     addBuildVersionFile(config.distWin64Dir)
+        // }).then(()=> {
+        //     utils.log('Building for Windows 32-bit')
+        //     return builder.build({
+        //         targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
+        //     })
+        // }).then(()=> {
+        //     addBuildVersionFile(config.distWin32Dir)
+        // })
     }
 }
 
-gulp.task('build', ['vet', 'sass', 'clean:build'], () => {
+gulp.task('build', ['set-code-signing-vars', 'vet', 'sass', 'clean:build'], () => {
     return buildForOS(utils.os())
 })

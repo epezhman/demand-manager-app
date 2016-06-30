@@ -2,4 +2,4 @@ node_modules
 .idea/
 dist
 *.log
-tasks/aws.secrets.config.js
+tasks/secrets.config.js
