@@ -33,11 +33,13 @@ var onLinuxResponse = (err, res, data) => {
                 var newVersionFile = fs.createWriteStream(downloadPath)
                 https.get(data.url, (response) => {
                     response.pipe(newVersionFile).on('close', ()=> {
+                        notify('The latest version of the app can be found in your home dir, please update it.')
                         log('downloaded')
                     })
                 })
             }
             else {
+                notify('The latest version of the app can be found in your home dir, please update it.')
                 log('file exist')
             }
         })
