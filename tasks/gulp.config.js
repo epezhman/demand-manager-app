@@ -32,5 +32,7 @@ module.exports = {
     distLinux32Dir: 'linux-ia32-release/',
     distOSXDir: 'mac/',
     latestBuildVersionFile: 'buildVersion',
-    latestBuildVersionDir: 'dist/latestReleased/'
+    latestBuildVersionDir: 'dist/latestReleased/',
+    latestWin32Release: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win32',
+    latestWin64Release: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win64'
 }

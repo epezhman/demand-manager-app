@@ -98,7 +98,7 @@ var buildForOS = (platform) => {
                 devMetadata: {
                     'build': {
                         'win': {
-                            'remoteReleases': config.appRepo
+                            'remoteReleases': ''
                         },
                         'asar': {
                             'unpackDir': 'node_modules/node-notifier/vendor/**'
@@ -114,6 +114,9 @@ var buildForOS = (platform) => {
                 targets: Platform.WINDOWS.createTarget(null, Arch.ia32),
                 devMetadata: {
                     'build': {
+                        'win': {
+                            'remoteReleases': ''
+                        },
                         'asar': {
                             'unpackDir': 'node_modules/node-notifier/vendor/**'
                         }
