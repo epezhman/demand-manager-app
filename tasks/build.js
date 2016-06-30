@@ -40,7 +40,12 @@ var buildForOS = (platform) => {
         return Q.fcall(()=> {
             utils.log('Building for Linux 64-bit')
             return builder.build({
-                targets: Platform.LINUX.createTarget(null, Arch.x64)
+                targets: Platform.LINUX.createTarget(null, Arch.x64),
+                devMetadata: {
+                    'build': {
+                        'asar': false
+                    }
+                }
             }).then(()=> {
                 var fileName = config.appName + '-' + config.appVersion + '.deb'
                 mv(baseDistDir + fileName,
@@ -52,7 +57,12 @@ var buildForOS = (platform) => {
         }).then(()=> {
             utils.log('Building for Linux 32-bit')
             return builder.build({
-                targets: Platform.LINUX.createTarget(null, Arch.ia32)
+                targets: Platform.LINUX.createTarget(null, Arch.ia32),
+                devMetadata: {
+                    'build': {
+                        'asar': false
+                    }
+                }
             }).then(()=> {
                 var fileName = config.appName + '-' + config.appVersion + '-ia32.deb'
                 mv(baseDistDir + fileName,
@@ -67,7 +77,12 @@ var buildForOS = (platform) => {
         return Q.fcall(()=> {
             utils.log('Building for OSX 64-bit')
             return builder.build({
-                targets: Platform.OSX.createTarget()
+                targets: Platform.OSX.createTarget(),
+                devMetadata: {
+                    'build': {
+                        'asar': false
+                    }
+                }
             })
         }).then(()=> {
             rmdir(baseDistDir + config.distOSXDir + config.appProductName + '.app', () => {
@@ -79,31 +94,35 @@ var buildForOS = (platform) => {
         return Q.fcall(()=> {
             utils.log('Building for Windows 64-bit')
             return builder.build({
-                targets: Platform.WINDOWS.createTarget(null, Arch.x64)
+                targets: Platform.WINDOWS.createTarget(null, Arch.x64),
+                devMetadata: {
+                    'build': {
+                        'win': {
+                            'remoteReleases': config.appRepo
+                        },
+                        'asar': {
+                            'unpackDir': 'node_modules/node-notifier/vendor/**'
+                        }
+                    }
+                }
             })
+        }).then(()=> {
+            addBuildVersionFile(config.distWin64Dir)
+        }).then(()=> {
+            utils.log('Building for Windows 32-bit')
+            return builder.build({
+                targets: Platform.WINDOWS.createTarget(null, Arch.ia32),
+                devMetadata: {
+                    'build': {
+                        'asar': {
+                            'unpackDir': 'node_modules/node-notifier/vendor/**'
+                        }
+                    }
+                }
+            })
+        }).then(()=> {
+            addBuildVersionFile(config.distWin32Dir)
         })
-        // return Q.fcall(()=> {
-        //     utils.log('Building for Windows 64-bit')
-        //     return builder.build({
-        //         targets: Platform.WINDOWS.createTarget(null, Arch.x64),
-        //         devMetadata: {
-        //             'build': {
-        //                 'win': {
-        //                     'remoteReleases': config.appRepo
-        //                 }
-        //             }
-        //         }
-        //     })
-        // }).then(()=> {
-        //     addBuildVersionFile(config.distWin64Dir)
-        // }).then(()=> {
-        //     utils.log('Building for Windows 32-bit')
-        //     return builder.build({
-        //         targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
-        //     })
-        // }).then(()=> {
-        //     addBuildVersionFile(config.distWin32Dir)
-        // })
     }
 }
 

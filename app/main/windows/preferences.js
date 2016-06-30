@@ -11,8 +11,13 @@ const getMenu = require('../../lib/menu-template')
 
 
 function init() {
-    if (preferences.win) {
-        return preferences.win.show()
+    if (preferences.win) {         
+        preferences.win.show()
+        if (preferences.win.isMinimized()) 
+        {
+            preferences.win.restore()
+        }
+        return preferences.win.focus()
     }
     var win = preferences.win = new electron.BrowserWindow({
         backgroundColor: '#ECECEC',
@@ -35,5 +40,5 @@ function init() {
     })
 
     win.once('closed', (e) => preferences.win = null)
-    
+
 }

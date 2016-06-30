@@ -6,9 +6,8 @@ crashReporter.init({'scope': 'preferences'})
 
 const storage = require('electron-json-storage')
 const AutoLaunch = require('auto-launch')
-const config = remote.require('../config')
-const log = remote.require('../lib/log')
-const notify = remote.require('../lib/notify')
+const config = require('../config')
+const log = require('../lib/log')
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox

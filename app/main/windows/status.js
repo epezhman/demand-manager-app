@@ -12,7 +12,11 @@ const getMenu = require('../../lib/menu-template')
 
 function init() {
     if (status.win) {
-        return status.win.show()
+        status.win.show()
+        if (status.win.isMinimized()){
+            status.win.restore()
+        } 
+        return status.win.focus()
     }
     var win = status.win = new electron.BrowserWindow({
         backgroundColor: '#ECECEC',

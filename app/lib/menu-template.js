@@ -8,6 +8,8 @@ const BrowserWindow = electron.BrowserWindow
 const windows = require('../main/windows')
 const updater = require('../lib/updater')
 const config = require('../config')
+const powerControl = require('../lib/power-control')
+
 
 function getMenu() {
     var template = [{
@@ -37,28 +39,30 @@ function getMenu() {
             label: 'About',
             click: () => windows.about.init()
         }]
+    }, {
+        label: 'Development',
+        submenu: [{
+            label: 'Reload',
+            accelerator: 'CmdOrCtrl+R',
+            click: function () {
+                BrowserWindow.getFocusedWindow().webContents.reloadIgnoringCache()
+            }
+        }, {
+            label: 'Toggle DevTools',
+            accelerator: 'Alt+CmdOrCtrl+I',
+            click: function () {
+                BrowserWindow.getFocusedWindow().toggleDevTools({detach: true})
+            }
+        }]
     }]
 
     if (config.IS_DEVELOPMENT) {
         template.push({
-            label: 'Development',
+            label: 'Experimental',
             submenu: [{
-                label: 'Reload',
-                accelerator: 'CmdOrCtrl+R',
+                label: 'Toggle Energy Mode',
                 click: function () {
-                    BrowserWindow.getFocusedWindow().webContents.reloadIgnoringCache()
-                }
-            }, {
-                label: 'Toggle DevTools',
-                accelerator: 'Alt+CmdOrCtrl+I',
-                click: function () {
-                    BrowserWindow.getFocusedWindow().toggleDevTools({detach: true})
-                }
-            }, {
-                label: 'Quit',
-                accelerator: 'CmdOrCtrl+Q',
-                click: function () {
-                    app.quit()
+                    powerControl()
                 }
             }]
         })
