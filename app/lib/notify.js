@@ -11,5 +11,5 @@ function notify(msg) {
         title: config.APP_NAME,
         message: msg,
         icon: config.APP_ICON
-    });
+    })
 }
