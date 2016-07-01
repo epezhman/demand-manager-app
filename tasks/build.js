@@ -101,7 +101,7 @@ var buildForOS = (platform) => {
                             'remoteReleases': ''
                         },
                         'asar': {
-                            'unpackDir': 'node_modules/node-notifier/vendor/**'
+                            'unpackDir': '{node_modules/node-notifier/vendor/**,assets/**}'
                         }
                     }
                 }
@@ -118,7 +118,7 @@ var buildForOS = (platform) => {
                             'remoteReleases': ''
                         },
                         'asar': {
-                            'unpackDir': 'node_modules/node-notifier/vendor/**'
+                            'unpackDir': 'node_modules/node-notifier/vendor/**,assets'
                         }
                     }
                 }
