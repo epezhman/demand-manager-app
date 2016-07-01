@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+This only runs on windows
+
+<script>
+    const {ipcRenderer} = require('electron')
+    const config = require('../../config')
+    ipcRenderer.on('notify', function (event, msg) {
+        var notification = new Notification(config.APP_NAME, {
+            silent: true,
+            icon: config.APP_ICON,
+            body: msg
+        })
+        notification.addEventListener('show', function (e) {
+            window.close()
+        }, false);
+    })
+</script>
+
+</body>
+</html>

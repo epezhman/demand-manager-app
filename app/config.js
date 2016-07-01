@@ -36,6 +36,8 @@ module.exports = {
     WINDOW_PREFERENCES: path.join(__dirname, 'renderer', 'preferences.html'),
     WINDOW_STATUS: path.join(__dirname, 'renderer', 'status.html'),
     WINDOW_ABOUT: path.join(__dirname, 'renderer', 'about.html'),
+    WINDOW_NOTIFY: path.join(__dirname, 'renderer', 'lib', 'notify.html'),
+
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,
     WINDOW_MIN_WIDTH: 800,
