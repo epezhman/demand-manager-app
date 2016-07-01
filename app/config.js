@@ -32,6 +32,7 @@ module.exports = {
     ROOT_PATH: __dirname,
     BASE_ASSETS_IMG: path.resolve(__dirname, 'assets', 'img') + '/',
     APP_ICON: path.join(__dirname, 'assets', 'img', 'icon.png'),
+    APP_ICON_MENU: path.join(__dirname, 'assets', 'img', 'icon-menu.png'),
 
     WINDOW_PREFERENCES: 'file://' + path.join(__dirname, 'renderer', 'preferences.html'),
     WINDOW_STATUS: 'file://' + path.join(__dirname, 'renderer', 'status.html'),

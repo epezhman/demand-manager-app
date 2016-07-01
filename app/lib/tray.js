@@ -62,7 +62,7 @@ var updateTrayMenu = () => {
 }
 
 var createTray = ()=> {
-    tray = new electron.Tray(config.APP_ICON)
+    tray = new electron.Tray(config.APP_ICON_MENU)
 
     // On Windows, left click opens the app, right click opens the context menu.
     // On Linux, any click (left or right) opens the context menu.
@@ -82,7 +82,7 @@ var initLinux = ()=> {
     })
 }
 
-var initWin32 = () => {
+var initDarwinWin32 = () => {
     createTray()
 }
 
@@ -97,8 +97,8 @@ function init() {
     if (process.platform === 'linux') {
         initLinux()
     }
-    if (process.platform === 'win32') {
-        initWin32()
+    else {
+        initDarwinWin32()
     }
-    // OS X apps generally do not have menu bar icons
+
 }
