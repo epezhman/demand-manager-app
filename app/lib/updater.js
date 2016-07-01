@@ -56,8 +56,7 @@ var onLinuxResponse = (err, res, data) => {
 }
 
 var initLinux = () => {
-    var feedURL = ''
-    feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
+    var feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
         '?v=' + config.APP_VERSION
     request(feedURL, onLinuxResponse)
 }

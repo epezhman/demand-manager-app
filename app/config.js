@@ -33,10 +33,10 @@ module.exports = {
     BASE_ASSETS_IMG: path.resolve(__dirname, 'assets', 'img') + '/',
     APP_ICON: path.join(__dirname, 'assets', 'img', 'icon.png'),
 
-    WINDOW_PREFERENCES: path.join(__dirname, 'renderer', 'preferences.html'),
-    WINDOW_STATUS: path.join(__dirname, 'renderer', 'status.html'),
-    WINDOW_ABOUT: path.join(__dirname, 'renderer', 'about.html'),
-    WINDOW_NOTIFY: path.join(__dirname, 'renderer', 'lib', 'notify.html'),
+    WINDOW_PREFERENCES: 'file://' + path.join(__dirname, 'renderer', 'preferences.html'),
+    WINDOW_STATUS: 'file://' + path.join(__dirname, 'renderer', 'status.html'),
+    WINDOW_ABOUT: 'file://' + path.join(__dirname, 'renderer', 'about.html'),
+    WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
 
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,

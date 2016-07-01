@@ -36,6 +36,6 @@ function init() {
     win.loadURL(config.WINDOW_ABOUT)
 
     win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
-    
+
     win.once('closed', (e) => about.win = null)
 }
