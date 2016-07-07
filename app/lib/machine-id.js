@@ -1,27 +1,24 @@
 'use strict'
 
 module.exports = {
-    init,
-    getMachineId
+    init
 }
 
 const storage = require('electron-json-storage')
-
 const config = require('../config')
-
-var machineId
+const firebase = require('./firebase')
 
 function init() {
     storage.has('machine-uuid', (error, hasKey) => {
         if (!hasKey) {
-            storage.set('machine-uuid', {uuid: require('node-uuid').v1()}, (error) => {
+            var tempId = require('node-uuid').v1()
+            storage.set('machine-uuid', {uuid: tempId}, (error) => {
+                global.machineId = tempId
+                firebase.registerDevice(tempId)
             })
         }
         storage.get('machine-uuid', (error, data)=> {
-            machineId = data.uuid
+            global.machineId = data.uuid
         })
     })
-}
-function getMachineId(){
-    return machineId
 }

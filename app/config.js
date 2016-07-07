@@ -43,6 +43,8 @@ module.exports = {
     WINDOW_MIN_HEIGHT: 400,
     WINDOW_MIN_WIDTH: 800,
 
+    FIREBASE_DATABASE_URL: 'https://tum-dm-fireb.firebaseio.com',
+    FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     IS_DEVELOPMENT: IS_DEVELOPMENT
 }
 

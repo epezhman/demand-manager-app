@@ -11,6 +11,7 @@ const {autoUpdater} = require('electron')
 const request = require('request')
 const https = require('https')
 const fs = require('fs')
+const isOnline = require('is-online')
 const config = require('../config')
 const log = require('./log')
 const notify = require('./notify')
@@ -118,16 +119,24 @@ var initDarwinWin32 = () => {
 
 function checkUpdate(manual) {
     manualUpdate = !!manual
-    if (process.platform === 'linux') {
-        initLinux()
-    } else {
-        initDarwinWin32()
-    }
+    isOnline(function (err, online) {
+        if (online) {
+            if (process.platform === 'linux') {
+                initLinux()
+            } else {
+                initDarwinWin32()
+            }
+        }
+        else {
+            if (manualUpdate) {
+                notify('No internet connection')
+            }
+        }
+    })
 }
 
 function init() {
     checkUpdate()
-
     setTimeout(init, config.AUTO_UPDATE_CHECK_INTERVAL)
 }
 
