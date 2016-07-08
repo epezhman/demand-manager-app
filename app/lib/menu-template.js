@@ -69,3 +69,4 @@ function getMenu() {
     }
     return template
 }
+

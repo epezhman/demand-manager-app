@@ -22,23 +22,25 @@ function init() {
     var win = preferences.win = new electron.BrowserWindow({
         backgroundColor: '#ECECEC',
         fullscreen: false,
-        height: 400,
         icon: config.APP_ICON,
         maximizable: false,
         minimizable: false,
         resizable: false,
         title: config.APP_WINDOW_TITLE + ' - Preferences',
         useContentSize: true,
-        width: 600
+        width: 600,
+        height: 400,
+        show:false
     })
 
     win.loadURL(config.WINDOW_PREFERENCES)
 
     win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
-
-    win.webContents.on('did-finish-load', () => {
-    })
-
+    
     win.once('closed', (e) => preferences.win = null)
+
+    win.once('ready-to-show', () => {
+        win.show()
+    })
 
 }

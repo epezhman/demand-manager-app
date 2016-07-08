@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-This only runs on windows
+Notify - This only runs on windows
 
 <script>
     const {ipcRenderer} = require('electron')
@@ -18,7 +18,7 @@ This only runs on windows
         })
         notification.addEventListener('show', function (e) {
             window.close()
-        }, false);
+        }, false)
     })
 </script>
 

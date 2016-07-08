@@ -14,7 +14,7 @@ const tray = require('../lib/tray')
 const autoStart = require('../lib/auto-start')
 const machineIdInit = require('../lib/machine-id')
 const updater = require('../lib/updater')
-const firebase = require('../lib/firebase')
+const monitor = require('../lib/monitor')
 
 const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
     windows.about.init()
@@ -26,6 +26,11 @@ if (shouldQuit) {
 }
 
 global.machineId = null
+
+
+function delayedStart() {
+    monitor.init()
+}
 
 app.on('will-finish-launching', () => {
     crashReporter.init({'scope': 'main'})
@@ -42,7 +47,8 @@ app.on('quit', () => {
 })
 
 app.on('ready', () => {
-    tray.init()
     windows.about.init()
+    tray.init()
     autoStart.init()
+    setTimeout(delayedStart, config.DELAY_START_TIME)
 })

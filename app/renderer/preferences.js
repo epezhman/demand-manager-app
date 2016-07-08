@@ -1,6 +1,5 @@
 'use strict'
 
-const remote = require('electron').remote
 const crashReporter = require('../lib/crash-reporter')
 crashReporter.init({'scope': 'preferences'})
 
@@ -118,7 +117,7 @@ function checkEndTimeValidation() {
     return true
 }
 
-$(document).ready(function () {
+$(document).ready(()=> {
 
     runStartUpCheckBox = $('#run-at-start-up')
     timeLimitUpCheckBox = $('#limited-activity')

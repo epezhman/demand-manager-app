@@ -38,6 +38,7 @@ module.exports = {
     WINDOW_STATUS: 'file://' + path.join(__dirname, 'renderer', 'status.html'),
     WINDOW_ABOUT: 'file://' + path.join(__dirname, 'renderer', 'about.html'),
     WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
+    WINDOW_GEOLOCATION: 'file://' + path.join(__dirname, 'renderer', 'lib', 'geolocation.html'),
 
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,
@@ -45,7 +46,13 @@ module.exports = {
 
     FIREBASE_DATABASE_URL: 'https://tum-dm-fireb.firebaseio.com',
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
-    IS_DEVELOPMENT: IS_DEVELOPMENT
+    IS_DEVELOPMENT: IS_DEVELOPMENT,
+    DELAY_START_TIME: 3000,
+    MONITOR_GEOLOCATION_INTERVAL: 3000,
+
+    FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/',
+    GOOGLE_GEOLOCATION: 'https://maps.googleapis.com/maps/api/browserlocation/json?browser=chromium&sensor=true'
+
 }
 
 function getConfigPath() {

@@ -22,14 +22,15 @@ function init() {
         backgroundColor: '#ECECEC',
         center: true,
         fullscreen: false,
-        height: 400,
         icon: config.APP_ICON,
         maximizable: false,
         minimizable: false,
         resizable: false,
         title: config.APP_WINDOW_TITLE + ' - Status',
         useContentSize: true,
-        width: 800
+        width: 800,
+        height: 400,
+        show:false
     })
 
     win.loadURL(config.WINDOW_STATUS)
@@ -37,4 +38,8 @@ function init() {
     win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
 
     win.once('closed', (e) => status.win = null)
+
+    win.once('ready-to-show', () => {
+        win.show()
+    })
 }
