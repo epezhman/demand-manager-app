@@ -48,7 +48,7 @@ module.exports = {
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
     DELAY_START_TIME: 3000,
-    MONITOR_GEOLOCATION_INTERVAL: 3000,
+    MONITOR_GEOLOCATION_INTERVAL: 60000 * 60,
 
     FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/',
     GOOGLE_GEOLOCATION: 'https://maps.googleapis.com/maps/api/browserlocation/json?browser=chromium&sensor=true'

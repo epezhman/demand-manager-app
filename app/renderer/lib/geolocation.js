@@ -87,12 +87,11 @@ function aggregateLocations(err) {
     }
 
     if (googleMapLocation) {
-        if (navigatorLocation && navigatorLocation.coords) {
-            if (parseFloat(googleMapLocation['accuracy']) < navigatorLocation.coords.accuracy) {
-                locationData['latitude'] = googleMapLocation['accuracy']
-                locationData['longitude'] = googleMapLocation['accuracy']
-                locationData['accuracy'] = googleMapLocation['accuracy']
-            }
+        if (navigatorLocation && navigatorLocation.coords && 
+            parseFloat(googleMapLocation['accuracy']) < navigatorLocation.coords.accuracy) {
+            locationData['latitude'] = googleMapLocation['accuracy']
+            locationData['longitude'] = googleMapLocation['accuracy']
+            locationData['accuracy'] = googleMapLocation['accuracy']
         }
         else {
             locationData['latitude'] = googleMapLocation['accuracy']
