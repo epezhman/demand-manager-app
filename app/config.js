@@ -58,3 +58,4 @@ module.exports = {
 function getConfigPath() {
     return path.dirname(appConfig.filePath)
 }
+
