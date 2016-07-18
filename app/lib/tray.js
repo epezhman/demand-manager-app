@@ -9,7 +9,6 @@ const electron = require('electron')
 const app = electron.app
 
 const config = require('../config')
-const powerToggle = require('../lib/power-control')
 const windows = require('../main/windows')
 
 var tray
@@ -94,7 +93,7 @@ function hasTray() {
 }
 
 function init() {
-    if (process.platform === 'linux') {
+    if (config.IS_LINUX) {
         initLinux()
     }
     else {

@@ -8,7 +8,7 @@ const windows = require('../main/windows')
 
 function notify(msg) {
 
-    if (process.platform === 'win32') {
+    if (config.IS_WINDOWS) {
         windows.notify.init(msg)
     }
     else {

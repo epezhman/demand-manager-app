@@ -105,10 +105,10 @@ autoUpdater.on(
 
 var initDarwinWin32 = () => {
     var feedURL = ''
-    if (process.platform === 'darwin') {
+    if (config.IS_OSX) {
         feedURL = config.AUTO_UPDATE_OSX_BASE_URL
     }
-    else if (process.platform === 'win32') {
+    else if (config.IS_WINDOWS) {
         feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
     }
 
@@ -121,7 +121,7 @@ function checkUpdate(manual) {
     manualUpdate = !!manual
     isOnline(function (err, online) {
         if (online) {
-            if (process.platform === 'linux') {
+            if (config.IS_LINUX) {
                 initLinux()
             } else {
                 initDarwinWin32()
