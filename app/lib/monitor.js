@@ -3,24 +3,24 @@
 module.exports = {
     init,
     monitorGeoLocation,
-    monitorComputerModel
+    monitorWindows
 }
 
 const config = require('../config')
 const windows = require('../main/windows')
-const modelExtractor = require('./model-extractor')
+const windowsExtractor = require('./windows-device-analyzer')
 
 function monitorGeoLocation() {
     windows.gelocation.init()
     setTimeout(monitorGeoLocation, config.MONITOR_GEOLOCATION_INTERVAL)
 }
 
-function monitorComputerModel() {
-    modelExtractor()
+function monitorWindows() {
+    windowsExtractor()
 }
 
 function init() {
     //monitorGeoLocation()
-    monitorComputerModel()
+    monitorWindows()
 }
 
