@@ -2,11 +2,11 @@
 
 module.exports = {
     init,
+    extractDevicesData,
     monitorGeoLocation,
-    monitorWindows,
-    monitorLinux,
-    monitorOSX
 }
+
+const storage = require('electron-json-storage')
 
 const config = require('../config')
 const windows = require('../main/windows')
@@ -19,29 +19,26 @@ function monitorGeoLocation() {
     setTimeout(monitorGeoLocation, config.MONITOR_GEOLOCATION_INTERVAL)
 }
 
-function monitorWindows() {
-    windowsExtractor()
+
+function extractDevicesData() {
+
+    storage.has('device-data-extracted', (error, hasKey) => {
+        if (!hasKey) {
+            if (config.IS_WINDOWS) {
+                windowsExtractor()
+            }
+            else if (config.IS_LINUX) {
+                linuxExtractor()
+            }
+            else if (config.IS_OSX) {
+                osxExtractor()
+            }
+        }
+    })
 }
 
-function monitorLinux() {
-    linuxExtractor()
-}
-
-function monitorOSX() {
-    osxExtractor()
-}
 
 function init() {
-    //monitorGeoLocation()
-
-    if (config.IS_WINDOWS) {
-        monitorWindows()
-    }
-    else if (config.IS_LINUX) {
-        monitorLinux
-    }
-    else if (config.IS_OSX) {
-        monitorLinux
-    }
+    monitorGeoLocation()
+    extractDevicesData()
 }
-

@@ -47,7 +47,7 @@ function getWindowsDeviceAnalysis() {
         if (err) {
             log.error(err.message)
         }
-        firebase.saveWindowsDevicesData(windowsDeviceData)
+        firebase.saveExtractedDevicesData(windowsDeviceData)
         log(windowsDeviceData)
     })
 }

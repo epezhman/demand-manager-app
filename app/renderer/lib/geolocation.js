@@ -80,25 +80,28 @@ function aggregateLocations(err) {
         'accuracy': ''
     }
 
+
     if (navigatorLocation && navigatorLocation.coords) {
         locationData['latitude'] = navigatorLocation.coords.latitude
         locationData['longitude'] = navigatorLocation.coords.longitude
         locationData['accuracy'] = navigatorLocation.coords.accuracy
     }
-
+    /* jshint ignore:start */
     if (googleMapLocation) {
-        if (navigatorLocation && navigatorLocation.coords && 
-            parseFloat(googleMapLocation['accuracy']) < navigatorLocation.coords.accuracy) {
-            locationData['latitude'] = googleMapLocation['accuracy']
-            locationData['longitude'] = googleMapLocation['accuracy']
-            locationData['accuracy'] = googleMapLocation['accuracy']
+        if (navigatorLocation && navigatorLocation.coords) {
+            if (parseFloat(googleMapLocation['accuracy']) < navigatorLocation.coords.accuracy) {
+                locationData['latitude'] = googleMapLocation['latitude']
+                locationData['longitude'] = googleMapLocation['longitude']
+                locationData['accuracy'] = googleMapLocation['accuracy']
+            }
         }
         else {
-            locationData['latitude'] = googleMapLocation['accuracy']
-            locationData['longitude'] = googleMapLocation['accuracy']
+            locationData['latitude'] = googleMapLocation['latitude']
+            locationData['longitude'] = googleMapLocation['longitude']
             locationData['accuracy'] = googleMapLocation['accuracy']
         }
     }
+    /* jshint ignore:end */
 
     if (freegeoipLocation) {
         locationData['ip'] = freegeoipLocation['ip']

@@ -26,6 +26,7 @@
     "node-notifier": "^4.6.0",
     "node-uuid": "^1.4.7",
     "q": "^1.4.1",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "sudo-prompt": "^6.0.1"
   }
 }

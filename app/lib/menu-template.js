@@ -44,13 +44,13 @@ function getMenu() {
         submenu: [{
             label: 'Reload',
             accelerator: 'CmdOrCtrl+R',
-            click: function () {
+            click: ()=> {
                 BrowserWindow.getFocusedWindow().webContents.reloadIgnoringCache()
             }
         }, {
             label: 'Toggle DevTools',
             accelerator: 'Alt+CmdOrCtrl+I',
-            click: function () {
+            click: ()=> {
                 BrowserWindow.getFocusedWindow().toggleDevTools({detach: true})
             }
         }]
@@ -61,8 +61,15 @@ function getMenu() {
             label: 'Experimental',
             submenu: [{
                 label: 'Toggle Energy Mode',
-                click: function () {
+                click: () => {
                     powerControl()
+                }
+            }, {
+                label: 'Clear All Storage',
+                click: ()=> {
+                    const storage = require('electron-json-storage')
+                    storage.clear((error) => {
+                    })
                 }
             }]
         })
