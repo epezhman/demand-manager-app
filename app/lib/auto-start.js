@@ -17,13 +17,14 @@ function init() {
                 isHidden: true
             })
             appLauncher.isEnabled().then((enabled) => {
+                storage.set('run-on-start-up', {run: true}, (error) => {
+                })
                 if (enabled) {
                     return
                 }
                 return appLauncher.enable()
             })
-            storage.set('run-on-start-up', {run: true}, (error) => {
-            })
+
         }
     })
 }

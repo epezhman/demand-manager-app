@@ -7,7 +7,7 @@ module.exports = {
 
 const os = require('os')
 const path = require('path')
-const {autoUpdater} = require('electron')
+const {autoUpdater, app} = require('electron')
 const request = require('request')
 const https = require('https')
 const fs = require('fs')
@@ -31,6 +31,8 @@ function installUpdate(downloadPath) {
         }
         log(lshwJsonStdout)
         notify(`Update was installed successfully.`)
+        app.relaunch({args: process.argv.slice(1) + ['--relaunch']})
+        app.exit(0)
     })
 }
 

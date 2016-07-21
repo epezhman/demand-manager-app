@@ -36,6 +36,7 @@ app.on('will-finish-launching', () => {
     crashReporter.init({'scope': 'main'})
     machineIdInit.init()
     if (!config.IS_DEVELOPMENT) {
+        autoStart.init()
         updater.init()
     }
 })
@@ -49,6 +50,5 @@ app.on('quit', () => {
 app.on('ready', () => {
     windows.about.init()
     tray.init()
-    autoStart.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
 })
