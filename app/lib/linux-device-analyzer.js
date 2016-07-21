@@ -6,7 +6,7 @@ const exec = require('child_process').exec
 
 
 const async = require('async')
-const _ = require('lodash/collection')
+const _ = require('lodash')
 const sudo = require('sudo-prompt')
 
 const config = require('../config')
@@ -41,16 +41,22 @@ function getLshwCommandData(cb) {
 
 function getDmidecodeCommandData(performThisMethod, cb) {
     if (performThisMethod) {
-        exec('dmidecode --version', (err, stdout, stderr) => {
-            if (err) {
-                log.error(err)
+        exec('dmidecode --version', (dmiCheckErr, dmiCheckStdout, dmiCheckStderr) => {
+            if (dmiCheckErr) {
+                log.error(dmiCheckErr)
                 return cb(null, true)
             }
-            if (stdout.includes('command not found')) {
+            if (dmiCheckStdout.includes('command not found')) {
                 return cb(null, true)
             }
-            log('dmidecode')
-            cb(null, false)
+            sudo.exec('dmidecode', {name: config.APP_NAME}, (dmiErr, dmiStdout, dmiStderr) => {
+                if (dmiErr) {
+                    log.error(dmiErr)
+                    return cb(null, true)
+                }
+                linuxDeviceData['dmidecode'] = dmiStdout
+                cb(null, false)
+            })
         })
     }
     else {
@@ -61,18 +67,34 @@ function getDmidecodeCommandData(performThisMethod, cb) {
 
 
 function getCommandsSetData(performThisMethod, cb) {
-    if (performThisMethod) {
-        log('other')
+    var commands = [
+        'lspci',
+        'lscpu',
+        'lsusb',
+        'cat /sys/devices/virtual/dmi/id/board_vendor && ' +
+        'cat /sys/devices/virtual/dmi/id/board_name  && ' +
+        'cat /sys/devices/virtual/dmi/id/board_version',
+        'free -m | grep "Mem:"',
+        'upower -i /org/freedesktop/UPower/devices/battery_BAT0'
+    ]
+    async.eachSeries(commands, (command, commmandCb)=> {
+        exec(command, (commandErr, commandStdout, commmandStderr) => {
+            if (commandErr) {
+                log.error(commandErr)
+                return commmandCb()
+            }
+            linuxDeviceData[_.split(command, ' ')[0]] = _.split(_.trim(commandStdout), '\n')
+            commmandCb()
+        })
+    }, (err)=> {
+        if (err) {
+            log.error(err)
+        }
         cb(null, false)
-    }
-    else {
-        cb(null, false)
-    }
-
+    })
 }
 
 function sendExtractedData(err, result) {
-
     if (err) {
         log.error(err)
     }
