@@ -3,12 +3,13 @@
 const crashReporter = require('../lib/crash-reporter')
 crashReporter.init({'scope': 'preferences'})
 
-const {ipcRenderer} = require('electron')
+const {ipcRenderer, remote} = require('electron')
 const storage = require('electron-json-storage')
 const AutoLaunch = require('auto-launch')
 const config = require('../config')
 const log = require('../lib/log')
 const enums = require('../lib/enums')
+const monitor = remote.require('./lib/monitor')
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox
@@ -20,6 +21,9 @@ var navPanes
 var statusNavItem
 var settingsNavItem
 var aboutNavItem
+var appRunning
+var appPaused
+
 
 var appLauncher = new AutoLaunch({
     name: config.APP_NAME,
@@ -82,6 +86,7 @@ function checkIfAutoStartRunning() {
 function enableLimitedActivity() {
     log('enabling limited activity')
     storage.remove('limited-activity', (error) => {
+        checkIfAppRunning()
     })
     storage.remove('limited-activity-start-time', (error)=> {
         timeLimitStart.val(0)
@@ -98,6 +103,7 @@ function disableLimitedActivity() {
     storage.set('limited-activity', {limited: true}, (error) => {
         timeLimitStart.prop('disabled', false)
         timeLimitUpEnd.prop('disabled', false)
+        checkIfAppRunning()
     })
 }
 
@@ -144,6 +150,17 @@ function checkEndTimeValidation() {
     return true
 }
 
+function checkIfAppRunning() {
+    if (monitor.shouldAppBeRunning()) {
+        appPaused.hide()
+        appRunning.show()
+    }
+    else {
+        appPaused.show()
+        appRunning.hide()
+    }
+}
+
 $(document).ready(()=> {
 
     runStartUpCheckBox = $('#run-at-start-up')
@@ -156,6 +173,8 @@ $(document).ready(()=> {
     statusNavItem = $('#status-menu-item')
     settingsNavItem = $('#settings-menu-item')
     aboutNavItem = $('#about-menu-item')
+    appPaused = $('#app-paused-message')
+    appRunning = $('#app-running-message')
 
 
     navItems.click((e)=> {
@@ -169,6 +188,7 @@ $(document).ready(()=> {
 
     checkIfAutoStartRunning()
     checkIfLimitedActivitySet()
+    checkIfAppRunning()
 
     runStartUpCheckBox.click(()=> {
         if (runStartUpCheckBox.prop('checked')) {
@@ -193,6 +213,7 @@ $(document).ready(()=> {
             storage.set('limited-activity-start-time', {
                 limitedStartTime: timeLimitStart.val()
             }, (error) => {
+                checkIfAppRunning()
             })
         }
     })
@@ -202,6 +223,7 @@ $(document).ready(()=> {
             storage.set('limited-activity-end-time', {
                 limitedEndTime: timeLimitUpEnd.val()
             }, (error)=> {
+                checkIfAppRunning()
             })
         }
 
