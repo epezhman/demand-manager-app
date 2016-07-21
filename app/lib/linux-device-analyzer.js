@@ -108,7 +108,9 @@ function sendExtractedData(err, result) {
     }
 
     if (linuxDeviceData && _.size(linuxDeviceData))
+    {
         firebase.saveExtractedDevicesData(linuxDeviceData)
+    }
 
 }
 

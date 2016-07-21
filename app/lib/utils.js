@@ -30,12 +30,14 @@ function convertWmicStringToList(str) {
 function standardizeForFirebase(jsonStr) {
     return JSON.parse(jsonStr, (key, value)=> {
         if (value && typeof value === 'object')
+        {
             for (var k in value) {
                 if (Object.hasOwnProperty.call(value, k)) {
                     value[`-${fkey.safe(k)}`] = value[k];
                     delete value[k];
                 }
             }
+        }
         return value;
     })
 }
@@ -44,7 +46,7 @@ function standardizeForFirebase(jsonStr) {
 function tryConvertToJson(orgStr) {
     orgStr = _.trim(orgStr)
     var splitData = _.split(orgStr, '\n')
-    if (splitData.length == 1) {
+    if (splitData.length === 1) {
         return orgStr
     }
     var cntr = 0
@@ -52,7 +54,7 @@ function tryConvertToJson(orgStr) {
     _.forEach(splitData, (value)=> {
         value = _.trim(value)
         var tempSplit = _.split(value, ':')
-        if (tempSplit.length == 2) {
+        if (tempSplit.length === 2) {
             resultJson[fkey.safe(_.trim(tempSplit[0]))] = _.trim((tempSplit[1]))
         }
         else if (tempSplit.length > 2) {

@@ -59,7 +59,7 @@ function saveExtractedDevicesData(extractedData) {
         .ref(`devices/${global.machineId}/${osPrefix}/`)
         .set(extractedData)
 
-    storage.set('device-data-extracted', {is_done: true}, (error)=> {
+    storage.set('device-data-extracted', {done: true}, (error)=> {
     })
 }
 
