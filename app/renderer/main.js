@@ -3,21 +3,47 @@
 const crashReporter = require('../lib/crash-reporter')
 crashReporter.init({'scope': 'preferences'})
 
+const {ipcRenderer} = require('electron')
 const storage = require('electron-json-storage')
 const AutoLaunch = require('auto-launch')
 const config = require('../config')
 const log = require('../lib/log')
+const enums = require('../lib/enums')
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox
 var timeLimitStart
 var timeLimitUpEnd
 var timeValidatorError
+var navItems
+var navPanes
+var statusNavItem
+var settingsNavItem
+var aboutNavItem
 
 var appLauncher = new AutoLaunch({
     name: config.APP_NAME,
     isHidden: true
 })
+
+ipcRenderer.on('selected-window', (event, windowType)=> {
+    if (windowType === enums.WindowType.ABOUT) {
+        selectTab(aboutNavItem)
+    }
+    else if (windowType === enums.WindowType.SETTINGS) {
+        selectTab(settingsNavItem)
+    }
+    else if (windowType === enums.WindowType.STATUS) {
+        selectTab(statusNavItem)
+    }
+})
+
+function selectTab(tabToSelect) {
+    navItems.removeClass('active')
+    tabToSelect.addClass('active')
+    navPanes.hide()
+    $(`#${tabToSelect.data('manager-pane-id')}`).show()
+}
 
 function enableAutoStart() {
     log('enabling auto start')
@@ -125,6 +151,21 @@ $(document).ready(()=> {
     timeLimitStart = $('#limited-activity-start-time')
     timeLimitUpEnd = $('#limited-activity-end-time')
     timeValidatorError = $('#end-time-error')
+    navItems = $('.nav-group-item')
+    navPanes = $('.manager-pane')
+    statusNavItem = $('#status-menu-item')
+    settingsNavItem = $('#settings-menu-item')
+    aboutNavItem = $('#about-menu-item')
+
+
+    navItems.click((e)=> {
+        var thisItem = $(e.target)
+        navItems.removeClass('active')
+        thisItem.addClass('active')
+        navPanes.hide()
+        $(`#${thisItem.data('manager-pane-id')}`).show()
+    })
+
 
     checkIfAutoStartRunning()
     checkIfLimitedActivitySet()

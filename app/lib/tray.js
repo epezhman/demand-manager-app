@@ -10,6 +10,7 @@ const app = electron.app
 
 const config = require('../config')
 const windows = require('../main/windows')
+const enums = require('./enums')
 
 var tray
 
@@ -17,16 +18,16 @@ var getMenuTemplate = () => {
     return [
         {
             label: 'Status',
-            click: () => windows.status.init()
+            click: () => windows.main.init(enums.WindowType.STATUS)
         },
         {
             label: 'Preferences',
-            click: () => windows.preferences.init()
+            click: () => windows.main.init(enums.WindowType.SETTINGS)
         },
         {type: 'separator'},
         {
             label: 'About',
-            click: () => windows.about.init()
+            click: () => windows.main.init(enums.WindowType.ABOUT)
         },
         {type: 'separator'},
         {
@@ -65,7 +66,7 @@ var createTray = ()=> {
 
     // On Windows, left click opens the app, right click opens the context menu.
     // On Linux, any click (left or right) opens the context menu.
-    tray.on('click', () => windows.about.init())
+    tray.on('click', () => windows.main.init(enums.WindowType.ABOUT))
 
     // Show the tray context menu, and keep the available commands up to date
     updateTrayMenu()

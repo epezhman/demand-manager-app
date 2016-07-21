@@ -1,4 +1,4 @@
-var about = module.exports = {
+var main = module.exports = {
     init,
     win: null
 }
@@ -10,16 +10,17 @@ const log = require('../../lib/log')
 const getMenu = require('../../lib/menu-template')
 
 
-function init() {
-    if (about.win) {
-        about.win.show()
-        if (about.win.isMinimized()) 
+function init(windowType) {
+    if (main.win) {
+        main.win.webContents.send('selected-window', windowType)
+        main.win.show()
+        if (main.win.isMinimized())
         {
-            about.win.restore()
+            main.win.restore()
         }
-        return about.win.focus()
+        return main.win.focus()
     }
-    var win = about.win = new electron.BrowserWindow({
+    var win = main.win = new electron.BrowserWindow({
         backgroundColor: '#ECECEC',
         center: true,
         fullscreen: false,
@@ -27,18 +28,22 @@ function init() {
         maximizable: false,
         minimizable: false,
         resizable: false,
-        title: config.APP_WINDOW_TITLE + '- About',
+        title: config.APP_WINDOW_TITLE,
         useContentSize: true,
         width: 800,
         height: 400,
         show:false
     })
 
-    win.loadURL(config.WINDOW_ABOUT)
+    win.loadURL(config.WINDOW_MAIN)
 
     win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
 
-    win.once('closed', (e) => about.win = null)
+    win.once('closed', (e) => main.win = null)
+
+    win.webContents.on('did-frame-finish-load', function () {
+        win.webContents.send('selected-window', windowType)
+    })
 
     win.once('ready-to-show', () => {
         win.show()

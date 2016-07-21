@@ -4,8 +4,11 @@ p, h1, h2, h3, h4, h5 {
 body {
   font-family: BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif; }
 
+.nav-group {
+  padding-top: 10px; }
+
 .preferences, .status {
-  padding: 10px; }
+  padding: 5px 10px; }
   .preferences .setting-form, .status .setting-form {
     width: 200px; }
   .preferences select:disabled, .status select:disabled {
@@ -18,11 +21,21 @@ body {
     right: 27px; }
 
 .about {
-  background-color: #ECECEC;
-  text-align: center;
+  padding: 5px 10px;
   overflow: hidden;
   font-size: 16px;
   -webkit-user-select: none; }
-  .about .main-logo {
-    width: 140px;
-    height: 140px; }
+  .about .intro-warpper {
+    width: 500px;
+    height: 150px;
+    padding-top: 5px; }
+    .about .intro-warpper .intro-warpper-inner-left {
+      width: 150px;
+      float: left;
+      height: 100%; }
+      .about .intro-warpper .intro-warpper-inner-left .main-logo {
+        width: 140px;
+        height: 140px; }
+    .about .intro-warpper .intro-warpper-inner-right {
+      height: 100%;
+      padding-top: 0px; }

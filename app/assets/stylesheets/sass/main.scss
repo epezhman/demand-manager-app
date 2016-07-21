@@ -6,8 +6,12 @@ body {
   font-family: BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
+.nav-group {
+  padding-top: 10px;
+}
+
 .preferences, .status {
-  padding: 10px;
+  padding: 5px 10px;
 
   .setting-form {
     width: 200px
@@ -28,15 +32,33 @@ body {
 }
 
 .about {
-  background-color: #ECECEC;
-  text-align: center;
+  padding: 5px 10px;
+
   overflow: hidden;
   font-size: 16px;
   -webkit-user-select: none;
 
-  .main-logo {
-    width: 140px;
-    height: 140px;
+  .intro-warpper {
+    width: 500px;
+    height: 150px;
+    padding-top: 5px;
+
+    .intro-warpper-inner-left {
+      width: 150px;
+      float: left;
+      height: 100%;
+
+      .main-logo {
+        width: 140px;
+        height: 140px;
+      }
+
+    }
+    .intro-warpper-inner-right {
+      height: 100%;
+      padding-top: 0px;
+    }
   }
+
 }
 

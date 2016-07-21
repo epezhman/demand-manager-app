@@ -12,16 +12,65 @@
         <div class="pane-group">
             <div class="pane pane-sm sidebar">
                 <nav class="nav-group">
-                    <span class="nav-group-item" id="settings-menu-item">
+                    <span class="nav-group-item" id="about-menu-item" data-manager-pane-id="about-pane">
+                        <span class="icon icon-info"></span>
+                        About
+                    </span>
+                    <span class="nav-group-item" id="settings-menu-item" data-manager-pane-id="settings-pane">
                         <span class="icon icon-tools"></span>
                         Settings
+                    </span>
+                    <span class="nav-group-item" id="status-menu-item" data-manager-pane-id="status-pane">
+                        <span class="icon icon-globe"></span>
+                        Status
                     </span>
                 </nav>
             </div>
 
             <div class="pane">
+
+                <div class="status">
+                    <div id="status-pane" class="manager-pane" style="display: none">
+                        <h3>
+                            <span class="icon icon-flight"></span>
+                            App is running
+                        </h3>
+                    </div>
+                </div>
+
+
+                <div class="about">
+                    <div id="about-pane" class="manager-pane" style="display: none">
+
+                        <div class="intro-warpper">
+                            <div class="intro-warpper-inner-left">
+                                <img src="../assets/img/power-512x512.png" class="main-logo">
+                            </div>
+                            <div class="intro-warpper-inner-right">
+                                <h2>
+                                    <script>document.write(require('../config').APP_NAME)</script>
+                                </h2>
+                                <h3>
+                                    Version
+                                    <script>document.write(require('../config').APP_VERSION)</script>
+                                </h3>
+                            </div>
+                        </div>
+                        <p>
+                            <span class="icon icon-dot"></span>
+                            Thank you for helping us.
+                        </p>
+                        <p>
+                            <span class="icon icon-dot"></span>
+                            You can close this window, the app in running on the background and you can control it from
+                            tray.
+                        </p>
+                    </div>
+                </div>
+
+
                 <div class="preferences">
-                    <div id="settings-pane" class="manager-pane">
+                    <div id="settings-pane" class="manager-pane" style="display: none">
                         <div class="setting-form">
                             <div class="checkbox">
                                 <label>
@@ -113,7 +162,7 @@
     }
 </script>
 <script src="../node_modules/jquery/dist/jquery.js"></script>
-<script src="preferences.js"></script>
+<script src="main.js"></script>
 <!--<script src="http://localhost:35729/livereload.js"></script>-->
 </body>
 </html>

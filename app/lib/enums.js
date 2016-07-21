@@ -2,5 +2,6 @@
 
 exports.WindowType = {
     STATUS: 'status',
-    SETTINGS: 'settings'
+    SETTINGS: 'settings',
+    ABOUT: 'aout'
 }

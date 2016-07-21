@@ -15,9 +15,10 @@ const autoStart = require('../lib/auto-start')
 const machineIdInit = require('../lib/machine-id')
 const updater = require('../lib/updater')
 const monitor = require('../lib/monitor')
+const enums = require('../lib/enums')
 
 const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-    windows.about.init()
+    windows.main.init(enums.WindowType.ABOUT)
 })
 
 if (shouldQuit) {
@@ -48,7 +49,7 @@ app.on('quit', () => {
 })
 
 app.on('ready', () => {
-    windows.about.init()
+    windows.main.init(enums.WindowType.ABOUT)
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
 })

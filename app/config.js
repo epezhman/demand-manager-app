@@ -42,9 +42,7 @@ module.exports = {
     APP_ICON: path.join(__dirname, 'assets', 'img', 'icon.png'),
     APP_ICON_MENU: path.join(__dirname, 'assets', 'img', 'icon-menu.png'),
 
-    WINDOW_PREFERENCES: 'file://' + path.join(__dirname, 'renderer', 'preferences.html'),
-    WINDOW_STATUS: 'file://' + path.join(__dirname, 'renderer', 'status.html'),
-    WINDOW_ABOUT: 'file://' + path.join(__dirname, 'renderer', 'about.html'),
+    WINDOW_MAIN: 'file://' + path.join(__dirname, 'renderer', 'main.html'),
     WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
     WINDOW_GEOLOCATION: 'file://' + path.join(__dirname, 'renderer', 'lib', 'geolocation.html'),
 

@@ -9,6 +9,7 @@ const windows = require('../main/windows')
 const updater = require('../lib/updater')
 const config = require('../config')
 const powerControl = require('../lib/power-control')
+const enums = require('./enums')
 
 
 function getMenu() {
@@ -17,10 +18,10 @@ function getMenu() {
         submenu: [{
             label: 'Preferences',
             accelerator: 'CmdOrCtrl+P',
-            click: () => windows.preferences.init()
+            click: () => windows.main.init(enums.WindowType.SETTINGS)
         }, {
             label: 'Status',
-            click: () => windows.status.init()
+            click: () => windows.main.init(enums.WindowType.STATUS)
         }, {
             type: 'separator'
         }, {
@@ -37,7 +38,7 @@ function getMenu() {
             type: 'separator'
         }, {
             label: 'About',
-            click: () => windows.about.init()
+            click: () => windows.main.init(enums.WindowType.ABOUT)
         }]
     }, {
         label: 'Development',
