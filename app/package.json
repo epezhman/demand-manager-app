@@ -2,7 +2,7 @@
   "name": "tumdmdesktop",
   "productName": "TUM Demand Manager",
   "description": "TUM Demand Manager for Computers.",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "author": {
     "name": "TUM, Institute of Informatics",
     "email": "p.nasirifard@tum.de",
@@ -19,6 +19,7 @@
     "electron-positioner": "^3.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "firebase": "^3.0.0",
+    "firebase-safekey": "^0.1.7",
     "is-online": "^5.1.1",
     "jquery": "^3.0.0",
     "lodash": "^4.13.1",

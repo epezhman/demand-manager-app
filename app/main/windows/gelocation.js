@@ -30,10 +30,6 @@ function init() {
     if (config.IS_DEVELOPMENT) {
         const getMenu = require('../../lib/menu-template')
         win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
-
-        win.once('ready-to-show', () => {
-                win.show()
-        })
     }
     else {
         win.setMenu(null)

@@ -3,7 +3,8 @@
 module.exports = {
     registerDevice,
     saveLocation,
-    saveExtractedDevicesData
+    saveExtractedDevicesData,
+    savePowerData
 }
 
 
@@ -56,8 +57,17 @@ function saveExtractedDevicesData(extractedData) {
 
     firebase.database()
         .ref(`devices/${global.machineId}/${osPrefix}/`)
-        .push(extractedData)
+        .set(extractedData)
 
     storage.set('device-data-extracted', {is_done: true}, (error)=> {
     })
+}
+
+function savePowerData(powerData) {
+
+    powerData['time'] = firebase.database.ServerValue.TIMESTAMP
+
+    firebase.database()
+        .ref(`devices/${global.machineId}/power/`)
+        .push(powerData)
 }

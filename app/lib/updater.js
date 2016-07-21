@@ -12,13 +12,29 @@ const request = require('request')
 const https = require('https')
 const fs = require('fs')
 const isOnline = require('is-online')
+const sudo = require('sudo-prompt')
+
 const config = require('../config')
 const log = require('./log')
 const notify = require('./notify')
 
 var manualUpdate = false
 
-var onLinuxResponse = (err, res, data) => {
+
+function installUpdate(downloadPath) {
+    notify(`The latest version of the ${config.APP_NAME} is being installed.`)
+    sudo.exec(`dpkg -i ${downloadPath}`, {name: config.APP_NAME}, (lshwJsonErr, lshwJsonStdout, lshwJsonStderr) => {
+        if (lshwJsonErr) {
+            log.error(lshwJsonErr)
+            return notify(`The update could not be installed. 
+            The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
+        }
+        log(lshwJsonStdout)
+        notify(`Update was installed successfully.`)
+    })
+}
+
+function onLinuxResponse(err, res, data) {
     if (err) {
         return log.error(`Update error: ${err.message}`)
     }
@@ -26,6 +42,7 @@ var onLinuxResponse = (err, res, data) => {
         if (manualUpdate) {
             notify('Update is available and will be downloaded to your home directory.')
         }
+        log('update available')
         data = JSON.parse(data)
         var downloadPath = path.resolve(process.env.HOME || process.env.USERPROFILE) +
             `/${data.file}`
@@ -34,13 +51,13 @@ var onLinuxResponse = (err, res, data) => {
                 var newVersionFile = fs.createWriteStream(downloadPath)
                 https.get(data.url, (response) => {
                     response.pipe(newVersionFile).on('close', ()=> {
-                        notify('The latest version of the app can be found in your home dir, please update it.')
+                        installUpdate(downloadPath)
                         log('downloaded')
                     })
                 })
             }
             else {
-                notify('The latest version of the app can be found in your home dir, please update it.')
+                installUpdate(downloadPath)
                 log('file exist')
             }
         })
@@ -56,7 +73,7 @@ var onLinuxResponse = (err, res, data) => {
     }
 }
 
-var initLinux = () => {
+function initLinux() {
     var feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
         '?v=' + config.APP_VERSION
     request(feedURL, onLinuxResponse)
@@ -103,7 +120,7 @@ autoUpdater.on(
     (e, notes, name, date, url) => log(`Update downloaded: ${name}: ${url}`)
 )
 
-var initDarwinWin32 = () => {
+function initDarwinWin32() {
     var feedURL = ''
     if (config.IS_OSX) {
         feedURL = config.AUTO_UPDATE_OSX_BASE_URL

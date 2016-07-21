@@ -1,12 +1,20 @@
 'use strict'
 
-module.exports = getOSXDeviceAnalysis
+
+module.exports = {
+    deviceAnalysis,
+    monitorPower
+}
 
 const config = require('../config')
 const log = require('./log')
 
 
-function getOSXDeviceAnalysis() {
+function deviceAnalysis() {
 
     log('OSX')
+}
+
+function monitorPower() {
+
 }

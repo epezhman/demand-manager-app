@@ -13,7 +13,8 @@ function init() {
     storage.has('run-on-start-up', (error, hasKey) => {
         if (!hasKey) {
             var appLauncher = new AutoLaunch({
-                name: config.APP_NAME
+                name: config.APP_NAME,
+                isHidden: true
             })
             appLauncher.isEnabled().then((enabled) => {
                 if (enabled) {

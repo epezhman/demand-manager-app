@@ -1,6 +1,10 @@
 'use strict'
 
-module.exports = getWindowsDeviceAnalysis
+
+module.exports = {
+    deviceAnalysis,
+    monitorPower
+}
 
 const config = require('../config')
 const log = require('./log')
@@ -32,7 +36,7 @@ function runWMIC(wmiClass, command, paramCallback) {
     }
 }
 
-function getWindowsDeviceAnalysis() {
+function deviceAnalysis() {
 
     async.eachOfLimit(wmicParams, 2, (wmiClassProps, wmiClass, commandCallback) => {
         async.eachLimit(wmiClassProps, 3, (wmiClassProp, paramCallback) => {
@@ -50,4 +54,8 @@ function getWindowsDeviceAnalysis() {
         firebase.saveExtractedDevicesData(windowsDeviceData)
         log(windowsDeviceData)
     })
+}
+
+function monitorPower() {
+
 }

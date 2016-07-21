@@ -1,6 +1,10 @@
 'use strict'
 
-module.exports = getLinuxDeviceAnalysis
+
+module.exports = {
+    deviceAnalysis,
+    monitorPower
+}
 
 const exec = require('child_process').exec
 
@@ -32,7 +36,7 @@ function getLshwCommandData(cb) {
                 log.error(lshwJsonErr)
                 return cb(null, true)
             }
-            linuxDeviceData = utils.standardizeForFirebase(lshwJsonStdout)
+            linuxDeviceData['lshw'] = utils.standardizeForFirebase(lshwJsonStdout)
             cb(null, false)
         })
     })
@@ -77,14 +81,18 @@ function getCommandsSetData(performThisMethod, cb) {
         'free -m | grep "Mem:"',
         'upower -i /org/freedesktop/UPower/devices/battery_BAT0'
     ]
-    async.eachSeries(commands, (command, commmandCb)=> {
-        exec(command, (commandErr, commandStdout, commmandStderr) => {
+    async.eachSeries(commands, (command, commandCb)=> {
+        exec(command, (commandErr, commandStdout, commandStderr) => {
             if (commandErr) {
                 log.error(commandErr)
-                return commmandCb()
+                return commandCb()
             }
-            linuxDeviceData[_.split(command, ' ')[0]] = _.split(_.trim(commandStdout), '\n')
-            commmandCb()
+            if (commandStdout.includes('command not found') ||
+                commandStdout.includes('No such file or directory')) {
+                return commandCb()
+            }
+            linuxDeviceData[_.split(command, ' ')[0]] =  utils.tryConvertToJson(commandStdout)
+            commandCb()
         })
     }, (err)=> {
         if (err) {
@@ -99,13 +107,12 @@ function sendExtractedData(err, result) {
         log.error(err)
     }
 
-    log(linuxDeviceData)
     if (linuxDeviceData && _.size(linuxDeviceData))
         firebase.saveExtractedDevicesData(linuxDeviceData)
 
 }
 
-function getLinuxDeviceAnalysis() {
+function deviceAnalysis() {
 
     async.waterfall([
         getLshwCommandData,
@@ -113,4 +120,38 @@ function getLinuxDeviceAnalysis() {
         getCommandsSetData
     ], sendExtractedData)
 
+}
+
+
+function monitorPower() {
+    var powerData = {}
+    var commands = {
+        power1: 'cat /sys/class/power_supply/BAT0/power_now',
+        power2: 'cat /sys/bus/acpi/drivers/battery/PNP0C0A:00/power_supply/BAT0/power_now',
+        power3: 'cat /sys/class/powercap/*/energy_uj',
+        battery1 : 'upower -i /org/freedesktop/UPower/devices/battery_BAT0',
+        battery2: 'acpi -ib',
+        battery3: 'acpi',
+        battery4: ' acpi -V',
+        batteryCapacity: 'cat /sys/class/power_supply/BAT0/capacity'
+    }
+    async.eachOfSeries(commands, (commandValue, commandKey, commandCb)=> {
+        exec(commandValue, (commandErr, commandStdout, commandStderr) => {
+            if (commandErr) {
+                log.error(commandErr)
+                return commandCb()
+            }
+            if (commandStdout.includes('command not found') ||
+                commandStdout.includes('No such file or directory')) {
+                return commandCb()
+            }
+            powerData[_.kebabCase(commandKey)] = utils.tryConvertToJson(commandStdout)
+            commandCb()
+        })
+    }, (err)=> {
+        if (err) {
+            log.error(err)
+        }
+        firebase.savePowerData(powerData)
+    })
 }

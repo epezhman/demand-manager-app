@@ -15,7 +15,8 @@ var timeLimitUpEnd
 var timeValidatorError
 
 var appLauncher = new AutoLaunch({
-    name: config.APP_NAME
+    name: config.APP_NAME,
+    isHidden: true
 })
 
 function enableAutoStart() {

@@ -58,6 +58,8 @@ module.exports = {
     DELAY_START_TIME: 500,
     MONITOR_GEOLOCATION_INTERVAL: 60000 * 60,
 
+    MONITOR_POWER_INTERVAL: 60000,
+
     FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/',
     GOOGLE_GEOLOCATION: 'https://maps.googleapis.com/maps/api/browserlocation/json?browser=chromium&sensor=true'
 }
