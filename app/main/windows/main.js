@@ -13,9 +13,10 @@ const getMenu = require('../../lib/menu-template')
 function init(windowType) {
     if (main.win) {
         main.win.webContents.send('selected-window', windowType)
-        main.win.show()
-        if (main.win.isMinimized())
-        {
+        if (!main.win.isVisible()) {
+            main.win.show()
+        }
+        if (main.win.isMinimized()) {
             main.win.restore()
         }
         return main.win.focus()
@@ -32,7 +33,7 @@ function init(windowType) {
         useContentSize: true,
         width: 800,
         height: 400,
-        show:false
+        show: false
     })
 
     win.loadURL(config.WINDOW_MAIN)
@@ -45,7 +46,5 @@ function init(windowType) {
         win.webContents.send('selected-window', windowType)
     })
 
-    win.once('ready-to-show', () => {
-        win.show()
-    })
+    win.once('ready-to-show', () => win.show())
 }

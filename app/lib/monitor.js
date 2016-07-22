@@ -8,35 +8,25 @@ module.exports = {
     shouldAppBeRunning
 }
 
-const storage = require('electron-json-storage')
+const ConfigStore = require('configstore')
 
 const config = require('../config')
 const windows = require('../main/windows')
 
+const log = require('./log')
+const conf = new ConfigStore(config.APP_NAME)
+
 
 function shouldAppBeRunning() {
-    try {
-        storage.has('limited-activity', (error, hasKey)=> {
-            if (!hasKey) {
-                return false
-            }
-            else {
-                var d = new Date()
-                storage.get('limited-activity-start-time', (error, startTime) => {
-                    var startHour = startTime.limitedStartTime
-                    storage.get('limited-activity-end-time', (error, endTime) => {
-                        var endHour = endTime.limitedEndTime
-                        return !(startHour && endHour &&
-                        (d.getHours() >= startHour && d.getHours() < endHour));
-                    })
-                })
-            }
-        })
+    if (conf.get('limited-activity')) {
+        var startTime = conf.get('limited-activity-start-time')
+        var endTime = conf.get('limited-activity-end-time')
+        startTime = startTime === 'undefined' ? 0 : startTime
+        endTime = endTime === 'undefined' ? 24 : endTime
+        var d = new Date()
+        return d.getHours() >= startTime && d.getHours() < endTime
     }
-    catch (e) {
-        return true
-    }
-
+    return true
 }
 
 function monitorGeoLocation() {
@@ -62,19 +52,17 @@ function monitorPower() {
 }
 
 function extractDevicesData() {
-    storage.has('device-data-extracted', (error, hasKey) => {
-        if (!hasKey) {
-            if (config.IS_WINDOWS) {
-                require('./windows-device-analyzer').deviceAnalysis()
-            }
-            else if (config.IS_LINUX) {
-                require('./linux-device-analyzer').deviceAnalysis()
-            }
-            else if (config.IS_OSX) {
-                require('./osx-device-analyzer').deviceAnalysis()
-            }
+    if (!conf.get('device-data-extracted')) {
+        if (config.IS_WINDOWS) {
+            require('./windows-device-analyzer').deviceAnalysis()
         }
-    })
+        else if (config.IS_LINUX) {
+            require('./linux-device-analyzer').deviceAnalysis()
+        }
+        else if (config.IS_OSX) {
+            require('./osx-device-analyzer').deviceAnalysis()
+        }
+    }
 }
 
 

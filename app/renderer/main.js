@@ -4,12 +4,14 @@ const crashReporter = require('../lib/crash-reporter')
 crashReporter.init({'scope': 'preferences'})
 
 const {ipcRenderer, remote} = require('electron')
-const storage = require('electron-json-storage')
+const ConfigStore = require('configstore')
 const AutoLaunch = require('auto-launch')
 const config = require('../config')
 const log = require('../lib/log')
 const enums = require('../lib/enums')
 const monitor = remote.require('./lib/monitor')
+
+const conf = new ConfigStore(config.APP_NAME)
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox
@@ -24,6 +26,8 @@ var aboutNavItem
 var appRunning
 var appPaused
 
+var selectedTab = null
+var ipcReady = false
 
 var appLauncher = new AutoLaunch({
     name: config.APP_NAME,
@@ -31,14 +35,10 @@ var appLauncher = new AutoLaunch({
 })
 
 ipcRenderer.on('selected-window', (event, windowType)=> {
-    if (windowType === enums.WindowType.ABOUT) {
-        selectTab(aboutNavItem)
-    }
-    else if (windowType === enums.WindowType.SETTINGS) {
-        selectTab(settingsNavItem)
-    }
-    else if (windowType === enums.WindowType.STATUS) {
-        selectTab(statusNavItem)
+    selectedTab = windowType
+    if(ipcReady)
+    {
+        checkIfShouldSelectTab()
     }
 })
 
@@ -57,8 +57,7 @@ function enableAutoStart() {
         }
         return appLauncher.enable()
     }).then((enabled) => {
-        storage.set('run-on-start-up', {run: true}, (error)=> {
-        })
+        conf.set('run-on-start-up', true)
     })
 }
 
@@ -69,74 +68,58 @@ function disableAutoStart() {
             return appLauncher.disable()
         }
     }).then((disabled)=> {
-        storage.set('run-on-start-up', {run: false}, (error) => {
-        })
+        conf.set('run-on-start-up', false)
     })
 }
 
 function checkIfAutoStartRunning() {
     log('checking if auto start running')
-    storage.get('run-on-start-up', (error, data) => {
-        if (data.run) {
-            runStartUpCheckBox.prop('checked', true)
-        }
-    })
+    if (conf.get('run-on-start-up')) {
+        runStartUpCheckBox.prop('checked', true)
+    }
 }
 
 function enableLimitedActivity() {
-    log('enabling limited activity')
-    storage.remove('limited-activity', (error) => {
-        checkIfAppRunning()
-    })
-    storage.remove('limited-activity-start-time', (error)=> {
-        timeLimitStart.val(0)
-        timeLimitStart.prop('disabled', true)
-    })
-    storage.remove('limited-activity-end-time', (error)=> {
-        timeLimitUpEnd.val(24)
-        timeLimitUpEnd.prop('disabled', true)
-    })
+    log('enabling unlimited activity')
+    conf.del('limited-activity')
+    conf.del('limited-activity-start-time')
+    conf.del('limited-activity-end-time')
+    timeLimitStart.val(0)
+    timeLimitStart.prop('disabled', true)
+    timeLimitUpEnd.val(24)
+    timeLimitUpEnd.prop('disabled', true)
+    checkIfAppRunning()
 }
 
 function disableLimitedActivity() {
-    log('disabling limited activity')
-    storage.set('limited-activity', {limited: true}, (error) => {
-        timeLimitStart.prop('disabled', false)
-        timeLimitUpEnd.prop('disabled', false)
-        checkIfAppRunning()
-    })
+    log('disabling unlimited activity')
+    conf.set('limited-activity', true)
+    conf.set('limited-activity-start-time', 0)
+    conf.set('limited-activity-end-time', 24)
+    timeLimitStart.prop('disabled', false)
+    timeLimitUpEnd.prop('disabled', false)
+    checkIfAppRunning()
 }
 
 function checkIfLimitedActivitySet() {
     log('checking if limited activity is set')
-    storage.has('limited-activity', (error, hasKey)=> {
-        if (!hasKey) {
-            timeLimitUpCheckBox.prop('checked', true)
-        }
-        else {
-            timeLimitStart.prop('disabled', false)
-            timeLimitUpEnd.prop('disabled', false)
-        }
-    })
-    storage.has('limited-activity-start-time', (error, hasKey)=> {
-        if (hasKey) {
-            storage.get('limited-activity-start-time', (error, data) => {
-                if (data.limitedStartTime) {
-                    timeLimitStart.val(data.limitedStartTime)
-                }
-            })
-        }
-    })
+    if (conf.get('limited-activity')) {
+        timeLimitStart.prop('disabled', false)
+        timeLimitUpEnd.prop('disabled', false)
+    }
+    else {
+        timeLimitUpCheckBox.prop('checked', true)
+    }
 
-    storage.has('limited-activity-end-time', (error, hasKey)=> {
-        if (hasKey) {
-            storage.get('limited-activity-end-time', (error, data)=> {
-                if (data.limitedEndTime) {
-                    timeLimitUpEnd.val(data.limitedEndTime)
-                }
-            })
-        }
-    })
+    var startTime = conf.get('limited-activity-start-time')
+    if (startTime !== 'undefined') {
+        timeLimitStart.val(startTime)
+    }
+
+    var endTime = conf.get('limited-activity-end-time')
+    if (endTime !== 'undefined') {
+        timeLimitStart.val(endTime)
+    }
 }
 
 function checkEndTimeValidation() {
@@ -161,6 +144,19 @@ function checkIfAppRunning() {
     }
 }
 
+function checkIfShouldSelectTab() {
+    if (selectedTab === enums.WindowType.ABOUT) {
+        selectTab(aboutNavItem)
+    }
+    else if (selectedTab === enums.WindowType.SETTINGS) {
+        selectTab(settingsNavItem)
+    }
+    else if (selectedTab === enums.WindowType.STATUS) {
+        selectTab(statusNavItem)
+    }
+    selectedTab = null
+}
+
 $(document).ready(()=> {
 
     runStartUpCheckBox = $('#run-at-start-up')
@@ -176,19 +172,16 @@ $(document).ready(()=> {
     appPaused = $('#app-paused-message')
     appRunning = $('#app-running-message')
 
-
-    navItems.click((e)=> {
-        var thisItem = $(e.target)
-        navItems.removeClass('active')
-        thisItem.addClass('active')
-        navPanes.hide()
-        $(`#${thisItem.data('manager-pane-id')}`).show()
-    })
-
+    ipcReady = true
 
     checkIfAutoStartRunning()
     checkIfLimitedActivitySet()
     checkIfAppRunning()
+    checkIfShouldSelectTab()
+
+    navItems.click((e)=> {
+        selectTab($(e.target))
+    })
 
     runStartUpCheckBox.click(()=> {
         if (runStartUpCheckBox.prop('checked')) {
@@ -206,26 +199,20 @@ $(document).ready(()=> {
         else {
             disableLimitedActivity()
         }
+        checkEndTimeValidation()
     })
 
     timeLimitStart.change(()=> {
         if (checkEndTimeValidation()) {
-            storage.set('limited-activity-start-time', {
-                limitedStartTime: timeLimitStart.val()
-            }, (error) => {
-                checkIfAppRunning()
-            })
+            conf.set('limited-activity-start-time', timeLimitStart.val())
+            checkIfAppRunning()
         }
     })
 
     timeLimitUpEnd.change(()=> {
         if (checkEndTimeValidation()) {
-            storage.set('limited-activity-end-time', {
-                limitedEndTime: timeLimitUpEnd.val()
-            }, (error)=> {
-                checkIfAppRunning()
-            })
+            conf.set('limited-activity-end-time', timeLimitUpEnd.val())
+            checkIfAppRunning()
         }
-
     })
 })

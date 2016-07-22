@@ -5,26 +5,25 @@ module.exports = {
 }
 
 const AutoLaunch = require('auto-launch')
-const storage = require('electron-json-storage')
+const ConfigStore = require('configstore')
 
 const config = require('../config')
 
-function init() {
-    storage.has('run-on-start-up', (error, hasKey) => {
-        if (!hasKey) {
-            var appLauncher = new AutoLaunch({
-                name: config.APP_NAME,
-                isHidden: true
-            })
-            appLauncher.isEnabled().then((enabled) => {
-                storage.set('run-on-start-up', {run: true}, (error) => {
-                })
-                if (enabled) {
-                    return
-                }
-                return appLauncher.enable()
-            })
+const conf = new ConfigStore(config.APP_NAME)
 
-        }
-    })
+var appLauncher = new AutoLaunch({
+    name: config.APP_NAME,
+    isHidden: true
+})
+
+function init() {
+    if (!conf.get('run-on-start-up')) {
+        appLauncher.isEnabled().then((enabled) => {
+            conf.set('run-on-start-up', true)
+            if (enabled) {
+                return
+            }
+            return appLauncher.enable()
+        })
+    }
 }

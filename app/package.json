@@ -15,7 +15,7 @@
     "application-config": "^0.2.2",
     "async": "^2.0.0-rc.6",
     "auto-launch": "^2.0.1",
-    "electron-json-storage": "^2.0.0",
+    "configstore": "^2.0.0",
     "electron-positioner": "^3.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "firebase": "^3.0.0",

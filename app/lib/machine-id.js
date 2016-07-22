@@ -4,21 +4,19 @@ module.exports = {
     init
 }
 
-const storage = require('electron-json-storage')
+const ConfigStore = require('configstore')
 const config = require('../config')
 const firebase = require('./firebase')
 
+const conf = new ConfigStore(config.APP_NAME)
+
 function init() {
-    storage.has('machine-uuid', (error, hasKey) => {
-        if (!hasKey) {
-            var tempId = require('node-uuid').v1()
-            storage.set('machine-uuid', {uuid: tempId}, (error) => {
-                global.machineId = tempId
-                firebase.registerDevice(tempId)
-            })
-        }
-        storage.get('machine-uuid', (error, data)=> {
-            global.machineId = data.uuid
-        })
-    })
+    if (conf.get('machine-uuid')) {
+        global.machineId = conf.get('machine-uuid')
+    }
+    else {
+        global.machineId = require('node-uuid').v1()
+        conf.set('machine-uuid', global.machineId)
+        firebase.registerDevice(global.machineId)
+    }
 }

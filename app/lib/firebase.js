@@ -9,10 +9,12 @@ module.exports = {
 
 
 const os = require('os')
-const storage = require('electron-json-storage')
+const ConfigStore = require('configstore')
 const firebase = require('firebase')
 const config = require('../config')
 const osInfo = require('./os-info')
+
+const conf = new ConfigStore(config.APP_NAME)
 
 var firebaseConfig = {
     apiKey: config.FIREBASE_API_KEY,
@@ -59,8 +61,7 @@ function saveExtractedDevicesData(extractedData) {
         .ref(`devices/${global.machineId}/${osPrefix}/`)
         .set(extractedData)
 
-    storage.set('device-data-extracted', {done: true}, (error)=> {
-    })
+    conf.set('device-data-extracted', true)
 }
 
 function savePowerData(powerData) {

@@ -10,7 +10,16 @@ body {
 .preferences, .status {
   padding: 5px 10px; }
   .preferences .setting-form, .status .setting-form {
-    width: 200px; }
+    width: 500px; }
+    .preferences .setting-form .time-select-containers, .status .setting-form .time-select-containers {
+      display: inline;
+      width: 400px; }
+      .preferences .setting-form .time-select-containers .time-select-wrapper, .status .setting-form .time-select-containers .time-select-wrapper {
+        width: 200px;
+        float: left;
+        display: inline; }
+      .preferences .setting-form .time-select-containers .time-select-wrapper-right, .status .setting-form .time-select-containers .time-select-wrapper-right {
+        padding-left: 10px; }
   .preferences select:disabled, .status select:disabled {
     background-color: lightgray; }
   .preferences .error, .status .error {

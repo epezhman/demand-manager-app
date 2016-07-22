@@ -68,9 +68,9 @@ function getMenu() {
             }, {
                 label: 'Clear All Storage',
                 click: ()=> {
-                    const storage = require('electron-json-storage')
-                    storage.clear((error) => {
-                    })
+                    const ConfigStore = require('configstore')
+                    const conf = new ConfigStore(config.APP_NAME)
+                    conf.clear()
                 }
             }]
         })
