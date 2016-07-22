@@ -15,6 +15,7 @@ const autoStart = require('../lib/auto-start')
 const machineIdInit = require('../lib/machine-id')
 const updater = require('../lib/updater')
 const monitor = require('../lib/monitor')
+const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
 
 const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
@@ -31,6 +32,7 @@ global.machineId = null
 
 function delayedStart() {
     monitor.init()
+    firebase.enableOfflineCapabilities()
     if (!config.IS_DEVELOPMENT) {
         updater.init()
     }

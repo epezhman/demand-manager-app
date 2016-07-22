@@ -4,7 +4,8 @@ module.exports = {
     registerDevice,
     saveLocation,
     saveExtractedDevicesData,
-    savePowerData
+    savePowerData,
+    enableOfflineCapabilities
 }
 
 
@@ -71,4 +72,20 @@ function savePowerData(powerData) {
     firebase.database()
         .ref(`devices/${global.machineId}/power/`)
         .push(powerData)
+}
+
+function enableOfflineCapabilities() {
+
+    var onlineConnectionsRef = firebase.database()
+        .ref(`devices/${global.machineId}/connections`)
+    var lastOnlineRef = firebase.database()
+        .ref(`devices/${global.machineId}/lastOnline`)
+    var connectedRef = firebase.database().ref('.info/connected')
+    connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+            var con = onlineConnectionsRef.push(firebase.database.ServerValue.TIMESTAMP)
+            con.onDisconnect().remove()
+            lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
+        }
+    })
 }

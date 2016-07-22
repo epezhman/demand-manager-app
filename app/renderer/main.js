@@ -50,7 +50,6 @@ function selectTab(tabToSelect) {
 }
 
 function enableAutoStart() {
-    log('enabling auto start')
     appLauncher.isEnabled().then((enabled) => {
         if (enabled) {
             return
@@ -62,7 +61,6 @@ function enableAutoStart() {
 }
 
 function disableAutoStart() {
-    log('disabling auto start')
     appLauncher.isEnabled().then((enabled)=> {
         if (enabled) {
             return appLauncher.disable()
@@ -73,14 +71,12 @@ function disableAutoStart() {
 }
 
 function checkIfAutoStartRunning() {
-    log('checking if auto start running')
     if (conf.get('run-on-start-up')) {
         runStartUpCheckBox.prop('checked', true)
     }
 }
 
 function enableLimitedActivity() {
-    log('enabling unlimited activity')
     conf.del('limited-activity')
     conf.del('limited-activity-start-time')
     conf.del('limited-activity-end-time')
@@ -92,7 +88,6 @@ function enableLimitedActivity() {
 }
 
 function disableLimitedActivity() {
-    log('disabling unlimited activity')
     conf.set('limited-activity', true)
     conf.set('limited-activity-start-time', 0)
     conf.set('limited-activity-end-time', 24)
@@ -102,7 +97,6 @@ function disableLimitedActivity() {
 }
 
 function checkIfLimitedActivitySet() {
-    log('checking if limited activity is set')
     if (conf.get('limited-activity')) {
         timeLimitStart.prop('disabled', false)
         timeLimitUpEnd.prop('disabled', false)
@@ -118,7 +112,7 @@ function checkIfLimitedActivitySet() {
 
     var endTime = conf.get('limited-activity-end-time')
     if (endTime !== 'undefined') {
-        timeLimitStart.val(endTime)
+        timeLimitUpEnd.val(endTime)
     }
 }
 
