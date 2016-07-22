@@ -119,7 +119,10 @@ autoUpdater.on(
 
 autoUpdater.on(
     'update-downloaded',
-    (e, notes, name, date, url) => log(`Update downloaded: ${name}: ${url}`)
+    (e, notes, name, date, url) => {
+        log(`Update downloaded: ${name}: ${url}`)
+        autoUpdater.quitAndInstall()
+    }
 )
 
 function initDarwinWin32() {
