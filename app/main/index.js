@@ -31,6 +31,9 @@ global.machineId = null
 
 function delayedStart() {
     monitor.init()
+    if (!config.IS_DEVELOPMENT) {
+        updater.init()
+    }
 }
 
 app.on('will-finish-launching', () => {
@@ -38,7 +41,6 @@ app.on('will-finish-launching', () => {
     machineIdInit.init()
     if (!config.IS_DEVELOPMENT) {
         autoStart.init()
-        updater.init()
     }
 })
 
