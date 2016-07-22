@@ -14,7 +14,7 @@ const config = require('../config')
 const windows = require('../main/windows')
 
 const log = require('./log')
-const conf = new ConfigStore(config.APP_NAME)
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 
 function shouldAppBeRunning() {

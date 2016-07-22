@@ -9,7 +9,7 @@ const ConfigStore = require('configstore')
 
 const config = require('../config')
 
-const conf = new ConfigStore(config.APP_NAME)
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 var appLauncher = new AutoLaunch({
     name: config.APP_NAME,

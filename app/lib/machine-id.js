@@ -8,7 +8,7 @@ const ConfigStore = require('configstore')
 const config = require('../config')
 const firebase = require('./firebase')
 
-const conf = new ConfigStore(config.APP_NAME)
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 function init() {
     if (conf.get('machine-uuid')) {

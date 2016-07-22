@@ -69,7 +69,7 @@ function getMenu() {
                 label: 'Clear All Storage',
                 click: ()=> {
                     const ConfigStore = require('configstore')
-                    const conf = new ConfigStore(config.APP_NAME)
+                    const conf = new ConfigStore(config.APP_SHORT_NAME)
                     conf.clear()
                 }
             }]

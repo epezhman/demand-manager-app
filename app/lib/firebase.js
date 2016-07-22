@@ -14,7 +14,7 @@ const firebase = require('firebase')
 const config = require('../config')
 const osInfo = require('./os-info')
 
-const conf = new ConfigStore(config.APP_NAME)
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 var firebaseConfig = {
     apiKey: config.FIREBASE_API_KEY,

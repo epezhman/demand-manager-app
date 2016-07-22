@@ -5,6 +5,7 @@ const fs = require('fs')
 const path = require('path')
 
 const appPackage = require('./package.json')
+const APP_SHORT_NAME = appPackage.name
 const APP_NAME = appPackage.productName
 const APP_TEAM = appPackage.author.name
 const APP_VERSION = appPackage.version
@@ -16,6 +17,7 @@ const IS_OSX = process.platform === 'darwin'
 
 module.exports = {
     APP_COPYRIGHT: 'Copyright © 2016 ' + APP_NAME,
+    APP_SHORT_NAME: APP_SHORT_NAME,
     APP_NAME: APP_NAME,
     APP_TEAM: APP_TEAM,
     APP_VERSION: APP_VERSION,

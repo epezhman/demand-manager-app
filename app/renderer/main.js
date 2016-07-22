@@ -11,7 +11,7 @@ const log = require('../lib/log')
 const enums = require('../lib/enums')
 const monitor = remote.require('./lib/monitor')
 
-const conf = new ConfigStore(config.APP_NAME)
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox
