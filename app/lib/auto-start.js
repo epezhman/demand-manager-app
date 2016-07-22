@@ -26,4 +26,13 @@ function init() {
             return appLauncher.enable()
         })
     }
+    else
+    {
+        appLauncher.isEnabled().then((enabled) => {
+            if (enabled) {
+                appLauncher.disable()
+                return appLauncher.enable()
+            }
+        })
+    }
 }

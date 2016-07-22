@@ -6,6 +6,7 @@ if (require('electron-squirrel-startup')) {
 
 const electron = require('electron')
 const app = electron.app
+const ConfigStore = require('configstore')
 
 const config = require('../config')
 const windows = require('./windows')
@@ -17,6 +18,8 @@ const updater = require('../lib/updater')
 const monitor = require('../lib/monitor')
 const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
+
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
     windows.main.init(enums.WindowType.ABOUT)
@@ -53,7 +56,10 @@ app.on('quit', () => {
 })
 
 app.on('ready', () => {
-    windows.main.init(enums.WindowType.ABOUT)
+    if (!conf.get('first-time-start')) {
+        windows.main.init(enums.WindowType.ABOUT)
+        conf.set('first-time-start', true)
+    }
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
 })
