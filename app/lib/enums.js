@@ -1,7 +1,13 @@
 'use strict'
 
-exports.WindowType = {
+
+module.exports.WindowType = {
     STATUS: 'status',
     SETTINGS: 'settings',
-    ABOUT: 'aout'
+    ABOUT: 'about'
+}
+
+module.exports.WMICommandType = {
+    DEVICE: 'device',
+    BATTERY: 'battery'
 }

@@ -11,22 +11,32 @@ const log = require('./log')
 const utils = require('./utils')
 const wmicParams = require('./wmic-params')
 const firebase = require('./firebase')
+const enums = require('./enums')
 
 const wmic = require('ms-wmic')
 const _ = require('lodash/string')
 const async = require('async')
 
 var windowsDeviceData = {}
+var batteryData = {}
 
-function runWMIC(wmiClass, command, paramCallback) {
+function runWMIC(wmicCommand, paramCallback) {
     try {
-        wmic.execute(`path ${wmiClass} get ${command}`, (err, stdOut) => {
+        wmic.execute(`/namespace:${wmicCommand.nameSpace} 
+        path ${wmicCommand.wmiClass} get ${wmicCommand.command}`, (err, stdOut) => {
             if (err) {
                 log.error(err)
                 return paramCallback()
             }
-            windowsDeviceData[_.trimStart(_.toLower(`${wmiClass}-${command}`), 'win32_')] =
-                utils.convertWmicStringToList(stdOut)
+            if (wmicCommand.commandType === enums.WMICommandType.DEVICE) {
+                windowsDeviceData[_.trimStart(_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`), 'win32_')] =
+                    utils.convertWmicStringToList(stdOut)
+            }
+            else if (wmicCommand.commandType === enums.WMICommandType.BATTERY) {
+                batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
+                    utils.convertWmicStringToList(stdOut)
+            }
+
             paramCallback()
         })
     }
@@ -36,11 +46,17 @@ function runWMIC(wmiClass, command, paramCallback) {
     }
 }
 
-function deviceAnalysis() {
-
-    async.eachOfLimit(wmicParams, 2, (wmiClassProps, wmiClass, commandCallback) => {
+function runAsyncCommands(wmicCommands) {
+    async.eachOfLimit(wmicCommands.commands, 2, (wmiClassProps, wmiClass, commandCallback) => {
         async.eachLimit(wmiClassProps, 3, (wmiClassProp, paramCallback) => {
-            runWMIC(wmiClass, wmiClassProp, paramCallback)
+
+            var command = {
+                wmiClass: wmiClass,
+                command: wmiClassProp,
+                nameSpace: wmicCommands.nameSpace,
+                commandType: wmicCommands.commandType
+            }
+            runWMIC(command, paramCallback)
         }, (err) => {
             if (err) {
                 log.error(err.message)
@@ -51,11 +67,34 @@ function deviceAnalysis() {
         if (err) {
             log.error(err.message)
         }
-        firebase.saveExtractedDevicesData(windowsDeviceData)
-        log(windowsDeviceData)
+        if (wmicCommands.commandType === enums.WMICommandType.DEVICE) {
+            firebase.saveExtractedDevicesData(windowsDeviceData)
+            log(windowsDeviceData)
+        }
+        else if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
+            firebase.saveBatteryData(batteryData)
+            log(batteryData)
+        }
+
     })
 }
 
-function monitorPower() {
+function deviceAnalysis() {
+    var wmicCommands = {
+        commands: wmicParams.DeviceDataExtraction,
+        nameSpace: '\\\\root\\CIMV2',
+        commandType: enums.WMICommandType.DEVICE,
+    }
+    runAsyncCommands(wmicCommands)
 
+}
+
+function monitorPower() {
+    batteryData = {}
+    var wmicCommands = {
+        commands: wmicParams.BatteryInfoMonitor,
+        nameSpace: '\\\\root\\WMI',
+        commandType: enums.WMICommandType.BATTERY,
+    }
+    runAsyncCommands(wmicCommands)
 }

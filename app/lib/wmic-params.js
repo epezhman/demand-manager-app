@@ -1,7 +1,8 @@
 'use strict'
 
+
 /* jshint ignore:start */
-module.exports = {
+module.exports.DeviceDataExtraction = {
     Win32_BaseBoard: ['Manufacturer', 'Product', 'SerialNumber', 'Version'],
     Win32_BIOS: ['BiosCharacteristics', 'BIOSVersion', 'Caption',
         'Name', 'Manufacturer', 'SerialNumber', 'ReleaseDate', 'SMBIOSBIOSVersion',
@@ -58,5 +59,14 @@ module.exports = {
         'Caption', 'CurrentBitsPerPixel', 'CurrentHorizontalResolution', 'CurrentNumberOfColors',
         'CurrentRefreshRate', 'CurrentVerticalResolution', 'Description', 'Name',
         'Status', 'VideoMemoryType', 'VideoArchitecture', 'VideoModeDescription', 'VideoProcessor']
+}
+
+module.exports.BatteryInfoMonitor = {
+    BatteryFullChargedCapacity: ['Tag', 'FullChargedCapacity'],
+    BatteryRuntime: ['EstimatedRuntime'],
+    BatteryStaticData: ['Capabilities'],
+    BatteryStatus: ['Active', 'ChargeRate', 'Charging', 'Critical',
+    'DischargeRate', 'Discharging', 'PowerOnline', 'RemainingCapacity',
+    'Voltage', 'Tag']
 }
 /* jshint ignore:end */

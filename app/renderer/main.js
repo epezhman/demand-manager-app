@@ -106,12 +106,12 @@ function checkIfLimitedActivitySet() {
     }
 
     var startTime = conf.get('limited-activity-start-time')
-    if (startTime !== 'undefined') {
+    if (startTime !== undefined) {
         timeLimitStart.val(startTime)
     }
 
     var endTime = conf.get('limited-activity-end-time')
-    if (endTime !== 'undefined') {
+    if (endTime !== undefined) {
         timeLimitUpEnd.val(endTime)
     }
 }

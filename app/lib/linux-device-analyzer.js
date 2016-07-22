@@ -154,6 +154,6 @@ function monitorPower() {
         if (err) {
             log.error(err)
         }
-        firebase.savePowerData(powerData)
+        firebase.saveBatteryData(powerData)
     })
 }

@@ -21,8 +21,8 @@ function shouldAppBeRunning() {
     if (conf.get('limited-activity')) {
         var startTime = conf.get('limited-activity-start-time')
         var endTime = conf.get('limited-activity-end-time')
-        startTime = startTime === 'undefined' ? 0 : startTime
-        endTime = endTime === 'undefined' ? 24 : endTime
+        startTime = startTime === undefined ? 0 : startTime
+        endTime = endTime === undefined ? 24 : endTime
         var d = new Date()
         return d.getHours() >= startTime && d.getHours() < endTime
     }

@@ -4,7 +4,7 @@ module.exports = {
     registerDevice,
     saveLocation,
     saveExtractedDevicesData,
-    savePowerData,
+    saveBatteryData,
     enableOfflineCapabilities
 }
 
@@ -54,7 +54,6 @@ function saveExtractedDevicesData(extractedData) {
         osPrefix = 'osx-extracted-devices'
     }
 
-
     firebase.database()
         .ref(`devices/${global.machineId}/${osPrefix}/`)
         .set(extractedData)
@@ -62,12 +61,24 @@ function saveExtractedDevicesData(extractedData) {
     conf.set('device-data-extracted', true)
 }
 
-function savePowerData(powerData) {
+
+function saveBatteryData(powerData) {
 
     powerData['time'] = firebase.database.ServerValue.TIMESTAMP
 
+    var osPrefix = ''
+    if (config.IS_WINDOWS) {
+        osPrefix = 'windows-battery'
+    }
+    else if (config.IS_LINUX) {
+        osPrefix = 'linux-battery'
+    }
+    else if (config.IS_OSX) {
+        osPrefix = 'osx-battery'
+    }
+
     firebase.database()
-        .ref(`devices/${global.machineId}/power/`)
+        .ref(`devices/${global.machineId}/${osPrefix}/`)
         .push(powerData)
 }
 
