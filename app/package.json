@@ -18,7 +18,7 @@
     "configstore": "^2.0.0",
     "electron-positioner": "^3.0.0",
     "electron-squirrel-startup": "^1.0.0",
-    "firebase": "^3.0.0",
+    "firebase": "^3.2.0",
     "firebase-safekey": "^0.1.7",
     "is-online": "^5.1.1",
     "jquery": "^3.0.0",

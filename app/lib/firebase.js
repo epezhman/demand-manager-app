@@ -8,7 +8,6 @@ module.exports = {
     enableOfflineCapabilities
 }
 
-
 const os = require('os')
 const ConfigStore = require('configstore')
 const firebase = require('firebase')
@@ -31,7 +30,6 @@ function registerDevice() {
     })
 }
 
-
 function saveLocation(geolocation) {
 
     geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
@@ -40,7 +38,6 @@ function saveLocation(geolocation) {
         .ref(`devices/${global.machineId}/locations/`)
         .push(geolocation)
 }
-
 
 function saveExtractedDevicesData(extractedData) {
 
