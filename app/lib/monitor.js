@@ -67,7 +67,6 @@ function extractDevicesData() {
 
 
 function init() {
-    extractDevicesData()
     monitorGeoLocation()
     monitorPower()
 }
