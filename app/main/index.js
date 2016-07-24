@@ -58,7 +58,7 @@ app.on('quit', () => {
 app.on('ready', () => {
     if (!conf.get('first-time-start')) {
         windows.main.init(enums.WindowType.ABOUT)
-        conf.set('first-time-start', true)
+       conf.set('first-time-start', true)
     }
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)

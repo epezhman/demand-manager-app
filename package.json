@@ -46,6 +46,9 @@
       "**/*",
       "!assets/stylesheets/sass"
     ],
+    "linux": {
+      "synopsis": "TUM Demand Manager"
+    },
     "dmg": {
       "title": "TUM Demand Manager",
       "icon-size": 128,
