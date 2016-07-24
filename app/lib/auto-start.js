@@ -11,10 +11,22 @@ const config = require('../config')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
-var appLauncher = new AutoLaunch({
-    name: config.APP_NAME,
-    isHidden: true
-})
+var appLauncher = null
+
+if(config.IS_LINUX)
+{
+    appLauncher = new AutoLaunch({
+        name: config.APP_SHORT_NAME,
+        path: config.AUTO_LAUNCH_LINUX_COMMAND
+    })
+}
+else
+{
+    appLauncher = new AutoLaunch({
+        name: config.APP_NAME
+    })
+}
+
 
 function init() {
     if (!conf.get('run-on-start-up')) {
@@ -30,8 +42,10 @@ function init() {
     {
         appLauncher.isEnabled().then((enabled) => {
             if (enabled) {
-                appLauncher.disable()
-                return appLauncher.enable()
+                appLauncher.disable().then(()=>{
+                    return appLauncher.enable()
+                })
+
             }
         })
     }

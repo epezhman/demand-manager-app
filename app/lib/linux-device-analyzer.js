@@ -17,6 +17,7 @@ const config = require('../config')
 const log = require('./log')
 const firebase = require('./firebase')
 const utils = require('./utils')
+const notify = require('./notify')
 
 
 var linuxDeviceData = {}
@@ -31,6 +32,8 @@ function getLshwCommandData(cb) {
         if (lshwStdout.includes('command not found')) {
             return cb(null, true)
         }
+        notify('We need to collect some data about the your hardware with a SUDO command. ' +
+            'Your password will not be saved')
         sudo.exec('lshw -json', {name: config.APP_NAME}, (lshwJsonErr, lshwJsonStdout, lshwJsonStderr) => {
             if (lshwJsonErr) {
                 log.error(lshwJsonErr)
@@ -53,6 +56,8 @@ function getDmidecodeCommandData(performThisMethod, cb) {
             if (dmiCheckStdout.includes('command not found')) {
                 return cb(null, true)
             }
+            notify('We need to collect some data about the your hardware with a SUDO command. ' +
+                'Your password will not be saved')
             sudo.exec('dmidecode', {name: config.APP_NAME}, (dmiErr, dmiStdout, dmiStderr) => {
                 if (dmiErr) {
                     log.error(dmiErr)
@@ -91,7 +96,7 @@ function getCommandsSetData(performThisMethod, cb) {
                 commandStdout.includes('No such file or directory')) {
                 return commandCb()
             }
-            linuxDeviceData[_.split(command, ' ')[0]] =  utils.tryConvertToJson(commandStdout)
+            linuxDeviceData[_.split(command, ' ')[0]] = utils.tryConvertToJson(commandStdout)
             commandCb()
         })
     }, (err)=> {
@@ -107,8 +112,7 @@ function sendExtractedData(err, result) {
         log.error(err)
     }
 
-    if (linuxDeviceData && _.size(linuxDeviceData))
-    {
+    if (linuxDeviceData && _.size(linuxDeviceData)) {
         firebase.saveExtractedDevicesData(linuxDeviceData)
     }
 
@@ -131,7 +135,7 @@ function monitorPower() {
         power1: 'cat /sys/class/power_supply/BAT0/power_now',
         power2: 'cat /sys/bus/acpi/drivers/battery/PNP0C0A:00/power_supply/BAT0/power_now',
         power3: 'cat /sys/class/powercap/*/energy_uj',
-        battery1 : 'upower -i /org/freedesktop/UPower/devices/battery_BAT0',
+        battery1: 'upower -i /org/freedesktop/UPower/devices/battery_BAT0',
         battery2: 'acpi -ib',
         battery3: 'acpi',
         battery4: ' acpi -V',

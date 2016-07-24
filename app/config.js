@@ -32,6 +32,8 @@ module.exports = {
     AUTO_UPDATE_OSX_BASE_URL: 'http://188.166.160.83/update_server/updates/latest/osx',
     AUTO_UPDATE_CHECK_INTERVAL: 43200000,
 
+    AUTO_LAUNCH_LINUX_COMMAND : '/opt/TUM\\ Demand\\ Manager/TUM\\ Demand\\ Manager',
+
     CRASH_REPORT_URL: 'http://188.166.160.83/crash_report/post',
 
     CONFIG_PATH: getConfigPath(),

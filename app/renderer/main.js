@@ -29,10 +29,22 @@ var appPaused
 var selectedTab = null
 var ipcReady = false
 
-var appLauncher = new AutoLaunch({
-    name: config.APP_NAME,
-    isHidden: true
-})
+var appLauncher = null
+
+if(config.IS_LINUX)
+{
+    appLauncher = new AutoLaunch({
+        name: config.APP_SHORT_NAME,
+        path: config.AUTO_LAUNCH_LINUX_COMMAND
+    })
+}
+else
+{
+    appLauncher = new AutoLaunch({
+        name: config.APP_NAME
+    })
+}
+
 
 ipcRenderer.on('selected-window', (event, windowType)=> {
     selectedTab = windowType
