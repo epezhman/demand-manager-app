@@ -1,5 +1,7 @@
 var main = module.exports = {
     init,
+    logMessage,
+    logErrorMessage,
     win: null
 }
 
@@ -47,4 +49,17 @@ function init(windowType) {
     })
 
     win.once('ready-to-show', () => win.show())
+}
+
+
+function logMessage(msg) {
+    if (main.win) {
+        main.win.webContents.send('log-message', msg)
+    }
+}
+
+function logErrorMessage(msg) {
+    if (main.win) {
+        main.win.webContents.send('log-error-message', msg)
+    }
 }

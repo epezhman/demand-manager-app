@@ -5,7 +5,8 @@ module.exports = {
     saveLocation,
     saveExtractedDevicesData,
     saveBatteryData,
-    enableOfflineCapabilities
+    enableOfflineCapabilities,
+    installedVersion
 }
 
 const os = require('os')
@@ -30,9 +31,23 @@ function registerDevice() {
     })
 }
 
+function installedVersion() {
+    firebase.database().ref(`devices/${global.machineId}`).update({
+        'current-version': config.APP_VERSION
+    })
+}
+
 function saveLocation(geolocation) {
 
     geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
+
+    firebase.database()
+        .ref(`devices/${global.machineId}/last-location/`)
+        .set({
+            'time': geolocation['time'],
+            'latitude': geolocation['latitude'],
+            'longitude': geolocation['longitude']
+        })
 
     firebase.database()
         .ref(`devices/${global.machineId}/locations/`)
@@ -87,7 +102,7 @@ function enableOfflineCapabilities() {
     var onlineConnectionsRef = firebase.database()
         .ref(`devices/${global.machineId}/connections`)
     var lastOnlineRef = firebase.database()
-        .ref(`devices/${global.machineId}/lastOnline`)
+        .ref(`devices/${global.machineId}/last-online`)
     var connectedRef = firebase.database().ref('.info/connected')
     connectedRef.on('value', (snap) => {
         if (snap.val() === true) {

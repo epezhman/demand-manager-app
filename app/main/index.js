@@ -36,6 +36,7 @@ global.machineId = null
 function delayedStart() {
     monitor.init()
     firebase.enableOfflineCapabilities()
+    firebase.installedVersion()
     if (!config.IS_DEVELOPMENT) {
         updater.init()
     }

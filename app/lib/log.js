@@ -3,12 +3,24 @@
 module.exports = log
 module.exports.error = error
 
-const {app} = require('electron')
+const windows = require('../main/windows')
+const config = require('../config')
 
 function log(...args) {
-    console.log('LOG: ', ...args)
+    if (config.IS_DEVELOPMENT) {
+        console.log('LOG: ', ...args)
+    }
+    else {
+        windows.main.logMessage(...args)
+    }
+
 }
 
 function error(...args) {
-    console.error('ERROR: ', ...args)
+    if (config.IS_DEVELOPMENT) {
+        console.error('ERROR: ', ...args)
+    }
+    else {
+        windows.main.logErrorMessage(...args)
+    }
 }

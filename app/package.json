@@ -12,7 +12,7 @@
   "license": "MIT",
   "homepage": "https://www.i13.in.tum.de/",
   "dependencies": {
-    "application-config": "^0.2.2",
+    "application-config": "^1.0.0",
     "async": "^2.0.0-rc.6",
     "auto-launch": "^2.0.1",
     "configstore": "^2.0.0",
