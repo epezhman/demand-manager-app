@@ -10,8 +10,15 @@ const config = require('../config')
 const log = require('../lib/log')
 const enums = require('../lib/enums')
 const monitor = remote.require('./lib/monitor')
+const notify = remote.require('./lib/notify')
+const windows = remote.require('./main/windows')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
+
+var firebaseConfig = {
+    apiKey: config.FIREBASE_API_KEY,
+    authDomain: config.FIREBASE_AUTH_DOMAIN
+}
 
 var runStartUpCheckBox
 var timeLimitUpCheckBox
@@ -25,31 +32,35 @@ var settingsNavItem
 var aboutNavItem
 var appRunning
 var appPaused
+var registered
+var notRegistered
+var registeredEmail
+var emailRegisterButton
+var googleRegisterButton
+var githubRegisterButton
+var registerEmailForm
+var emailInput
 
 var selectedTab = null
 var ipcReady = false
 
 var appLauncher = null
 
-if(config.IS_LINUX)
-{
+if (config.IS_LINUX) {
     appLauncher = new AutoLaunch({
         name: config.APP_SHORT_NAME,
         path: config.AUTO_LAUNCH_LINUX_COMMAND
     })
 }
-else
-{
+else {
     appLauncher = new AutoLaunch({
         name: config.APP_NAME
     })
 }
 
-
 ipcRenderer.on('selected-window', (event, windowType)=> {
     selectedTab = windowType
-    if(ipcReady)
-    {
+    if (ipcReady) {
         checkIfShouldSelectTab()
     }
 })
@@ -59,7 +70,7 @@ ipcRenderer.on('log-message', (event, msg)=> {
 })
 
 ipcRenderer.on('log-error-message', (event, msg)=> {
-   console.error(msg)
+    console.error(msg)
 })
 
 function selectTab(tabToSelect) {
@@ -171,6 +182,41 @@ function checkIfShouldSelectTab() {
     selectedTab = null
 }
 
+function checkIfRegisteredUser() {
+    if (conf.get('register-email')) {
+        registered.show()
+        registeredEmail.text(conf.get('register-email'))
+    }
+    else {
+        firebase.initializeApp(firebaseConfig)
+        notRegistered.show()
+    }
+}
+
+function showEmail(email) {
+    //conf.set('register-email', email)
+    notify('You successfully registered, we will inform you in case you win! :)')
+    registered.show()
+    registeredEmail.text(email)
+    notRegistered.show()
+}
+
+function registerEmail(email) {
+    var password = 'SomeStrongPassword'
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(()=> {
+        return showEmail(email)
+    }).catch(function (errorSignUp) {
+        if (errorSignUp.code === 'auth/email-already-in-use') {
+            return showEmail(email)
+        }
+        return notify(errorSignUp.message)
+    })
+}
+
+function registerAuthProvider(registerType) {
+    windows.register.init(registerType)
+}
+
 $(document).ready(()=> {
 
     runStartUpCheckBox = $('#run-at-start-up')
@@ -185,6 +231,14 @@ $(document).ready(()=> {
     aboutNavItem = $('#about-menu-item')
     appPaused = $('#app-paused-message')
     appRunning = $('#app-running-message')
+    registered = $('#already-registered')
+    notRegistered = $('#not-registered')
+    registeredEmail = $('#user-registered-email')
+    emailRegisterButton = $('#email-register-button')
+    googleRegisterButton = $('#google-register-button')
+    githubRegisterButton = $('#github-register-button')
+    registerEmailForm = $('.email-form')
+    emailInput = $('#email-input')
 
     ipcReady = true
 
@@ -193,8 +247,27 @@ $(document).ready(()=> {
     checkIfAppRunning()
     checkIfShouldSelectTab()
 
+    checkIfRegisteredUser()
+
     navItems.click((e)=> {
         selectTab($(e.target))
+    })
+
+    emailRegisterButton.click(()=> {
+        registerEmailForm.toggle(100)
+    })
+
+    registerEmailForm.on('submit', (e)=> {
+        e.preventDefault()
+        registerEmail(emailInput.val())
+    })
+
+    googleRegisterButton.click(()=> {
+        registerAuthProvider(enums.RegisterType.GOOGLE)
+    })
+
+    githubRegisterButton.click(()=> {
+        registerAuthProvider(enums.RegisterType.GITHUB)
     })
 
     runStartUpCheckBox.click(()=> {

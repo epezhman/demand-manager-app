@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TUM Demand Manager</title>
+    <link rel="shortcut icon" href="../assets/img/icon.ico">
     <link rel="stylesheet" href="../assets/stylesheets/photon/css/photon.css">
     <link href="../assets/stylesheets/css/main.css" rel="stylesheet" type="text/css">
 </head>
@@ -34,142 +35,180 @@
 
             <div class="pane">
 
-                <div class="status">
-                    <div id="status-pane" class="manager-pane" style="display: none">
-                        <h3 style="display: none" id="app-running-message">
-                            <span class="icon icon-play"></span>
-                            App is running
-                        </h3>
-                        <h3 style="display: none" id="app-paused-message">
-                            <span class="icon icon-pause"></span>
-                            App is paused
-                        </h3>
-                    </div>
+                <div class="status manager-pane" id="status-pane" style="display: none">
+                    <h3 style="display: none" id="app-running-message">
+                        <span class="icon icon-play"></span>
+                        App is running
+                    </h3>
+                    <h3 style="display: none" id="app-paused-message">
+                        <span class="icon icon-pause"></span>
+                        App is paused
+                    </h3>
                 </div>
 
 
-                <div class="about">
-                    <div id="about-pane" class="manager-pane" style="display: none">
-
-                        <div class="intro-warpper">
-                            <div class="intro-warpper-inner-left">
-                                <img src="../assets/img/power-512x512.png" class="main-logo">
-                            </div>
-                            <div class="intro-warpper-inner-right">
-                                <h2>
-                                    <script>document.write(require('../config').APP_NAME)</script>
-                                </h2>
-                                <h3>
-                                    Version
-                                    <script>document.write(require('../config').APP_VERSION)</script>
-                                </h3>
-                            </div>
+                <div class="about manager-pane" id="about-pane" style="display: none">
+                    <div class="intro-wrapper">
+                        <div class="intro-wrapper-inner-left">
+                            <img src="../assets/img/power-512x512.png" class="main-logo">
                         </div>
-                        <p>
-                            <span class="icon icon-dot"></span>
-                            Thank you for helping us.
-                        </p>
-                        <p>
-                            <span class="icon icon-dot"></span>
-                            You can close this window, the app in running on the background and you can control it from
-                            tray.
-                        </p>
+                        <div class="intro-wrapper-inner-right">
+                            <h2>
+                                <script>document.write(require('../config').APP_NAME)</script>
+                            </h2>
+                            <h3>
+                                Version
+                                <script>document.write(require('../config').APP_VERSION)</script>
+                            </h3>
+                        </div>
                     </div>
+                    <p>
+                        <span class="icon icon-dot"></span>
+                        Thank you for helping us.
+                    </p>
+                    <p>
+                        <span class="icon icon-dot"></span>
+                        You can close this window, the app in running on the background and you can control it from
+                        tray.
+                    </p>
                 </div>
 
 
-                <div class="preferences">
-                    <div id="settings-pane" class="manager-pane" style="display: none">
-                        <div class="setting-form">
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox" id="run-at-start-up"> Run when the computer starts
-                                </label>
+                <div class="preferences manager-pane" id="settings-pane" style="display: none">
+                    <div class="setting-form">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="run-at-start-up"> Run when the computer starts
+                            </label>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="setting-form">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="limited-activity"> Run without time limit
+                            </label>
+                        </div>
+
+                        <div class="time-select-containers">
+                            <div class="form-group time-select-wrapper">
+                                <label for="limited-activity-start-time">Run daily from:</label>
+                                <select class="form-control" id="limited-activity-start-time" disabled="disabled">
+                                    <option value="0" selected="selected">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                </select>
+                            </div>
+                            <div class="form-group time-select-wrapper time-select-wrapper-right">
+                                <label for="limited-activity-end-time">To:</label>
+                                <select class="form-control" id="limited-activity-end-time" disabled="disabled">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24" selected="selected">24</option>
+                                </select>
                             </div>
                         </div>
-                        <hr>
-                        <div class="setting-form">
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox" id="limited-activity"> Run without time limit
-                                </label>
-                            </div>
 
-                            <div class="time-select-containers">
-                                <div class="form-group time-select-wrapper">
-                                    <label>Run daily from:</label>
-                                    <select class="form-control" id="limited-activity-start-time" disabled="disabled">
-                                        <option value="0" selected="selected">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                        <option value="13">13</option>
-                                        <option value="14">14</option>
-                                        <option value="15">15</option>
-                                        <option value="16">16</option>
-                                        <option value="17">17</option>
-                                        <option value="18">18</option>
-                                        <option value="19">19</option>
-                                        <option value="20">20</option>
-                                        <option value="21">21</option>
-                                        <option value="22">22</option>
-                                        <option value="23">23</option>
-                                        <option value="24">24</option>
-                                    </select>
+                        <div class="form-group error" id="end-time-error" style="display: none">
+                            <label>End time can not be equal or smaller than start time</label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="register manager-pane" id="register-pane" style="display: none">
+                    <div class="prize-wrapper">
+                        <div class="prize-wrapper-inner-left">
+                            <img src="../assets/img/prize.png" class="prize-logo">
+                        </div>
+                        <div class="prize-wrapper-inner-right">
+                            <h4>
+                                Register to win a prize!
+                            </h4>
+                            <h6>
+                                <span class="icon icon-info-circled"></span>
+                                We only use the email to contact you in case you won the prize.
+
+                            </h6>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="registration-status">
+                        <div id="not-registered" style="display: none">
+                            <button class="btn btn-large btn-default" id="email-register-button">
+                                <span class="icon icon-mail"></span>
+                                Your Email
+                            </button>
+                            <button class="btn btn-large btn-default" id="google-register-button">
+                                <span class="icon icon-gplus"></span>
+                                Your Google Account
+                            </button>
+                            <button class="btn btn-large btn-default" id="github-register-button">
+                                <span class="icon icon-github"></span>
+                                Your Github Account
+                            </button>
+                            <form class="email-form" style="display: none">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input id="email-input" type="email" class="form-control" placeholder="Email" required>
                                 </div>
-                                <div class="form-group time-select-wrapper time-select-wrapper-right">
-                                    <label>To:</label>
-                                    <select class="form-control" id="limited-activity-end-time" disabled="disabled">
-                                        <option value="0">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                        <option value="13">13</option>
-                                        <option value="14">14</option>
-                                        <option value="15">15</option>
-                                        <option value="16">16</option>
-                                        <option value="17">17</option>
-                                        <option value="18">18</option>
-                                        <option value="19">19</option>
-                                        <option value="20">20</option>
-                                        <option value="21">21</option>
-                                        <option value="22">22</option>
-                                        <option value="23">23</option>
-                                        <option value="24" selected="selected">24</option>
-                                    </select>
-                                </div>
-                            </div>
+                                <input type="submit" value="Register" class="btn btn-primary">
 
-                            <div class="form-group error" id="end-time-error" style="display: none">
-                                <label>End time can not be equal or smaller than start time</label>
-                            </div>
-
+                            </form>
+                        </div>
+                        <div id="already-registered" style="display: none">
+                            <p>
+                                <span class="icon icon-star"></span>
+                                Your already registered as <span id="user-registered-email"></span>
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                <div class="register">
-                    <div id="register-pane" class="manager-pane" style="display: none">
-                        stuff
-                    </div>
+
                 </div>
 
             </div>
@@ -183,6 +222,7 @@
     }
 </script>
 <script src="../node_modules/jquery/dist/jquery.js"></script>
+<script src="../assets/bower/firebase/firebase.js"></script>
 <script src="main.js"></script>
 <!--<script src="http://localhost:35729/livereload.js"></script>-->
 </body>

@@ -34,17 +34,39 @@ body {
   overflow: hidden;
   font-size: 16px;
   -webkit-user-select: none; }
-  .about .intro-warpper {
+  .about .intro-wrapper {
     width: 500px;
     height: 150px;
     padding-top: 5px; }
-    .about .intro-warpper .intro-warpper-inner-left {
+    .about .intro-wrapper .intro-wrapper-inner-left {
       width: 150px;
       float: left;
       height: 100%; }
-      .about .intro-warpper .intro-warpper-inner-left .main-logo {
+      .about .intro-wrapper .intro-wrapper-inner-left .main-logo {
         width: 140px;
         height: 140px; }
-    .about .intro-warpper .intro-warpper-inner-right {
+    .about .intro-wrapper .intro-wrapper-inner-right {
       height: 100%;
-      padding-top: 0px; }
+      padding-top: 0; }
+
+.register {
+  padding: 5px 10px;
+  -webkit-user-select: none; }
+  .register .prize-wrapper {
+    width: 500px;
+    height: 110px; }
+    .register .prize-wrapper .prize-wrapper-inner-left {
+      float: left;
+      width: 110px;
+      height: 100%;
+      padding: 5px; }
+      .register .prize-wrapper .prize-wrapper-inner-left .prize-logo {
+        width: 100px;
+        height: 100px; }
+    .register .prize-wrapper .prize-wrapper-inner-right {
+      padding: 2px 0 0 50px; }
+  .register .registration-status {
+    padding: 5px; }
+  .register .email-form {
+    width: 200px;
+    padding: 10px 0; }

@@ -21,7 +21,7 @@ function init() {
 
     win.loadURL(config.WINDOW_GEOLOCATION)
 
-    win.webContents.on('did-frame-finish-load', function () {
+    win.webContents.on('did-frame-finish-load', ()=> {
         win.webContents.send('find-location', true)
     })
 

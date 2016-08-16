@@ -3,3 +3,4 @@ node_modules
 dist
 *.log
 tasks/secrets.config.js
+npm-debug*

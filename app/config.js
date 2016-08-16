@@ -49,6 +49,7 @@ module.exports = {
     WINDOW_MAIN: 'file://' + path.join(__dirname, 'renderer', 'main.html'),
     WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
     WINDOW_GEOLOCATION: 'file://' + path.join(__dirname, 'renderer', 'lib', 'geolocation.html'),
+    WINDOW_REGISTER:  path.join(__dirname, 'renderer', 'lib', 'register.html'),
 
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,
@@ -56,6 +57,7 @@ module.exports = {
 
     FIREBASE_DATABASE_URL: 'https://tum-dm-fireb.firebaseio.com',
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
+    FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
     DELAY_START_TIME: 60000,
     DELAY_START_TIME_FIRST_TIME: 10000,

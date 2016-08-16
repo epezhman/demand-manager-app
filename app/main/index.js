@@ -65,3 +65,25 @@ app.on('ready', () => {
     setTimeout(delayedStart, config.DELAY_START_TIME)
     setTimeout(monitor.extractDevicesData, config.DELAY_START_TIME_FIRST_TIME)
 })
+
+const http = require('http')
+const fs = require('fs')
+
+const PORT = 8080
+
+function handleRequest(request, response) {
+    if ( request.url === '/pagee') {
+        fs.readFile(config.WINDOW_REGISTER, (err, html) => {
+            if (err) {
+                log.error(err.message)
+            }
+            response.writeHeader(200, {"Content-Type": "text/html"})
+            response.write(html)
+            response.end()
+        })
+    }
+}
+
+http.createServer(handleRequest).listen(PORT, ()=> {
+
+})

@@ -21,7 +21,7 @@ function init(msg) {
 
     win.setMenu(null)
 
-    win.webContents.on('did-frame-finish-load', function () {
+    win.webContents.on('did-frame-finish-load', ()=> {
         win.webContents.send('notify', msg)
     })
     win.once('closed', (e) => notify.win = null)

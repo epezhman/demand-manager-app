@@ -1,0 +1,17 @@
+{
+  "name": "tumdmdesktop",
+  "description": "TUM Demand Manager for Computers.",
+  "main": "",
+  "license": "MIT",
+  "homepage": "https://github.com/epezhman/demand-manager-app",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "firebase": "^3.2.1"
+  }
+}

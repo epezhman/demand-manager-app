@@ -6,11 +6,11 @@ const electron = require('electron')
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const windows = require('../main/windows')
-const updater = require('../lib/updater')
+const updater = require('./updater')
 const config = require('../config')
-const powerControl = require('../lib/power-control')
+const powerControl = require('./power-control')
 const enums = require('./enums')
-
+const log = require('./log')
 
 function getMenu() {
     var template = [{

@@ -44,7 +44,7 @@ function init(windowType) {
 
     win.once('closed', (e) => main.win = null)
 
-    win.webContents.on('did-frame-finish-load', function () {
+    win.webContents.on('did-frame-finish-load', ()=> {
         win.webContents.send('selected-window', windowType)
     })
 
