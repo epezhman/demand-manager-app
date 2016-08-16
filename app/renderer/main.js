@@ -9,9 +9,7 @@ const AutoLaunch = require('auto-launch')
 const config = require('../config')
 const log = require('../lib/log')
 const enums = require('../lib/enums')
-const monitor = remote.require('./lib/monitor')
 const notify = remote.require('./lib/notify')
-const windows = remote.require('./main/windows')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -36,8 +34,6 @@ var registered
 var notRegistered
 var registeredEmail
 var emailRegisterButton
-var googleRegisterButton
-var githubRegisterButton
 var registerEmailForm
 var emailInput
 
@@ -159,7 +155,7 @@ function checkEndTimeValidation() {
 }
 
 function checkIfAppRunning() {
-    if (monitor.shouldAppBeRunning()) {
+    if (remote.require('./lib/monitor').shouldAppBeRunning()) {
         appPaused.hide()
         appRunning.show()
     }
@@ -188,21 +184,24 @@ function checkIfRegisteredUser() {
         registeredEmail.text(conf.get('register-email'))
     }
     else {
-        firebase.initializeApp(firebaseConfig)
-        notRegistered.show()
+        $.getScript('../assets/bower/firebase/firebase.js', (data, textStatus, jqxhr) => {
+            firebase.initializeApp(firebaseConfig)
+            notRegistered.show()
+        })
     }
 }
 
 function showEmail(email) {
-    //conf.set('register-email', email)
+    conf.set('register-email', email)
     notify('You successfully registered, we will inform you in case you win! :)')
     registered.show()
     registeredEmail.text(email)
-    notRegistered.show()
+    notRegistered.hide()
 }
 
 function registerEmail(email) {
     var password = 'SomeStrongPassword'
+
     firebase.auth().createUserWithEmailAndPassword(email, password).then(()=> {
         return showEmail(email)
     }).catch(function (errorSignUp) {
@@ -211,10 +210,10 @@ function registerEmail(email) {
         }
         return notify(errorSignUp.message)
     })
-}
 
-function registerAuthProvider(registerType) {
-    windows.register.init(registerType)
+    firebase.auth().onAuthStateChanged((user)=> {
+        user.sendEmailVerification()
+    })
 }
 
 $(document).ready(()=> {
@@ -235,8 +234,6 @@ $(document).ready(()=> {
     notRegistered = $('#not-registered')
     registeredEmail = $('#user-registered-email')
     emailRegisterButton = $('#email-register-button')
-    googleRegisterButton = $('#google-register-button')
-    githubRegisterButton = $('#github-register-button')
     registerEmailForm = $('.email-form')
     emailInput = $('#email-input')
 
@@ -260,14 +257,6 @@ $(document).ready(()=> {
     registerEmailForm.on('submit', (e)=> {
         e.preventDefault()
         registerEmail(emailInput.val())
-    })
-
-    googleRegisterButton.click(()=> {
-        registerAuthProvider(enums.RegisterType.GOOGLE)
-    })
-
-    githubRegisterButton.click(()=> {
-        registerAuthProvider(enums.RegisterType.GITHUB)
     })
 
     runStartUpCheckBox.click(()=> {

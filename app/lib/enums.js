@@ -12,9 +12,3 @@ module.exports.WMICommandType = {
     DEVICE: 'device',
     BATTERY: 'battery'
 }
-
-module.exports.RegisterType = {
-    EMAIL: 'email',
-    GOOGLE: 'google',
-    GITHUB: 'github'
-}

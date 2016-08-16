@@ -5,12 +5,16 @@ module.exports = getMenu
 const electron = require('electron')
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
+const ConfigStore = require('configstore')
+
 const windows = require('../main/windows')
 const updater = require('./updater')
 const config = require('../config')
 const powerControl = require('./power-control')
 const enums = require('./enums')
 const log = require('./log')
+
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 function getMenu() {
     var template = [{
@@ -68,9 +72,12 @@ function getMenu() {
             }, {
                 label: 'Clear All Storage',
                 click: ()=> {
-                    const ConfigStore = require('configstore')
-                    const conf = new ConfigStore(config.APP_SHORT_NAME)
                     conf.clear()
+                }
+            }, {
+                label: 'Clear Registered Email',
+                click: ()=> {
+                    conf.del('register-email')
                 }
             }]
         })

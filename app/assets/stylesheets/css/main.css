@@ -51,6 +51,8 @@ body {
 
 .register {
   padding: 5px 10px;
+  overflow: hidden;
+  font-size: 16px;
   -webkit-user-select: none; }
   .register .prize-wrapper {
     width: 500px;
@@ -67,6 +69,7 @@ body {
       padding: 2px 0 0 50px; }
   .register .registration-status {
     padding: 5px; }
-  .register .email-form {
-    width: 200px;
-    padding: 10px 0; }
+    .register .registration-status .email-form {
+      width: 300px; }
+    .register .registration-status #user-registered-email {
+      color: #388df8; }
