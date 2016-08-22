@@ -50,7 +50,7 @@ if (config.IS_LINUX) {
 }
 else {
     appLauncher = new AutoLaunch({
-        name: config.APP_NAME
+        name: config.APP_SHORT_NAME
     })
 }
 
@@ -184,8 +184,8 @@ function checkIfRegisteredUser() {
         registeredEmail.text(conf.get('register-email'))
     }
     else {
-        $.getScript('../assets/bower/firebase/firebase.js', (data, textStatus, jqxhr) => {
-            firebase.initializeApp(firebaseConfig)
+        $.getScript('../assets/bower_components/firebase/firebase.js', (data, textStatus, jqxhr) => {
+            firebase.initializeApp(firebaseConfig) // jshint ignore:line
             notRegistered.show()
         })
     }
@@ -202,7 +202,7 @@ function showEmail(email) {
 function registerEmail(email) {
     var password = 'SomeStrongPassword'
 
-    firebase.auth().createUserWithEmailAndPassword(email, password).then(()=> {
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(()=> { // jshint ignore:line
         return showEmail(email)
     }).catch(function (errorSignUp) {
         if (errorSignUp.code === 'auth/email-already-in-use') {
@@ -211,7 +211,7 @@ function registerEmail(email) {
         return notify(errorSignUp.message)
     })
 
-    firebase.auth().onAuthStateChanged((user)=> {
+    firebase.auth().onAuthStateChanged((user)=> { // jshint ignore:line
         user.sendEmailVerification()
     })
 }
