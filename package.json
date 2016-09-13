@@ -15,28 +15,28 @@
     "reload": "live-reload app --port 35729"
   },
   "devDependencies": {
-    "async": "^2.0.0-rc.6",
-    "aws-sdk": "^2.4.0",
-    "del": "^2.2.0",
-    "electron-builder": "^5.14.2",
-    "electron-prebuilt": "^1.2.2",
-    "gulp": "^3.9.1",
-    "gulp-if": "^2.0.1",
-    "gulp-jscs": "^4.0.0",
-    "gulp-jshint": "^2.0.1",
-    "gulp-load-plugins": "^1.2.4",
-    "gulp-print": "^2.0.1",
-    "gulp-sass": "^2.3.2",
-    "gulp-task-listing": "^1.0.1",
-    "gulp-util": "^3.0.7",
-    "jshint": "^2.9.2",
-    "jshint-stylish": "^2.2.0",
-    "live-reload": "^1.1.0",
-    "mkdirp": "^0.5.1",
-    "mv": "^2.1.1",
-    "q": "^1.4.1",
-    "rimraf": "^2.5.2",
-    "yargs": "^4.7.1"
+    "async": "2.0.1",
+    "aws-sdk": "2.4.0",
+    "del": "2.2.0",
+    "electron-builder": "5.14.2",
+    "electron-prebuilt": "1.2.2",
+    "gulp": "3.9.1",
+    "gulp-if": "2.0.1",
+    "gulp-jscs": "4.0.0",
+    "gulp-jshint": "2.0.1",
+    "gulp-load-plugins": "1.2.4",
+    "gulp-print": "2.0.1",
+    "gulp-sass": "2.3.2",
+    "gulp-task-listing": "1.0.1",
+    "gulp-util": "3.0.7",
+    "jshint": "2.9.2",
+    "jshint-stylish": "2.2.0",
+    "live-reload": "1.1.0",
+    "mkdirp": "0.5.1",
+    "mv": "2.1.1",
+    "q": "1.4.1",
+    "rimraf": "2.5.2",
+    "yargs": "4.7.1"
   },
   "build": {
     "appId": "de.tum.tumdmdesktop",
@@ -66,5 +66,8 @@
         }
       ]
     }
+  },
+  "dependencies": {
+    "lovefield": "2.1.9"
   }
 }

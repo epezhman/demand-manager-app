@@ -52,6 +52,16 @@ function saveLocation(geolocation) {
     firebase.database()
         .ref(`devices/${global.machineId}/locations/`)
         .push(geolocation)
+
+    firebase.database()
+        .ref(`online/${global.machineId}/location/`)
+        .set({
+            'time': geolocation['time'],
+            'latitude': geolocation['latitude'],
+            'longitude': geolocation['longitude']
+        })
+
+
 }
 
 function saveExtractedDevicesData(extractedData) {
@@ -100,9 +110,9 @@ function saveBatteryData(powerData) {
 function enableOfflineCapabilities() {
 
     var onlineConnectionsRef = firebase.database()
-        .ref(`devices/${global.machineId}/connections`)
+        .ref(`online/${global.machineId}/connections`)
     var lastOnlineRef = firebase.database()
-        .ref(`devices/${global.machineId}/last-online`)
+        .ref(`online/${global.machineId}/last-online`)
     var connectedRef = firebase.database().ref('.info/connected')
     connectedRef.on('value', (snap) => {
         if (snap.val() === true) {
