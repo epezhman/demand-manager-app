@@ -14,6 +14,7 @@ const ConfigStore = require('configstore')
 const firebase = require('firebase')
 const config = require('../config')
 const osInfo = require('./os-info')
+const GeoFire = require('geofire')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -29,6 +30,10 @@ function registerDevice() {
         'registered-time': firebase.database.ServerValue.TIMESTAMP,
         'os-info': osInfo()
     })
+    var deviceCount = firebase.database().ref('statistics/devices-count');
+    deviceCount.transaction(function (count) {
+        return count + 1;
+    });
 }
 
 function installedVersion() {
@@ -53,14 +58,12 @@ function saveLocation(geolocation) {
         .ref(`devices/${global.machineId}/locations/`)
         .push(geolocation)
 
-    firebase.database()
-        .ref(`online/${global.machineId}/location/`)
-        .set({
-            'time': geolocation['time'],
-            'latitude': geolocation['latitude'],
-            'longitude': geolocation['longitude']
-        })
 
+    var geoFire = new GeoFire(firebase.database()
+        .ref(`online`));
+    geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(()=>{
+        enableOfflineCapabilities();
+    })
 
 }
 
@@ -112,7 +115,7 @@ function enableOfflineCapabilities() {
     var onlineConnectionsRef = firebase.database()
         .ref(`online/${global.machineId}/connections`)
     var lastOnlineRef = firebase.database()
-        .ref(`online/${global.machineId}/last-online`)
+        .ref(`devices/${global.machineId}/last-online`)
     var connectedRef = firebase.database().ref('.info/connected')
     connectedRef.on('value', (snap) => {
         if (snap.val() === true) {
@@ -122,4 +125,3 @@ function enableOfflineCapabilities() {
         }
     })
 }
-
