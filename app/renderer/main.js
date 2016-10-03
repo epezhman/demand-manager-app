@@ -200,7 +200,7 @@ function showEmail(email) {
 }
 
 function registerEmail(email) {
-    var password = 'SomeStrongPassword'
+    var password = require('node-uuid').v1()
 
     firebase.auth().createUserWithEmailAndPassword(email, password).then(()=> {
         return showEmail(email)
