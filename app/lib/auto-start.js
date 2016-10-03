@@ -23,7 +23,7 @@ if(config.IS_LINUX)
 else
 {
     appLauncher = new AutoLaunch({
-        name: config.APP_NAME
+        name: config.APP_SHORT_NAME
     })
 }
 

@@ -96,8 +96,8 @@ function aggregateLocations(err) {
             }
         }
         else {
-            locationData['latitude'] = googleMapLocation['latitude']
-            locationData['longitude'] = googleMapLocation['longitude']
+            locationData['latitude'] = googleMapLocation['location']['lat']
+            locationData['longitude'] = googleMapLocation['location']['lng']
             locationData['accuracy'] = googleMapLocation['accuracy']
         }
     }

@@ -9,6 +9,7 @@ module.exports = {
     appjs: [
         './app/**/*.js',
         '!./app/node_modules/**',
+        '!./app/assets/bower_components/**',
         './tasks/**/*.js'
     ],
     appVersion: appPackage.version,
