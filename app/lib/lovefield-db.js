@@ -1,36 +1,47 @@
 'use strict'
 
 module.exports = {
-    addOne
+    genericCaller
 }
 
-
 const config = require('../config')
+const log = require('./log')
+const makeTables = require('./lovefield-tables')
 const lf = require('lovefield')
+const Q = require('q')
 
-var schemaBuilder = lf.schema.create(config.LOVEFILED_DB_NAME, 1)
+var db = null
 
-schemaBuilder.createTable('Battery')
-    .addColumn('id', lf.Type.INTEGER)
-    .addColumn('status', lf.Type.BOOLEAN)
-    .addNullable(['status'])
-    .addPrimaryKey(['id'], true)
+var schemaBuilder = lf.schema.create(config.LOVEFIELD_DB_NAME,
+    config.LOVEFIELD_DB_VERSION)
 
+makeTables(schemaBuilder)
 
-
-
-
-function addOne() {
-
-    schemaBuilder.connect().then((db)=> {
-        var _db
-        _db = db
-        var battery = _db.getSchema().table('Battery')
-        var row = battery.createRow({
-            'status': true
+function getDB() {
+    if (db !== null) {
+        return db
+    }
+    else {
+        return schemaBuilder.connect().then((_db)=> {
+            db = _db
         })
+    }
+}
 
-        _db.insert().into(battery).values([row]).exec()
+function genericCaller(op, cb) {
+    return operations[op.fn](op.params).then(()=> {
+        cb()
     })
+}
 
+var operations = {
+    addOne: function () {
+        return Q.fcall(getDB).then(()=> {
+            var battery = db.getSchema().table('Battery')
+            var row = battery.createRow({
+                'status': true
+            })
+            return db.insert().into(battery).values([row]).exec()
+        })
+    }
 }

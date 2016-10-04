@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TUM Demand Manager</title>
+    <link rel="shortcut icon" href="../../assets/img/icon.ico">
+</head>
+<body>
+Database
+<script>
+    const {ipcRenderer} = require('electron')
+    const db = require('../../lib/lovefield-db')
+    function windowCB() {
+        window.close()
+    }
+    ipcRenderer.on('db', function (event, op) {
+        db.genericCaller(op, windowCB)
+    })
+</script>
+
+</body>
+</html>

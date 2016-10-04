@@ -10,9 +10,6 @@ const config = require('../config')
 const log = require('../lib/log')
 const enums = require('../lib/enums')
 const notify = remote.require('./lib/notify')
-const db = require('../lib/lovefield-db')
-
-db.addOne()
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 

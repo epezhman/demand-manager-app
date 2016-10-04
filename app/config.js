@@ -49,6 +49,7 @@ module.exports = {
     WINDOW_MAIN: 'file://' + path.join(__dirname, 'renderer', 'main.html'),
     WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
     WINDOW_GEOLOCATION: 'file://' + path.join(__dirname, 'renderer', 'lib', 'geolocation.html'),
+    WINDOW_DB: 'file://' + path.join(__dirname, 'renderer', 'lib', 'db.html'),
     WINDOW_REGISTER: path.join(__dirname, 'renderer', 'lib', 'register.html'),
 
     APP_WINDOW_TITLE: APP_NAME,
@@ -59,7 +60,7 @@ module.exports = {
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
-    DELAY_START_TIME: 1000,
+    DELAY_START_TIME: 60000,
     DELAY_START_TIME_FIRST_TIME: 10000,
     MONITOR_GEOLOCATION_INTERVAL: 60000 * 15,
 
@@ -69,7 +70,8 @@ module.exports = {
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
 
-    LOVEFILED_DB_NAME: 'dmtum'
+    LOVEFIELD_DB_NAME: 'dmtum',
+    LOVEFIELD_DB_VERSION: 4
 }
 
 function getConfigPath() {
