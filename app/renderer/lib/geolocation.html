@@ -8,6 +8,12 @@
 </head>
 <body>
 Gelocation
+<script>
+    if (typeof module === 'object') {
+        window.module = module
+        module = undefined
+    }
+</script>
 <script src="geolocation.js"></script>
 </body>
 </html>

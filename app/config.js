@@ -23,16 +23,16 @@ module.exports = {
     APP_VERSION: APP_VERSION,
     APP_HOMEPAGE: APP_HOMEPAGE,
 
-    IS_WINDOWS : IS_WINDOWS,
-    IS_LINUX : IS_LINUX,
-    IS_OSX : IS_OSX,
+    IS_WINDOWS: IS_WINDOWS,
+    IS_LINUX: IS_LINUX,
+    IS_OSX: IS_OSX,
 
     AUTO_UPDATE_WIN_BASE_URL: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win',
     AUTO_UPDATE_LINUX_BASE_URL: 'http://188.166.160.83/update_server/updates/latest/linux',
     AUTO_UPDATE_OSX_BASE_URL: 'http://188.166.160.83/update_server/updates/latest/osx',
     AUTO_UPDATE_CHECK_INTERVAL: 43200000,
 
-    AUTO_LAUNCH_LINUX_COMMAND : '/opt/TUM\\ Demand\\ Manager/TUM\\ Demand\\ Manager',
+    AUTO_LAUNCH_LINUX_COMMAND: '/opt/TUM\\ Demand\\ Manager/TUM\\ Demand\\ Manager',
 
     CRASH_REPORT_URL: 'http://188.166.160.83/crash_report/post',
 
@@ -49,7 +49,7 @@ module.exports = {
     WINDOW_MAIN: 'file://' + path.join(__dirname, 'renderer', 'main.html'),
     WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
     WINDOW_GEOLOCATION: 'file://' + path.join(__dirname, 'renderer', 'lib', 'geolocation.html'),
-    WINDOW_REGISTER:  path.join(__dirname, 'renderer', 'lib', 'register.html'),
+    WINDOW_REGISTER: path.join(__dirname, 'renderer', 'lib', 'register.html'),
 
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,
@@ -59,17 +59,21 @@ module.exports = {
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
-    DELAY_START_TIME: 60000,
+    DELAY_START_TIME: 1000,
     DELAY_START_TIME_FIRST_TIME: 10000,
     MONITOR_GEOLOCATION_INTERVAL: 60000 * 15,
 
     MONITOR_POWER_INTERVAL: 60000,
 
     FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/',
-    GOOGLE_GEOLOCATION: 'https://maps.googleapis.com/maps/api/browserlocation/json?browser=chromium&sensor=true'
+    GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
+    GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
+
+    LOVEFILED_DB_NAME: 'dmtum'
 }
 
 function getConfigPath() {
     return path.dirname(appConfig.filePath)
 }
+
 

@@ -18,6 +18,7 @@ const updater = require('../lib/updater')
 const monitor = require('../lib/monitor')
 const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
+const env = require('../lib/envs')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -32,7 +33,6 @@ if (shouldQuit) {
 
 global.machineId = null
 
-
 function delayedStart() {
     monitor.init()
     firebase.enableOfflineCapabilities()
@@ -43,6 +43,7 @@ function delayedStart() {
 }
 
 app.on('will-finish-launching', () => {
+    env()
     crashReporter.init({'scope': 'main'})
     machineIdInit.init()
     if (!config.IS_DEVELOPMENT) {

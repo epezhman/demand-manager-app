@@ -30,10 +30,10 @@ function registerDevice() {
         'registered-time': firebase.database.ServerValue.TIMESTAMP,
         'os-info': osInfo()
     })
-    var deviceCount = firebase.database().ref('statistics/devices-count');
+    var deviceCount = firebase.database().ref('statistics/devices-count')
     deviceCount.transaction(function (count) {
-        return count + 1;
-    });
+        return count + 1
+    })
 }
 
 function installedVersion() {
@@ -60,9 +60,9 @@ function saveLocation(geolocation) {
 
 
     var geoFire = new GeoFire(firebase.database()
-        .ref(`online`));
+        .ref(`online`))
     geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(()=>{
-        enableOfflineCapabilities();
+        enableOfflineCapabilities()
     })
 
 }

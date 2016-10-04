@@ -16,7 +16,6 @@ var freegeoipLocation = null
 var navigatorLocation = null
 var googleMapLocation = null
 
-
 function freegeoipLocationFinder(cb) {
     freegeoipLocation = null
     request(config.FREEGEOIP_URL, (err, res, data) => {
@@ -44,14 +43,14 @@ function navigatorLocationFinder(cb) {
         navigatorLocation = position
         cb(null)
     }, (error)=> {
-        log.error(`Navigator geolocation error: ${error.code}`)
+        log.error(`Navigator geolocation error: ${error.message}`)
         cb(null)
     }, options)
 }
 
 function googleMapLocationFinder(cb) {
     googleMapLocation = null
-    request(config.GOOGLE_GEOLOCATION, (err, res, data) => {
+    request.post(config.GOOGLE_GEOLOCATION, (err, res, data) => {
             if (err) {
                 log.error(`Google Maps error: ${err.message}`)
             }
@@ -101,6 +100,7 @@ function aggregateLocations(err) {
             locationData['accuracy'] = googleMapLocation['accuracy']
         }
     }
+
     /* jshint ignore:end */
 
     if (freegeoipLocation) {

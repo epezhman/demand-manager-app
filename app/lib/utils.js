@@ -33,12 +33,12 @@ function standardizeForFirebase(jsonStr) {
         {
             for (var k in value) {
                 if (Object.hasOwnProperty.call(value, k)) {
-                    value[`-${fkey.safe(k)}`] = value[k];
-                    delete value[k];
+                    value[`-${fkey.safe(k)}`] = value[k]
+                    delete value[k]
                 }
             }
         }
-        return value;
+        return value
     })
 }
 
