@@ -15,7 +15,7 @@ function runQuery(op) {
     var win = db.win = new electron.BrowserWindow({
         icon: config.APP_ICON,
         title: config.APP_WINDOW_TITLE + ' - Database',
-        show: false
+        show: true
     })
 
     win.loadURL(config.WINDOW_DB)

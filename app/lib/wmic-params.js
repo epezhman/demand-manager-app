@@ -61,12 +61,16 @@ module.exports.DeviceDataExtraction = {
         'Status', 'VideoMemoryType', 'VideoArchitecture', 'VideoModeDescription', 'VideoProcessor']
 }
 
+module.exports.BatteryCapabilitiesInfo = {
+    BatteryFullChargedCapacity: ['FullChargedCapacity'],
+    BatteryStaticData: ['Capabilities']
+}
+
 module.exports.BatteryInfoMonitor = {
-    BatteryFullChargedCapacity: ['Tag', 'FullChargedCapacity'],
+    BatteryFullChargedCapacity: ['FullChargedCapacity'],
     BatteryRuntime: ['EstimatedRuntime'],
     BatteryStaticData: ['Capabilities'],
-    BatteryStatus: ['Active', 'ChargeRate', 'Charging', 'Critical',
-    'DischargeRate', 'Discharging', 'PowerOnline', 'RemainingCapacity',
-    'Voltage', 'Tag']
+    BatteryStatus: ['ChargeRate', 'Charging', 'DischargeRate',
+        'Discharging', 'PowerOnline', 'RemainingCapacity', 'Voltage'],
 }
 /* jshint ignore:end */

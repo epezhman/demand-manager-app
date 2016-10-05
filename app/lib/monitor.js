@@ -55,6 +55,7 @@ function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
         if (config.IS_WINDOWS) {
             require('./windows-device-analyzer').deviceAnalysis()
+            require('./windows-device-analyzer').batteryCapabilities()
         }
         else if (config.IS_LINUX) {
             require('./linux-device-analyzer').deviceAnalysis()

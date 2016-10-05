@@ -10,5 +10,6 @@ module.exports.WindowType = {
 
 module.exports.WMICommandType = {
     DEVICE: 'device',
-    BATTERY: 'battery'
+    BATTERY: 'battery',
+    BATTERY_CAPABILITY: 'battery_capability'
 }

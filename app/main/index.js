@@ -65,4 +65,7 @@ app.on('ready', () => {
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
     setTimeout(monitor.extractDevicesData, config.DELAY_START_TIME_FIRST_TIME)
+    electron.powerMonitor.on('resume', () => {
+        firebase.enableOfflineCapabilities()
+    })
 })

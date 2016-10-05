@@ -60,7 +60,7 @@ module.exports = {
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
-    DELAY_START_TIME: 60000,
+    DELAY_START_TIME: 1000,
     DELAY_START_TIME_FIRST_TIME: 10000,
     MONITOR_GEOLOCATION_INTERVAL: 60000 * 15,
 
@@ -71,7 +71,7 @@ module.exports = {
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
 
     LOVEFIELD_DB_NAME: 'dmtum',
-    LOVEFIELD_DB_VERSION: 4
+    LOVEFIELD_DB_VERSION: 8
 }
 
 function getConfigPath() {

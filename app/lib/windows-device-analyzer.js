@@ -3,7 +3,8 @@
 
 module.exports = {
     deviceAnalysis,
-    monitorPower
+    monitorPower,
+    batteryCapabilities
 }
 
 const config = require('../config')
@@ -12,6 +13,7 @@ const utils = require('./utils')
 const wmicParams = require('./wmic-params')
 const firebase = require('./firebase')
 const enums = require('./enums')
+const db = require('../main/windows').db
 
 const wmic = require('ms-wmic')
 const _ = require('lodash/string')
@@ -19,6 +21,7 @@ const async = require('async')
 
 var windowsDeviceData = {}
 var batteryData = {}
+var batteryCapabilitiesData = {}
 
 function runWMIC(wmicCommand, paramCallback) {
     try {
@@ -36,6 +39,10 @@ function runWMIC(wmicCommand, paramCallback) {
                 batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
                     utils.convertWmicStringToList(stdOut)
             }
+            else if (wmicCommand.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
+                batteryCapabilitiesData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
+                    utils.convertWmicStringToList(stdOut)
+            }
 
             paramCallback()
         })
@@ -49,7 +56,6 @@ function runWMIC(wmicCommand, paramCallback) {
 function runAsyncCommands(wmicCommands) {
     async.eachOfLimit(wmicCommands.commands, 2, (wmiClassProps, wmiClass, commandCallback) => {
         async.eachLimit(wmiClassProps, 3, (wmiClassProp, paramCallback) => {
-
             var command = {
                 wmiClass: wmiClass,
                 command: wmiClassProp,
@@ -69,11 +75,15 @@ function runAsyncCommands(wmicCommands) {
         }
         if (wmicCommands.commandType === enums.WMICommandType.DEVICE) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
-            log(windowsDeviceData)
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
-            firebase.saveBatteryData(batteryData)
-            log(batteryData)
+            db.runQuery({
+                'fn': 'addBatteryWindows',
+                'params': batteryData
+            })
+        }
+        else if (wmicCommands.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
+            firebase.saveBatteryCapabilities(batteryCapabilitiesData)
         }
 
     })
@@ -87,6 +97,15 @@ function deviceAnalysis() {
     }
     runAsyncCommands(wmicCommands)
 
+}
+
+function batteryCapabilities() {
+    var wmicCommands = {
+        commands: wmicParams.BatteryCapabilitiesInfo,
+        nameSpace: '\\\\root\\WMI',
+        commandType: enums.WMICommandType.BATTERY_CAPABILITY,
+    }
+    runAsyncCommands(wmicCommands)
 }
 
 function monitorPower() {

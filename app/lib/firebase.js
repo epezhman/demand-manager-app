@@ -6,7 +6,8 @@ module.exports = {
     saveExtractedDevicesData,
     saveBatteryData,
     enableOfflineCapabilities,
-    installedVersion
+    installedVersion,
+    saveBatteryCapabilities
 }
 
 const os = require('os')
@@ -15,6 +16,8 @@ const firebase = require('firebase')
 const config = require('../config')
 const osInfo = require('./os-info')
 const GeoFire = require('geofire')
+const log = require('./log')
+
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -27,8 +30,7 @@ firebase.initializeApp(firebaseConfig)
 
 function registerDevice() {
     firebase.database().ref(`devices/${global.machineId}`).set({
-        'registered-time': firebase.database.ServerValue.TIMESTAMP,
-        'os-info': osInfo()
+        'registered-time': firebase.database.ServerValue.TIMESTAMP
     })
     var deviceCount = firebase.database().ref('statistics/devices-count')
     deviceCount.transaction(function (count) {
@@ -38,7 +40,8 @@ function registerDevice() {
 
 function installedVersion() {
     firebase.database().ref(`devices/${global.machineId}`).update({
-        'current-version': config.APP_VERSION
+        'current-version': config.APP_VERSION,
+        'check-update-time': firebase.database.ServerValue.TIMESTAMP,
     })
 }
 
@@ -47,21 +50,17 @@ function saveLocation(geolocation) {
     geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
 
     firebase.database()
-        .ref(`devices/${global.machineId}/last-location/`)
-        .set({
-            'time': geolocation['time'],
-            'latitude': geolocation['latitude'],
-            'longitude': geolocation['longitude']
-        })
+        .ref(`locations/${global.machineId}/last-location/`)
+        .set(geolocation)
 
     firebase.database()
-        .ref(`devices/${global.machineId}/locations/`)
+        .ref(`locations/${global.machineId}/locations/`)
         .push(geolocation)
 
 
     var geoFire = new GeoFire(firebase.database()
         .ref(`online`))
-    geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(()=>{
+    geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(()=> {
         enableOfflineCapabilities()
     })
 
@@ -83,17 +82,15 @@ function saveExtractedDevicesData(extractedData) {
     }
 
     firebase.database()
-        .ref(`devices/${global.machineId}/${osPrefix}/`)
-        .set(extractedData)
-
+        .ref(`hardware/${global.machineId}/${osPrefix}/`)
+        .update(extractedData)
+    firebase.database().ref(`hardware/${global.machineId}`).update({
+        'os-info': osInfo()
+    })
     conf.set('device-data-extracted', true)
 }
 
-
-function saveBatteryData(powerData) {
-
-    powerData['time'] = firebase.database.ServerValue.TIMESTAMP
-
+function saveBatteryCapabilities(extractedData) {
     var osPrefix = ''
     if (config.IS_WINDOWS) {
         osPrefix = 'windows-battery'
@@ -106,16 +103,38 @@ function saveBatteryData(powerData) {
     }
 
     firebase.database()
-        .ref(`devices/${global.machineId}/${osPrefix}/`)
+        .ref(`hardware/${global.machineId}/${osPrefix}/`)
+        .update(extractedData)
+}
+
+
+function saveBatteryData(powerData) {
+    powerData['time'] = firebase.database.ServerValue.TIMESTAMP
+    if(powerData['id'])
+    {
+        delete powerData['id']
+    }
+
+    var osPrefix = ''
+    if (config.IS_WINDOWS) {
+        osPrefix = 'windows-battery'
+    }
+    else if (config.IS_LINUX) {
+        osPrefix = 'linux-battery'
+    }
+    else if (config.IS_OSX) {
+        osPrefix = 'osx-battery'
+    }
+    firebase.database()
+        .ref(`battery/${global.machineId}/`)
         .push(powerData)
 }
 
 function enableOfflineCapabilities() {
-
     var onlineConnectionsRef = firebase.database()
         .ref(`online/${global.machineId}/connections`)
     var lastOnlineRef = firebase.database()
-        .ref(`devices/${global.machineId}/last-online`)
+        .ref(`activity-status/${global.machineId}/last-online`)
     var connectedRef = firebase.database().ref('.info/connected')
     connectedRef.on('value', (snap) => {
         if (snap.val() === true) {
