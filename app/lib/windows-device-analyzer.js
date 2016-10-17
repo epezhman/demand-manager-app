@@ -56,10 +56,12 @@ function runWMIC(wmicCommand, paramCallback) {
 function runAsyncCommands(wmicCommands) {
     async.eachOfLimit(wmicCommands.commands, 2, (wmiClassProps, wmiClass, commandCallback) => {
         async.eachLimit(wmiClassProps, 3, (wmiClassProp, paramCallback) => {
+            var nameSpaceRoot = '\\\\root\\'
+            var wmiClassParts = wmiClass.split('$')
             var command = {
-                wmiClass: wmiClass,
+                wmiClass: wmiClassParts[1],
                 command: wmiClassProp,
-                nameSpace: wmicCommands.nameSpace,
+                nameSpace: nameSpaceRoot + wmiClassParts[0],
                 commandType: wmicCommands.commandType
             }
             runWMIC(command, paramCallback)
@@ -85,24 +87,20 @@ function runAsyncCommands(wmicCommands) {
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
             firebase.saveBatteryCapabilities(batteryCapabilitiesData)
         }
-
     })
 }
 
 function deviceAnalysis() {
     var wmicCommands = {
         commands: wmicParams.DeviceDataExtraction,
-        nameSpace: '\\\\root\\CIMV2',
         commandType: enums.WMICommandType.DEVICE,
     }
     runAsyncCommands(wmicCommands)
-
 }
 
 function batteryCapabilities() {
     var wmicCommands = {
         commands: wmicParams.BatteryCapabilitiesInfo,
-        nameSpace: '\\\\root\\WMI',
         commandType: enums.WMICommandType.BATTERY_CAPABILITY,
     }
     runAsyncCommands(wmicCommands)
@@ -112,7 +110,6 @@ function monitorPower() {
     batteryData = {}
     var wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
-        nameSpace: '\\\\root\\WMI',
         commandType: enums.WMICommandType.BATTERY,
     }
     runAsyncCommands(wmicCommands)

@@ -50,12 +50,13 @@ function addBattery(batteryObject) {
 var operations = {
     addBatteryWindows: function (params) {
         return Q.fcall(getDB).then(()=> {
-            log(parseInt(params['batterystatus-chargerate']))
-            log(parseInt(params['batterystatus-dischargerate']))
+            var discharge_rate = Math.round((parseInt(params['batterystatus-chargerate']) / 1000) * 100) / 100
+            var charge_rate = Math.round((parseInt(params['batterystatus-dischargerate']) / 1000) * 100) / 100
             var batteryObject = {
-                'remaining_time_minutes': Number(params['batteryruntime-estimatedruntime']),
-                'remaining_capacity_percent': Number(params['batterystatus-remainingcapacity']),
-                'voltage_v': parseInt(params['batterystatus-voltage']),
+                'remaining_time_minutes': parseInt(params['win32_battery-estimatedruntime']),
+                'power_rate_w': discharge_rate > 0 ? discharge_rate : charge_rate,
+                'remaining_capacity_percent':parseInt(params['win32_battery-estimatedchargeremaining']),
+                'voltage_v': Math.round((parseInt(params['batterystatus-voltage']) / 1000) * 100) / 100,
                 'charging_bool': params['batterystatus-charging'].toLowerCase() === "true",
                 'discharging_bool': params['batterystatus-discharging'].toLowerCase() === "true",
                 'ac_connected_bool': params['batterystatus-poweronline'].toLowerCase() === "true",
