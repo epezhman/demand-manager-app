@@ -9,6 +9,7 @@ const {remote} = require('electron')
 const log = require('./log')
 const makeTables = require('./lovefield-tables')
 const firebase = remote.require('./lib/firebase')
+const utils = require('./utils')
 const lf = require('lovefield')
 const Q = require('q')
 
@@ -38,26 +39,45 @@ function genericCaller(op, cb) {
     })
 }
 
+function addBattery(batteryObject) {
+    var battery = db.getSchema().table('Battery')
+    var row = battery.createRow(batteryObject)
+    return db.insert().into(battery).values([row]).exec().then(()=> {
+        firebase.saveBatteryData(batteryObject)
+    })
+}
+
 var operations = {
     addBatteryWindows: function (params) {
         return Q.fcall(getDB).then(()=> {
-            var battery = db.getSchema().table('Battery')
-            log(params)
+            log(parseInt(params['batterystatus-chargerate']))
+            log(parseInt(params['batterystatus-dischargerate']))
             var batteryObject = {
-                'estimated_runtime': Number(params['batteryruntime-estimatedruntime']),
-                'charge_rate': parseInt(params['batterystatus-chargerate']),
-                'discharge_rate': parseInt(params['batterystatus-dischargerate']),
-                'remaining_capacity': Number(params['batterystatus-remainingcapacity']),
-                'voltage': parseInt(params['batterystatus-voltage']),
-                'charging': params['batterystatus-charging'].toLowerCase() === "true",
-                'discharging': params['batterystatus-discharging'].toLowerCase()=== "true",
-                'power_online': params['batterystatus-poweronline'].toLowerCase() === "true",
+                'remaining_time_minutes': Number(params['batteryruntime-estimatedruntime']),
+                'remaining_capacity_percent': Number(params['batterystatus-remainingcapacity']),
+                'voltage_v': parseInt(params['batterystatus-voltage']),
+                'charging_bool': params['batterystatus-charging'].toLowerCase() === "true",
+                'discharging_bool': params['batterystatus-discharging'].toLowerCase() === "true",
+                'ac_connected_bool': params['batterystatus-poweronline'].toLowerCase() === "true",
                 'time': new Date()
             }
-            var row = battery.createRow(batteryObject)
-            return db.insert().into(battery).values([row]).exec().then(()=> {
-                firebase.saveBatteryData(batteryObject)
-            })
+            return addBattery(batteryObject)
+        })
+    },
+    addBatteryLinux: function (params) {
+        return Q.fcall(getDB).then(()=> {
+            var batteryObject = {
+                'remaining_time_minutes': utils.hoursToMinutes(Math.round((parseInt(params['energynow'])
+                        / parseInt(params['powernow'])) * 100) / 100),
+                'power_rate_w': parseInt(params['powernow'] / 1000000),
+                'remaining_capacity_percent': parseInt(params['capacity']),
+                'voltage_v': parseInt(params['voltage-now'] / 1000000),
+                'charging_bool': params['status'] === 'Charging',
+                'discharging_bool': params['status'] === 'Discharging',
+                'ac_connected_bool': params['ac-connected'] === '1',
+                'time': new Date()
+            }
+            return addBattery(batteryObject)
         })
     }
 }

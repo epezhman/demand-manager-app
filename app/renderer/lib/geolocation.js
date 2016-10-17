@@ -120,8 +120,6 @@ function aggregateLocations(err) {
         }
     }
 
-    log(locationData)
-
     if (locationData['latitude'] && locationData['longitude']) {
         firebase.saveLocation(locationData)
     }

@@ -3,7 +3,8 @@
 module.exports = {
     convertWmicStringToList,
     standardizeForFirebase,
-    tryConvertToJson
+    tryConvertToJson,
+    hoursToMinutes
 }
 
 const fkey = require('firebase-safekey')
@@ -29,8 +30,7 @@ function convertWmicStringToList(str) {
 
 function standardizeForFirebase(jsonStr) {
     return JSON.parse(jsonStr, (key, value)=> {
-        if (value && typeof value === 'object')
-        {
+        if (value && typeof value === 'object') {
             for (var k in value) {
                 if (Object.hasOwnProperty.call(value, k)) {
                     value[`-${fkey.safe(k)}`] = value[k]
@@ -54,6 +54,9 @@ function tryConvertToJson(orgStr) {
     _.forEach(splitData, (value)=> {
         value = _.trim(value)
         var tempSplit = _.split(value, ':')
+        if (tempSplit.length === 1) {
+            tempSplit = _.split(value, '=')
+        }
         if (tempSplit.length === 2) {
             resultJson[fkey.safe(_.trim(tempSplit[0]))] = _.trim((tempSplit[1]))
         }
@@ -65,5 +68,13 @@ function tryConvertToJson(orgStr) {
         }
     })
     return resultJson
+}
+
+
+function hoursToMinutes(time) {
+    var tempTime = time * 100;
+    var hours = Math.floor(tempTime / 100);
+    var minutes = tempTime % 100;
+    return hours * 60 + Math.round((minutes / 100) * 60)
 }
 

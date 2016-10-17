@@ -31,7 +31,6 @@ function installUpdate(downloadPath) {
             return notify(`The update could not be installed. 
             The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
         }
-        log(lshwJsonStdout)
         notify(`Update was installed successfully.`)
         app.relaunch({args: process.argv.slice(1) + ['--relaunch']})
         app.exit(0)
@@ -46,7 +45,6 @@ function onLinuxResponse(err, res, data) {
         if (manualUpdate) {
             notify('Update is available and will be downloaded to your home directory.')
         }
-        log('update available')
         data = JSON.parse(data)
         var downloadPath = path.resolve(process.env.HOME || process.env.USERPROFILE) +
             `/${data.file}`
@@ -56,13 +54,11 @@ function onLinuxResponse(err, res, data) {
                 https.get(data.url, (response) => {
                     response.pipe(newVersionFile).on('close', ()=> {
                         installUpdate(downloadPath)
-                        log('downloaded')
                     })
                 })
             }
             else {
                 installUpdate(downloadPath)
-                log('file exist')
             }
         })
 
@@ -70,7 +66,6 @@ function onLinuxResponse(err, res, data) {
         if (manualUpdate) {
             notify('No new update is available.')
         }
-        log('No updates for linux')
     } else {
         // Unexpected status code
         log.error(`Update error: Unexpected status code: ${res.statusCode}`)
@@ -103,7 +98,6 @@ function initDarwinWin32() {
     autoUpdater.on(
         'checking-for-update',
         () => {
-            log('Checking for update')
         }
     )
 
@@ -113,7 +107,6 @@ function initDarwinWin32() {
             if (manualUpdate) {
                 notify('Update is available and will be installed automatically.')
             }
-            log('Update available')
         }
     )
 
@@ -123,14 +116,12 @@ function initDarwinWin32() {
             if (manualUpdate) {
                 notify('No new update is available.')
             }
-            log('Update not available')
         }
     )
 
     autoUpdater.on(
         'update-downloaded',
         (e, notes, name, date, url) => {
-            log(`Update downloaded: ${name}: ${url}`)
             autoUpdater.quitAndInstall()
         }
     )

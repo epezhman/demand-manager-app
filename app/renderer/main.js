@@ -62,7 +62,6 @@ ipcRenderer.on('selected-window', (event, windowType)=> {
 })
 
 ipcRenderer.on('log-message', (event, msg)=> {
-    console.log(msg)
 })
 
 ipcRenderer.on('log-error-message', (event, msg)=> {

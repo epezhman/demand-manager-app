@@ -12,7 +12,6 @@ const log = require('./log')
 
 function deviceAnalysis() {
 
-    log('OSX')
 }
 
 function monitorPower() {

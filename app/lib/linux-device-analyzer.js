@@ -18,6 +18,7 @@ const log = require('./log')
 const firebase = require('./firebase')
 const utils = require('./utils')
 const notify = require('./notify')
+const db = require('../main/windows').db
 
 
 var linuxDeviceData = {}
@@ -83,7 +84,6 @@ function getCommandsSetData(performThisMethod, cb) {
         'cat /sys/devices/virtual/dmi/id/board_vendor && ' +
         'cat /sys/devices/virtual/dmi/id/board_name  && ' +
         'cat /sys/devices/virtual/dmi/id/board_version',
-        'free -m | grep "Mem:"',
         'upower -i /org/freedesktop/UPower/devices/battery_BAT0'
     ]
     async.eachSeries(commands, (command, commandCb)=> {
@@ -130,16 +130,18 @@ function deviceAnalysis() {
 
 
 function monitorPower() {
-    var powerData = {}
+    var batteryData = {}
     var commands = {
-        power1: 'cat /sys/class/power_supply/BAT0/power_now',
         power2: 'cat /sys/bus/acpi/drivers/battery/PNP0C0A:00/power_supply/BAT0/power_now',
         power3: 'cat /sys/class/powercap/*/energy_uj',
-        battery1: 'upower -i /org/freedesktop/UPower/devices/battery_BAT0',
-        battery2: 'acpi -ib',
-        battery3: 'acpi',
-        battery4: ' acpi -V',
-        batteryCapacity: 'cat /sys/class/power_supply/BAT0/capacity'
+        status: 'cat /sys/class/power_supply/BAT0/status',
+        energynow: 'cat /sys/class/power_supply/BAT0/energy_now',
+        powernow: 'cat /sys/class/power_supply/BAT0/power_now',
+        uevent: 'cat /sys/class/power_supply/BAT0/uevent',
+        capacity: 'cat /sys/class/power_supply/BAT0/capacity',
+        ac_connected: 'cat /sys/class/power_supply/ADP1/online',
+        voltage_now: 'cat /sys/class/power_supply/BAT0/voltage_now',
+        battery: 'upower -i /org/freedesktop/UPower/devices/battery_BAT0'
     }
     async.eachOfSeries(commands, (commandValue, commandKey, commandCb)=> {
         exec(commandValue, (commandErr, commandStdout, commandStderr) => {
@@ -151,13 +153,16 @@ function monitorPower() {
                 commandStdout.includes('No such file or directory')) {
                 return commandCb()
             }
-            powerData[_.kebabCase(commandKey)] = utils.tryConvertToJson(commandStdout)
+            batteryData[_.kebabCase(commandKey)] = utils.tryConvertToJson(commandStdout)
             commandCb()
         })
     }, (err)=> {
         if (err) {
             log.error(err)
         }
-        firebase.saveBatteryData(powerData)
+        db.runQuery({
+            'fn': 'addBatteryLinux',
+            'params': batteryData
+        })
     })
 }
