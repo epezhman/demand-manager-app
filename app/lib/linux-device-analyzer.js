@@ -160,9 +160,19 @@ function monitorPower() {
         if (err) {
             log.error(err)
         }
+        var batteryObject = {
+            'remaining_time_minutes': utils.hoursToMinutes(Math.round((parseInt(batteryData['energynow'])
+                    / parseInt(batteryData['powernow'])) * 100) / 100),
+            'power_rate_w': Math.round( parseInt(batteryData['powernow'] / 10000)) / 100,
+            'remaining_capacity_percent': parseInt(batteryData['capacity']),
+            'voltage_v': Math.round(parseInt(batteryData['voltage-now'] / 10000)) / 100,
+            'charging_bool': batteryData['status'] === 'Charging',
+            'discharging_bool': batteryData['status'] === 'Discharging',
+            'ac_connected_bool': batteryData['ac-connected'] === '1'
+        }
         db.runQuery({
-            'fn': 'addBatteryLinux',
-            'params': batteryData
+            'fn': 'addBattery',
+            'params': batteryObject
         })
     })
 }

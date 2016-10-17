@@ -79,9 +79,27 @@ function runAsyncCommands(wmicCommands) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
+            var charge_rate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
+            var discharge_rate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
+            // 0.6 came from my own laptop, it's only an rough estimation
+            var drain_estimation = discharge_rate > 0 ? discharge_rate : charge_rate * 0.6
+            var remaining_time = parseInt(batteryData['win32_battery-estimatedruntime'])
+            if (charge_rate > 0) {
+                remaining_time = utils.hoursToMinutes(Math.round(
+                        (parseInt(batteryData['batterystatus-remainingcapacity']) / (drain_estimation * 1000) ) * 100) / 100)
+            }
+            var batteryObject = {
+                'remaining_time_minutes': remaining_time,
+                'power_rate_w': discharge_rate > 0 ? discharge_rate : charge_rate,
+                'remaining_capacity_percent': parseInt(batteryData['win32_battery-estimatedchargeremaining']),
+                'voltage_v': Math.round((parseInt(batteryData['batterystatus-voltage']) / 1000) * 100) / 100,
+                'charging_bool': batteryData['batterystatus-charging'].toLowerCase() === "true",
+                'discharging_bool': batteryData['batterystatus-discharging'].toLowerCase() === "true",
+                'ac_connected_bool': batteryData['batterystatus-poweronline'].toLowerCase() === "true"
+            }
             db.runQuery({
-                'fn': 'addBatteryWindows',
-                'params': batteryData
+                'fn': 'addBattery',
+                'params': batteryObject
             })
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
