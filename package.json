@@ -20,11 +20,11 @@
     "reload": "live-reload app --port 35729"
   },
   "devDependencies": {
-    "async": "2.0.1",
-    "aws-sdk": "2.6.6",
+    "async": "2.1.2",
+    "aws-sdk": "2.6.9",
     "del": "2.2.2",
-    "electron-builder": "7.10.2",
-    "electron-prebuilt": "1.4.2",
+    "electron-builder": "7.14.1",
+    "electron-prebuilt": "1.4.3",
     "gulp": "3.9.1",
     "gulp-if": "2.0.1",
     "gulp-jscs": "4.0.0",
@@ -41,7 +41,7 @@
     "mv": "2.1.1",
     "q": "1.4.1",
     "rimraf": "2.5.4",
-    "yargs": "6.0.0"
+    "yargs": "6.2.0"
   },
   "build": {
     "appId": "de.tum.tumdmdesktop",
