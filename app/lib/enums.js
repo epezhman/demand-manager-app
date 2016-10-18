@@ -20,6 +20,12 @@ module.exports.LinuxPowerMonitor = {
     BATTERY_FIRST_PLAN: 'battery_first_plan'
 }
 
+module.exports.LocationMonitor = {
+    FIND_LOCATION: 'find-location',
+    MAKE_LOCATION_PLAN: 'make-location-plan'
+}
+
+
 module.exports.WeekDays = {
     MONDAY: 'mon',
     TUESDAY: 'tue',

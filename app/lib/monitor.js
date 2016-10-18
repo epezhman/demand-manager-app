@@ -32,7 +32,7 @@ function shouldAppBeRunning() {
 
 function monitorGeoLocation() {
     if (shouldAppBeRunning()) {
-        windows.gelocation.init()
+        windows.gelocation.init(enums.LocationMonitor.FIND_LOCATION)
     }
     setTimeout(monitorGeoLocation, config.MONITOR_GEOLOCATION_INTERVAL)
 }
@@ -53,7 +53,7 @@ function monitorPower() {
 }
 
 function extractDevicesData() {
-    require('./windows-device-analyzer').batteryFirstTimePlan()
+    windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PLAN)
     if (!conf.get('device-data-extracted')) {
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')

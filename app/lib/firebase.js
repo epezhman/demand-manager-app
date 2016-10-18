@@ -3,6 +3,8 @@
 module.exports = {
     registerDevice,
     saveLocation,
+    saveOnlineLocation,
+    saveLocationFirstPlan,
     saveExtractedDevicesData,
     saveBatteryData,
     enableOfflineCapabilities,
@@ -54,10 +56,15 @@ function saveLocation(geolocation) {
         .ref(`locations/${global.machineId}/last-location/`)
         .set(geolocation)
 
-    firebase.database()
-        .ref(`locations/${global.machineId}/locations/`)
-        .push(geolocation)
+}
 
+function saveOnlineLocation(geolocation) {
+
+    geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
+
+    firebase.database()
+        .ref(`locations/${global.machineId}/last-location/`)
+        .set(geolocation)
 
     var geoFire = new GeoFire(firebase.database()
         .ref(`online`))
@@ -65,6 +72,19 @@ function saveLocation(geolocation) {
         enableOfflineCapabilities()
     })
 
+}
+
+
+function saveLocationFirstPlan(locationPlans) {
+    for (var locationPlan of locationPlans) {
+        if (locationPlan['id']) {
+            delete locationPlan['id']
+        }
+        locationPlan['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        firebase.database()
+            .ref(`location/${global.machineId}/${locationPlan['day_of_week']}-${locationPlan['one_hour_duration_beginning']}`)
+            .set(locationPlan)
+    }
 }
 
 function saveExtractedDevicesData(extractedData) {
@@ -120,16 +140,14 @@ function saveBatteryData(powerData) {
 }
 
 function saveBatteryFirstPlan(batteryPlans) {
-    log(batteryPlans)
     for (var batteryPlan of batteryPlans) {
         if (batteryPlan['id']) {
             delete batteryPlan['id']
         }
         batteryPlan['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        log(`battery/${global.machineId}/
-                            ${batteryPlan['day_of_week']}-${batteryPlan['one_hour_duration_beginning']}`)
-        firebase.database().ref(`battery/${global.machineId}/
-                            ${batteryPlan['day_of_week']}-${batteryPlan['one_hour_duration_beginning']}`).set(batteryPlan)
+        firebase.database()
+            .ref(`battery/${global.machineId}/${batteryPlan['day_of_week']}-${batteryPlan['one_hour_duration_beginning']}`)
+            .set(batteryPlan)
     }
 }
 

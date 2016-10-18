@@ -6,10 +6,10 @@ var gelocation = module.exports = {
 const electron = require('electron')
 const config = require('../../config')
 
-function init() {
+function init(locationCommand) {
 
     if (gelocation.win) {
-        return gelocation.win.webContents.send('find-location', true)
+        return gelocation.win.webContents.send(locationCommand, true)
     }
     var win = gelocation.win = new electron.BrowserWindow({
         icon: config.APP_ICON,
@@ -22,7 +22,7 @@ function init() {
     win.loadURL(config.WINDOW_GEOLOCATION)
 
     win.webContents.on('did-frame-finish-load', ()=> {
-        win.webContents.send('find-location', true)
+        win.webContents.send(locationCommand, true)
     })
 
     win.once('closed', (e) => gelocation.win = null)

@@ -11,6 +11,7 @@ const request = require('request')
 const config = require('../../config')
 const firebase = remote.require('./lib/firebase')
 const log = remote.require('./lib/log')
+const db = remote.require('./main/windows').db
 
 var freegeoipLocation = null
 var navigatorLocation = null
@@ -119,9 +120,29 @@ function aggregateLocations(err) {
             locationData['longitude'] = freegeoipLocation['longitude']
         }
     }
+    return locationData
 
+}
+
+
+function findLocation() {
+    var locationData = aggregateLocations()
     if (locationData['latitude'] && locationData['longitude']) {
-        firebase.saveLocation(locationData)
+        db.runQuery({
+            'fn': 'addLocation',
+            'params': locationData
+        })
+    }
+    window.close()
+}
+
+function makeLocationPlan() {
+    var locationData = aggregateLocations()
+    if (locationData['latitude'] && locationData['longitude']) {
+        db.runQuery({
+            'fn': 'addLocationFirstPlan',
+            'params': locationData
+        })
     }
     window.close()
 }
@@ -131,5 +152,13 @@ ipcRenderer.on('find-location', (event, msg)=> {
         freegeoipLocationFinder,
         navigatorLocationFinder,
         googleMapLocationFinder
-    ], aggregateLocations)
+    ], findLocation)
+})
+
+ipcRenderer.on('make-location-plan', (event, msg)=> {
+    async.parallel([
+        freegeoipLocationFinder,
+        navigatorLocationFinder,
+        googleMapLocationFinder
+    ], makeLocationPlan)
 })

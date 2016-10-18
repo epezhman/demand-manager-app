@@ -71,7 +71,7 @@ module.exports = {
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
 
     LOVEFIELD_DB_NAME: 'dmtum',
-    LOVEFIELD_DB_VERSION: 16
+    LOVEFIELD_DB_VERSION: 18
 }
 
 function getConfigPath() {
