@@ -5,7 +5,7 @@ module.exports = {
     deviceAnalysis,
     monitorPower,
     batteryCapabilities,
-    batteryFirstTimePlan
+    batteryFirstTimeProfile
 }
 
 const config = require('../config')
@@ -37,7 +37,7 @@ function runWMIC(wmicCommand, paramCallback) {
                     utils.convertWmicStringToList(stdOut)
             }
             else if (wmicCommand.commandType === enums.WMICommandType.BATTERY ||
-                wmicCommand.commandType === enums.WMICommandType.BATTERY_FIRST_PLAN) {
+                wmicCommand.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
                 batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
                     utils.convertWmicStringToList(stdOut)
             }
@@ -81,7 +81,7 @@ function runAsyncCommands(wmicCommands) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY ||
-            wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PLAN) {
+            wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
             var charge_rate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
             var discharge_rate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
             // 0.6 came from my own laptop, it's only an rough estimation
@@ -108,7 +108,7 @@ function runAsyncCommands(wmicCommands) {
             }
             else {
                 db.runQuery({
-                    'fn': 'addBatteryFirstPlan',
+                    'fn': 'addBatteryFirstProfile',
                     'params': batteryObject
                 })
             }
@@ -144,11 +144,11 @@ function monitorPower() {
     runAsyncCommands(wmicCommands)
 }
 
-function batteryFirstTimePlan() {
+function batteryFirstTimeProfile() {
     batteryData = {}
     var wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
-        commandType: enums.WMICommandType.BATTERY_FIRST_PLAN,
+        commandType: enums.WMICommandType.BATTERY_FIRST_PROFILE,
     }
     runAsyncCommands(wmicCommands)
 }

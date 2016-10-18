@@ -136,11 +136,11 @@ function findLocation() {
     window.close()
 }
 
-function makeLocationPlan() {
+function makeLocationProfile() {
     var locationData = aggregateLocations()
     if (locationData['latitude'] && locationData['longitude']) {
         db.runQuery({
-            'fn': 'addLocationFirstPlan',
+            'fn': 'addLocationFirstProfile',
             'params': locationData
         })
     }
@@ -155,10 +155,10 @@ ipcRenderer.on('find-location', (event, msg)=> {
     ], findLocation)
 })
 
-ipcRenderer.on('make-location-plan', (event, msg)=> {
+ipcRenderer.on('make-location-profile', (event, msg)=> {
     async.parallel([
         freegeoipLocationFinder,
         navigatorLocationFinder,
         googleMapLocationFinder
-    ], makeLocationPlan)
+    ], makeLocationProfile)
 })

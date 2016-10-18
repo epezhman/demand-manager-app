@@ -4,13 +4,13 @@ module.exports = {
     registerDevice,
     saveLocation,
     saveOnlineLocation,
-    saveLocationFirstPlan,
+    saveLocationFirstProfile,
     saveExtractedDevicesData,
     saveBatteryData,
     enableOfflineCapabilities,
     installedVersion,
     saveBatteryCapabilities,
-    saveBatteryFirstPlan
+    saveBatteryFirstProfile
 }
 
 const os = require('os')
@@ -75,15 +75,15 @@ function saveOnlineLocation(geolocation) {
 }
 
 
-function saveLocationFirstPlan(locationPlans) {
-    for (var locationPlan of locationPlans) {
-        if (locationPlan['id']) {
-            delete locationPlan['id']
+function saveLocationFirstProfile(locationProfiles) {
+    for (var locationProfile of locationProfiles) {
+        if (locationProfile['id']) {
+            delete locationProfile['id']
         }
-        locationPlan['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
         firebase.database()
-            .ref(`location/${global.machineId}/${locationPlan['day_of_week']}-${locationPlan['one_hour_duration_beginning']}`)
-            .set(locationPlan)
+            .ref(`location/${global.machineId}/${locationProfile['day_of_week']}-${locationProfile['one_hour_duration_beginning']}`)
+            .set(locationProfile)
     }
 }
 
@@ -139,15 +139,15 @@ function saveBatteryData(powerData) {
         .push(powerData)
 }
 
-function saveBatteryFirstPlan(batteryPlans) {
-    for (var batteryPlan of batteryPlans) {
-        if (batteryPlan['id']) {
-            delete batteryPlan['id']
+function saveBatteryFirstProfile(batteryProfiles) {
+    for (var batteryProfile of batteryProfiles) {
+        if (batteryProfile['id']) {
+            delete batteryProfile['id']
         }
-        batteryPlan['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
         firebase.database()
-            .ref(`battery/${global.machineId}/${batteryPlan['day_of_week']}-${batteryPlan['one_hour_duration_beginning']}`)
-            .set(batteryPlan)
+            .ref(`battery/${global.machineId}/${batteryProfile['day_of_week']}-${batteryProfile['one_hour_duration_beginning']}`)
+            .set(batteryProfile)
     }
 }
 

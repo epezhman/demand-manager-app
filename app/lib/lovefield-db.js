@@ -55,8 +55,8 @@ function checkIfUndefinedNumber(value) {
     return value
 }
 
-// TODO Update the battery and battery plans
-// TODO Update the location and locations plans
+// TODO Update the battery and battery profiles
+// TODO Update the location and locations profiles
 
 var operations = {
     addBattery: function (batteryObject) {
@@ -69,10 +69,10 @@ var operations = {
             })
         })
     },
-    addBatteryFirstPlan: function (batteryObject) {
+    addBatteryFirstProfile: function (batteryObject) {
         return Q.fcall(getDB).then(()=> {
-            var batteryPlan = db.getSchema().table('BatteryPlan')
-            return db.delete().from(batteryPlan).exec().then(()=> {
+            var batteryProfile = db.getSchema().table('BatteryProfile')
+            return db.delete().from(batteryProfile).exec().then(()=> {
                 var rows = []
                 var firebaseRows = []
                 for (var day_name in enums.WeekDays) {
@@ -89,11 +89,11 @@ var operations = {
                             'one_hour_duration_beginning': enums.DayHours[hour_name],
                         }
                         firebaseRows.push(tempRow)
-                        rows.push(batteryPlan.createRow(tempRow))
+                        rows.push(batteryProfile.createRow(tempRow))
                     }
                 }
-                return db.insertOrReplace().into(batteryPlan).values(rows).exec().then(()=> {
-                    firebase.saveBatteryFirstPlan(firebaseRows)
+                return db.insertOrReplace().into(batteryProfile).values(rows).exec().then(()=> {
+                    firebase.saveBatteryFirstProfile(firebaseRows)
                 })
             })
         })
@@ -108,10 +108,10 @@ var operations = {
             })
         })
     },
-    addLocationFirstPlan: function (locationData) {
+    addLocationFirstProfile: function (locationData) {
         return Q.fcall(getDB).then(()=> {
-            var locationPlan = db.getSchema().table('LocationPlan')
-            return db.delete().from(locationPlan).exec().then(()=> {
+            var locationProfile = db.getSchema().table('LocationProfile')
+            return db.delete().from(locationProfile).exec().then(()=> {
                 var rows = []
                 var firebaseRows = []
                 for (var day_name in enums.WeekDays) {
@@ -131,11 +131,11 @@ var operations = {
                             'one_hour_duration_beginning': enums.DayHours[hour_name],
                         }
                         firebaseRows.push(tempRow)
-                        rows.push(locationPlan.createRow(tempRow))
+                        rows.push(locationProfile.createRow(tempRow))
                     }
                 }
-                return db.insertOrReplace().into(locationPlan).values(rows).exec().then(()=> {
-                    firebase.saveLocationFirstPlan(firebaseRows)
+                return db.insertOrReplace().into(locationProfile).values(rows).exec().then(()=> {
+                    firebase.saveLocationFirstProfile(firebaseRows)
                 })
             })
         })

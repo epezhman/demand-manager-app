@@ -177,9 +177,9 @@ function monitorPower(monitorType) {
                 'params': batteryObject
             })
         }
-        else if (monitorType == enums.LinuxPowerMonitor.BATTERY_FIRST_PLAN) {
+        else if (monitorType == enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
             db.runQuery({
-                'fn': 'addBatteryFirstPlan',
+                'fn': 'addBatteryFirstProfile',
                 'params': batteryObject
             })
         }

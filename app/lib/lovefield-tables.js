@@ -20,7 +20,7 @@ function makeTables(schemaBuilder) {
         .addPrimaryKey(['id'], true)
 
 
-    schemaBuilder.createTable('BatteryPlan')
+    schemaBuilder.createTable('BatteryProfile')
         .addColumn('id', lf.Type.INTEGER)
         .addColumn('voltage_v', lf.Type.INTEGER)
         .addColumn('remaining_time_minutes', lf.Type.NUMBER)
@@ -52,7 +52,7 @@ function makeTables(schemaBuilder) {
             'region_name', 'city', 'zip_code', 'time_zone', 'accuracy'])
         .addPrimaryKey(['id'], true)
 
-    schemaBuilder.createTable('LocationPlan')
+    schemaBuilder.createTable('LocationProfile')
         .addColumn('id', lf.Type.INTEGER)
         .addColumn('country_code', lf.Type.STRING)
         .addColumn('country_name', lf.Type.STRING)

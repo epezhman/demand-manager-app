@@ -43,7 +43,7 @@ function monitorPower() {
             require('./windows-device-analyzer').monitorPower()
         }
         else if (config.IS_LINUX) {
-            require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PLAN)
+            require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
         }
         else if (config.IS_OSX) {
             require('./osx-device-analyzer').monitorPower()
@@ -53,18 +53,18 @@ function monitorPower() {
 }
 
 function extractDevicesData() {
-    windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PLAN)
+    windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
     if (!conf.get('device-data-extracted')) {
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')
             winAnalyzer.deviceAnalysis()
             winAnalyzer.batteryCapabilities()
-            winAnalyzer.batteryFirstTimePlan()
+            winAnalyzer.batteryFirstTimeProfile
         }
         else if (config.IS_LINUX) {
             const linuxAnalyzer = require('./linux-device-analyzer')
             linuxAnalyzer.deviceAnalysis()
-            linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PLAN)
+            linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
         }
         else if (config.IS_OSX) {
             require('./osx-device-analyzer').deviceAnalysis()

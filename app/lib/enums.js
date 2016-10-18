@@ -12,17 +12,17 @@ module.exports.WMICommandType = {
     DEVICE: 'device',
     BATTERY: 'battery',
     BATTERY_CAPABILITY: 'battery_capability',
-    BATTERY_FIRST_PLAN: 'battery_first_plan'
+    BATTERY_FIRST_PROFILE: 'battery_first_profile'
 }
 
 module.exports.LinuxPowerMonitor = {
     BATTERY: 'battery',
-    BATTERY_FIRST_PLAN: 'battery_first_plan'
+    BATTERY_FIRST_PROFILE: 'battery_first_profile'
 }
 
 module.exports.LocationMonitor = {
     FIND_LOCATION: 'find-location',
-    MAKE_LOCATION_PLAN: 'make-location-plan'
+    MAKE_LOCATION_PROFILE: 'make-location-profile'
 }
 
 
