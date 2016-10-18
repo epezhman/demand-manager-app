@@ -4,7 +4,8 @@
 module.exports = {
     deviceAnalysis,
     monitorPower,
-    batteryCapabilities
+    batteryCapabilities,
+    batteryFirstTimePlan
 }
 
 const config = require('../config')
@@ -35,7 +36,8 @@ function runWMIC(wmicCommand, paramCallback) {
                 windowsDeviceData[_.trimStart(_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`), 'win32_')] =
                     utils.convertWmicStringToList(stdOut)
             }
-            else if (wmicCommand.commandType === enums.WMICommandType.BATTERY) {
+            else if (wmicCommand.commandType === enums.WMICommandType.BATTERY ||
+                wmicCommand.commandType === enums.WMICommandType.BATTERY_FIRST_PLAN) {
                 batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
                     utils.convertWmicStringToList(stdOut)
             }
@@ -78,7 +80,8 @@ function runAsyncCommands(wmicCommands) {
         if (wmicCommands.commandType === enums.WMICommandType.DEVICE) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
         }
-        else if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
+        else if (wmicCommands.commandType === enums.WMICommandType.BATTERY ||
+            wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PLAN) {
             var charge_rate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
             var discharge_rate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
             // 0.6 came from my own laptop, it's only an rough estimation
@@ -97,10 +100,18 @@ function runAsyncCommands(wmicCommands) {
                 'discharging_bool': batteryData['batterystatus-discharging'].toLowerCase() === "true",
                 'ac_connected_bool': batteryData['batterystatus-poweronline'].toLowerCase() === "true"
             }
-            db.runQuery({
-                'fn': 'addBattery',
-                'params': batteryObject
-            })
+            if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
+                db.runQuery({
+                    'fn': 'addBattery',
+                    'params': batteryObject
+                })
+            }
+            else {
+                db.runQuery({
+                    'fn': 'addBatteryFirstPlan',
+                    'params': batteryObject
+                })
+            }
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
             firebase.saveBatteryCapabilities(batteryCapabilitiesData)
@@ -129,6 +140,15 @@ function monitorPower() {
     var wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
         commandType: enums.WMICommandType.BATTERY,
+    }
+    runAsyncCommands(wmicCommands)
+}
+
+function batteryFirstTimePlan() {
+    batteryData = {}
+    var wmicCommands = {
+        commands: wmicParams.BatteryInfoMonitor,
+        commandType: enums.WMICommandType.BATTERY_FIRST_PLAN,
     }
     runAsyncCommands(wmicCommands)
 }

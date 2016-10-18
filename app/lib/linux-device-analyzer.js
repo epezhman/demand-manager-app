@@ -19,6 +19,7 @@ const firebase = require('./firebase')
 const utils = require('./utils')
 const notify = require('./notify')
 const db = require('../main/windows').db
+const enums = require('./enums')
 
 
 var linuxDeviceData = {}
@@ -129,7 +130,7 @@ function deviceAnalysis() {
 }
 
 
-function monitorPower() {
+function monitorPower(monitorType) {
     var batteryData = {}
     var commands = {
         power2: 'cat /sys/bus/acpi/drivers/battery/PNP0C0A:00/power_supply/BAT0/power_now',
@@ -163,16 +164,24 @@ function monitorPower() {
         var batteryObject = {
             'remaining_time_minutes': utils.hoursToMinutes(Math.round((parseInt(batteryData['energynow'])
                     / parseInt(batteryData['powernow'])) * 100) / 100),
-            'power_rate_w': Math.round( parseInt(batteryData['powernow'] / 10000)) / 100,
+            'power_rate_w': Math.round(parseInt(batteryData['powernow'] / 10000)) / 100,
             'remaining_capacity_percent': parseInt(batteryData['capacity']),
             'voltage_v': Math.round(parseInt(batteryData['voltage-now'] / 10000)) / 100,
             'charging_bool': batteryData['status'] === 'Charging',
             'discharging_bool': batteryData['status'] === 'Discharging',
             'ac_connected_bool': batteryData['ac-connected'] === '1'
         }
-        db.runQuery({
-            'fn': 'addBattery',
-            'params': batteryObject
-        })
+        if (monitorType == enums.LinuxPowerMonitor.BATTERY) {
+            db.runQuery({
+                'fn': 'addBattery',
+                'params': batteryObject
+            })
+        }
+        else if (monitorType == enums.LinuxPowerMonitor.BATTERY_FIRST_PLAN) {
+            db.runQuery({
+                'fn': 'addBatteryFirstPlan',
+                'params': batteryObject
+            })
+        }
     })
 }

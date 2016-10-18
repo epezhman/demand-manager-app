@@ -5,7 +5,6 @@ var db = module.exports = {
 
 const electron = require('electron')
 const config = require('../../config')
-const getMenu = require('../../lib/menu-template')
 
 function runQuery(op) {
 
@@ -15,12 +14,17 @@ function runQuery(op) {
     var win = db.win = new electron.BrowserWindow({
         icon: config.APP_ICON,
         title: config.APP_WINDOW_TITLE + ' - Database',
-        show: true
+        show: false
     })
 
     win.loadURL(config.WINDOW_DB)
 
-    win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
+    win.setMenu(null)
+
+
+    if (config.IS_DEVELOPMENT) {
+        win.webContents.openDevTools()
+    }
 
     win.webContents.on('did-frame-finish-load', ()=> {
         win.webContents.send('db', op)

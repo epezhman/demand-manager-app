@@ -7,7 +7,8 @@ module.exports = {
     saveBatteryData,
     enableOfflineCapabilities,
     installedVersion,
-    saveBatteryCapabilities
+    saveBatteryCapabilities,
+    saveBatteryFirstPlan
 }
 
 const os = require('os')
@@ -107,27 +108,29 @@ function saveBatteryCapabilities(extractedData) {
         .update(extractedData)
 }
 
-
 function saveBatteryData(powerData) {
     powerData['time'] = firebase.database.ServerValue.TIMESTAMP
-    if(powerData['id'])
-    {
+    if (powerData['id']) {
         delete powerData['id']
     }
 
-    var osPrefix = ''
-    if (config.IS_WINDOWS) {
-        osPrefix = 'windows-battery'
-    }
-    else if (config.IS_LINUX) {
-        osPrefix = 'linux-battery'
-    }
-    else if (config.IS_OSX) {
-        osPrefix = 'osx-battery'
-    }
     firebase.database()
         .ref(`battery/${global.machineId}/`)
         .push(powerData)
+}
+
+function saveBatteryFirstPlan(batteryPlans) {
+    log(batteryPlans)
+    for (var batteryPlan of batteryPlans) {
+        if (batteryPlan['id']) {
+            delete batteryPlan['id']
+        }
+        batteryPlan['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        log(`battery/${global.machineId}/
+                            ${batteryPlan['day_of_week']}-${batteryPlan['one_hour_duration_beginning']}`)
+        firebase.database().ref(`battery/${global.machineId}/
+                            ${batteryPlan['day_of_week']}-${batteryPlan['one_hour_duration_beginning']}`).set(batteryPlan)
+    }
 }
 
 function enableOfflineCapabilities() {

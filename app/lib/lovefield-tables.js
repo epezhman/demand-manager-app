@@ -18,4 +18,20 @@ function makeTables(schemaBuilder) {
         .addNullable(['remaining_time_minutes', 'power_rate_w',
             'voltage_v', 'charging_bool', 'discharging_bool', 'ac_connected_bool'])
         .addPrimaryKey(['id'], true)
+
+
+    schemaBuilder.createTable('BatteryPlan')
+        .addColumn('id', lf.Type.INTEGER)
+        .addColumn('voltage_v', lf.Type.INTEGER)
+        .addColumn('remaining_time_minutes', lf.Type.NUMBER)
+        .addColumn('power_rate_w', lf.Type.INTEGER)
+        .addColumn('remaining_capacity_percent', lf.Type.NUMBER)
+        .addColumn('charging_bool', lf.Type.BOOLEAN)
+        .addColumn('discharging_bool', lf.Type.BOOLEAN)
+        .addColumn('ac_connected_bool', lf.Type.BOOLEAN)
+        .addColumn('day_of_week', lf.Type.STRING)
+        .addColumn('one_hour_duration_beginning', lf.Type.NUMBER)
+        .addNullable(['remaining_time_minutes', 'power_rate_w',
+            'voltage_v', 'charging_bool', 'discharging_bool', 'ac_connected_bool'])
+        .addPrimaryKey(['id'], true)
 }

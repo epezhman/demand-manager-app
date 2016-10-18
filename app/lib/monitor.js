@@ -12,6 +12,7 @@ const ConfigStore = require('configstore')
 
 const config = require('../config')
 const windows = require('../main/windows')
+const enums = require('./enums')
 
 const log = require('./log')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
@@ -42,7 +43,7 @@ function monitorPower() {
             require('./windows-device-analyzer').monitorPower()
         }
         else if (config.IS_LINUX) {
-            require('./linux-device-analyzer').monitorPower()
+            require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PLAN)
         }
         else if (config.IS_OSX) {
             require('./osx-device-analyzer').monitorPower()
@@ -52,13 +53,18 @@ function monitorPower() {
 }
 
 function extractDevicesData() {
+    require('./windows-device-analyzer').batteryFirstTimePlan()
     if (!conf.get('device-data-extracted')) {
         if (config.IS_WINDOWS) {
-            require('./windows-device-analyzer').deviceAnalysis()
-            require('./windows-device-analyzer').batteryCapabilities()
+            const winAnalyzer = require('./windows-device-analyzer')
+            winAnalyzer.deviceAnalysis()
+            winAnalyzer.batteryCapabilities()
+            winAnalyzer.batteryFirstTimePlan()
         }
         else if (config.IS_LINUX) {
-            require('./linux-device-analyzer').deviceAnalysis()
+            const linuxAnalyzer = require('./linux-device-analyzer')
+            linuxAnalyzer.deviceAnalysis()
+            linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PLAN)
         }
         else if (config.IS_OSX) {
             require('./osx-device-analyzer').deviceAnalysis()

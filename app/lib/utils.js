@@ -72,9 +72,9 @@ function tryConvertToJson(orgStr) {
 
 
 function hoursToMinutes(time) {
-    var tempTime = time * 100;
-    var hours = Math.floor(tempTime / 100);
-    var minutes = tempTime % 100;
+    var tempTime = time * 100
+    var hours = Math.floor(tempTime / 100)
+    var minutes = tempTime % 100
     return hours * 60 + Math.round((minutes / 100) * 60)
 }
 
