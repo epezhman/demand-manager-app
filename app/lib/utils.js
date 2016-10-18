@@ -4,12 +4,15 @@ module.exports = {
     convertWmicStringToList,
     standardizeForFirebase,
     tryConvertToJson,
-    hoursToMinutes
+    hoursToMinutes,
+    getDayOfWeek,
+    getHoursOfDay
 }
 
 const fkey = require('firebase-safekey')
 const _ = require('lodash')
 const log = require('./log')
+const enums = require('./enums')
 
 fkey.config({
     '.': '-',
@@ -78,3 +81,26 @@ function hoursToMinutes(time) {
     return hours * 60 + Math.round((minutes / 100) * 60)
 }
 
+
+function getDayOfWeek() {
+    switch (new Date().getDay()) {
+        case 0:
+            return enums.WeekDays.SUNDAY
+        case 1:
+            return enums.WeekDays.MONDAY
+        case 2:
+            return enums.WeekDays.TUESDAY
+        case 3:
+            return enums.WeekDays.WEDNESDAY
+        case 4:
+            return enums.WeekDays.THURSDAY
+        case 5:
+            return enums.WeekDays.FRIDAY
+        case 6:
+            return enums.WeekDays.SATURDAY
+    }
+}
+
+function getHoursOfDay() {
+    return new Date().getHours()
+}

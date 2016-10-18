@@ -25,7 +25,6 @@ module.exports.LocationMonitor = {
     MAKE_LOCATION_PROFILE: 'make-location-profile'
 }
 
-
 module.exports.WeekDays = {
     MONDAY: 'mon',
     TUESDAY: 'tue',
@@ -62,4 +61,3 @@ module.exports.DayHours = {
     TWENTY_TWO: 22,
     TWENTY_THREE: 23
 }
-

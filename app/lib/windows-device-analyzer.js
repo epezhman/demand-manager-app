@@ -82,23 +82,24 @@ function runAsyncCommands(wmicCommands) {
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY ||
             wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
-            var charge_rate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
-            var discharge_rate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
+            var chargeRate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
+            var dischargeRate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
             // 0.6 came from my own laptop, it's only an rough estimation
-            var drain_estimation = discharge_rate > 0 ? discharge_rate : charge_rate * 0.6
-            var remaining_time = parseInt(batteryData['win32_battery-estimatedruntime'])
-            if (charge_rate > 0) {
-                remaining_time = utils.hoursToMinutes(Math.round(
-                        (parseInt(batteryData['batterystatus-remainingcapacity']) / (drain_estimation * 1000) ) * 100) / 100)
+            var drainEstimation = dischargeRate > 0 ? dischargeRate : chargeRate * 0.6
+            var remainingTime = parseInt(batteryData['win32_battery-estimatedruntime'])
+            if (chargeRate > 0) {
+                remainingTime = utils.hoursToMinutes(Math.round(
+                        (parseInt(batteryData['batterystatus-remainingcapacity']) /
+                        (drainEstimation * 1000) ) * 100) / 100)
             }
             var batteryObject = {
-                'remaining_time_minutes': remaining_time,
-                'power_rate_w': discharge_rate > 0 ? discharge_rate : charge_rate,
+                'remaining_time_minutes': remainingTime,
+                'power_rate_w': dischargeRate > 0 ? dischargeRate : chargeRate,
                 'remaining_capacity_percent': parseInt(batteryData['win32_battery-estimatedchargeremaining']),
                 'voltage_v': Math.round((parseInt(batteryData['batterystatus-voltage']) / 1000) * 100) / 100,
-                'charging_bool': batteryData['batterystatus-charging'].toLowerCase() === "true",
-                'discharging_bool': batteryData['batterystatus-discharging'].toLowerCase() === "true",
-                'ac_connected_bool': batteryData['batterystatus-poweronline'].toLowerCase() === "true"
+                'charging_bool': batteryData['batterystatus-charging'].toLowerCase() === 'true',
+                'discharging_bool': batteryData['batterystatus-discharging'].toLowerCase() === 'true',
+                'ac_connected_bool': batteryData['batterystatus-poweronline'].toLowerCase() === 'true'
             }
             if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
                 db.runQuery({

@@ -32,7 +32,7 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 
 function registerDevice() {
-    firebase.database().ref(`devices/${global.machineId}`).set({
+    firebase.database().ref(`device/${global.machineId}`).set({
         'registered-time': firebase.database.ServerValue.TIMESTAMP
     })
     var deviceCount = firebase.database().ref('statistics/devices-count')
@@ -42,7 +42,7 @@ function registerDevice() {
 }
 
 function installedVersion() {
-    firebase.database().ref(`devices/${global.machineId}`).update({
+    firebase.database().ref(`device/${global.machineId}`).update({
         'current-version': config.APP_VERSION,
         'check-update-time': firebase.database.ServerValue.TIMESTAMP,
     })
@@ -53,9 +53,8 @@ function saveLocation(geolocation) {
     geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
 
     firebase.database()
-        .ref(`locations/${global.machineId}/last-location/`)
+        .ref(`location/${global.machineId}/last-location/`)
         .set(geolocation)
-
 }
 
 function saveOnlineLocation(geolocation) {
@@ -63,7 +62,7 @@ function saveOnlineLocation(geolocation) {
     geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
 
     firebase.database()
-        .ref(`locations/${global.machineId}/last-location/`)
+        .ref(`location/${global.machineId}/last-location/`)
         .set(geolocation)
 
     var geoFire = new GeoFire(firebase.database()
@@ -74,15 +73,15 @@ function saveOnlineLocation(geolocation) {
 
 }
 
-
 function saveLocationFirstProfile(locationProfiles) {
     for (var locationProfile of locationProfiles) {
         if (locationProfile['id']) {
             delete locationProfile['id']
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        var profileId = `${locationProfile['day_of_week']}-${locationProfile['one_hour_duration_beginning']}`
         firebase.database()
-            .ref(`location/${global.machineId}/${locationProfile['day_of_week']}-${locationProfile['one_hour_duration_beginning']}`)
+            .ref(`location/${global.machineId}/${profileId}`)
             .set(locationProfile)
     }
 }
@@ -128,15 +127,16 @@ function saveBatteryCapabilities(extractedData) {
         .update(extractedData)
 }
 
-function saveBatteryData(powerData) {
-    powerData['time'] = firebase.database.ServerValue.TIMESTAMP
-    if (powerData['id']) {
-        delete powerData['id']
-    }
+function saveBatteryData(powerData, dayOfWeek, hoursOfDay) {
+    powerData['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+    powerData['day_of_week'] = dayOfWeek
+    powerData['one_hour_duration_beginning'] = hoursOfDay
+
+    var profileId = `${powerData['day_of_week']}-${powerData['one_hour_duration_beginning']}`
 
     firebase.database()
-        .ref(`battery/${global.machineId}/`)
-        .push(powerData)
+        .ref(`battery/${global.machineId}/${profileId}`)
+        .set(powerData)
 }
 
 function saveBatteryFirstProfile(batteryProfiles) {
@@ -145,8 +145,10 @@ function saveBatteryFirstProfile(batteryProfiles) {
             delete batteryProfile['id']
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        var profileId = `${batteryProfile['day_of_week']}-${batteryProfile['one_hour_duration_beginning']}`
+
         firebase.database()
-            .ref(`battery/${global.machineId}/${batteryProfile['day_of_week']}-${batteryProfile['one_hour_duration_beginning']}`)
+            .ref(`battery/${global.machineId}/${profileId}`)
             .set(batteryProfile)
     }
 }

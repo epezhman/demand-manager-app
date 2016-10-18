@@ -14,11 +14,14 @@ function makeTables(schemaBuilder) {
         .addColumn('charging_bool', lf.Type.BOOLEAN)
         .addColumn('discharging_bool', lf.Type.BOOLEAN)
         .addColumn('ac_connected_bool', lf.Type.BOOLEAN)
+        .addColumn('day_of_week', lf.Type.STRING)
+        .addColumn('one_hour_duration_beginning', lf.Type.INTEGER)
         .addColumn('time', lf.Type.DATE_TIME)
         .addNullable(['remaining_time_minutes', 'power_rate_w',
             'voltage_v', 'charging_bool', 'discharging_bool', 'ac_connected_bool'])
         .addPrimaryKey(['id'], true)
-
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
 
     schemaBuilder.createTable('BatteryProfile')
         .addColumn('id', lf.Type.INTEGER)
@@ -26,14 +29,15 @@ function makeTables(schemaBuilder) {
         .addColumn('remaining_time_minutes', lf.Type.NUMBER)
         .addColumn('power_rate_w', lf.Type.INTEGER)
         .addColumn('remaining_capacity_percent', lf.Type.NUMBER)
-        .addColumn('charging_bool', lf.Type.BOOLEAN)
-        .addColumn('discharging_bool', lf.Type.BOOLEAN)
         .addColumn('ac_connected_bool', lf.Type.BOOLEAN)
         .addColumn('day_of_week', lf.Type.STRING)
-        .addColumn('one_hour_duration_beginning', lf.Type.NUMBER)
+        .addColumn('one_hour_duration_beginning', lf.Type.INTEGER)
+        .addColumn('is_checked', lf.Type.BOOLEAN)
         .addNullable(['remaining_time_minutes', 'power_rate_w',
-            'voltage_v', 'charging_bool', 'discharging_bool', 'ac_connected_bool'])
+            'voltage_v', 'ac_connected_bool'])
         .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
 
     schemaBuilder.createTable('Location')
         .addColumn('id', lf.Type.INTEGER)
@@ -48,9 +52,13 @@ function makeTables(schemaBuilder) {
         .addColumn('longitude', lf.Type.NUMBER)
         .addColumn('accuracy', lf.Type.INTEGER)
         .addColumn('time', lf.Type.DATE_TIME)
+        .addColumn('day_of_week', lf.Type.STRING)
+        .addColumn('one_hour_duration_beginning', lf.Type.INTEGER)
         .addNullable(['country_code', 'country_name', 'region_code',
             'region_name', 'city', 'zip_code', 'time_zone', 'accuracy'])
         .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
 
     schemaBuilder.createTable('LocationProfile')
         .addColumn('id', lf.Type.INTEGER)
@@ -65,8 +73,11 @@ function makeTables(schemaBuilder) {
         .addColumn('longitude', lf.Type.NUMBER)
         .addColumn('accuracy', lf.Type.INTEGER)
         .addColumn('day_of_week', lf.Type.STRING)
-        .addColumn('one_hour_duration_beginning', lf.Type.NUMBER)
+        .addColumn('is_checked', lf.Type.BOOLEAN)
+        .addColumn('one_hour_duration_beginning', lf.Type.INTEGER)
         .addNullable(['country_code', 'country_name', 'region_code',
             'region_name', 'city', 'zip_code', 'time_zone', 'accuracy'])
         .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
 }

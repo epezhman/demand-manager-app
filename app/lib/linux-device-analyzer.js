@@ -140,8 +140,8 @@ function monitorPower(monitorType) {
         powernow: 'cat /sys/class/power_supply/BAT0/power_now',
         uevent: 'cat /sys/class/power_supply/BAT0/uevent',
         capacity: 'cat /sys/class/power_supply/BAT0/capacity',
-        ac_connected: 'cat /sys/class/power_supply/ADP1/online',
-        voltage_now: 'cat /sys/class/power_supply/BAT0/voltage_now',
+        acConnected: 'cat /sys/class/power_supply/ADP1/online',
+        voltageNow: 'cat /sys/class/power_supply/BAT0/voltage_now',
         battery: 'upower -i /org/freedesktop/UPower/devices/battery_BAT0'
     }
     async.eachOfSeries(commands, (commandValue, commandKey, commandCb)=> {
@@ -162,8 +162,8 @@ function monitorPower(monitorType) {
             log.error(err)
         }
         var batteryObject = {
-            'remaining_time_minutes': utils.hoursToMinutes(Math.round((parseInt(batteryData['energynow'])
-                    / parseInt(batteryData['powernow'])) * 100) / 100),
+            'remaining_time_minutes': utils.hoursToMinutes(
+                Math.round((parseInt(batteryData['energynow']) / parseInt(batteryData['powernow'])) * 100) / 100),
             'power_rate_w': Math.round(parseInt(batteryData['powernow'] / 10000)) / 100,
             'remaining_capacity_percent': parseInt(batteryData['capacity']),
             'voltage_v': Math.round(parseInt(batteryData['voltage-now'] / 10000)) / 100,
@@ -171,13 +171,13 @@ function monitorPower(monitorType) {
             'discharging_bool': batteryData['status'] === 'Discharging',
             'ac_connected_bool': batteryData['ac-connected'] === '1'
         }
-        if (monitorType == enums.LinuxPowerMonitor.BATTERY) {
+        if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
             db.runQuery({
                 'fn': 'addBattery',
                 'params': batteryObject
             })
         }
-        else if (monitorType == enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
+        else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
             db.runQuery({
                 'fn': 'addBatteryFirstProfile',
                 'params': batteryObject
