@@ -3,11 +3,11 @@
 
 module.exports = {
     deviceAnalysis,
-    monitorPower
+    monitorPower,
+    addRunning
 }
 
 const exec = require('child_process').exec
-
 
 const async = require('async')
 const _ = require('lodash')
@@ -184,4 +184,66 @@ function monitorPower(monitorType) {
             })
         }
     })
+}
+
+
+
+function addRunning() {
+
+    db.runQuery({
+        'fn': 'addRunning',
+        'params': []
+    })
+    // var commands = {
+    //     power2: 'cat /sys/bus/acpi/drivers/battery/PNP0C0A:00/power_supply/BAT0/power_now',
+    //     power3: 'cat /sys/class/powercap/*/energy_uj',
+    //     status: 'cat /sys/class/power_supply/BAT0/status',
+    //     energynow: 'cat /sys/class/power_supply/BAT0/energy_now',
+    //     powernow: 'cat /sys/class/power_supply/BAT0/power_now',
+    //     uevent: 'cat /sys/class/power_supply/BAT0/uevent',
+    //     capacity: 'cat /sys/class/power_supply/BAT0/capacity',
+    //     acConnected: 'cat /sys/class/power_supply/ADP1/online',
+    //     voltageNow: 'cat /sys/class/power_supply/BAT0/voltage_now',
+    //     battery: 'upower -i /org/freedesktop/UPower/devices/battery_BAT0'
+    // }
+    // async.eachOfSeries(commands, (commandValue, commandKey, commandCb)=> {
+    //     exec(commandValue, (commandErr, commandStdout, commandStderr) => {
+    //         if (commandErr) {
+    //             log.error(commandErr)
+    //             return commandCb()
+    //         }
+    //         if (commandStdout.includes('command not found') ||
+    //             commandStdout.includes('No such file or directory')) {
+    //             return commandCb()
+    //         }
+    //         batteryData[_.kebabCase(commandKey)] = utils.tryConvertToJson(commandStdout)
+    //         commandCb()
+    //     })
+    // }, (err)=> {
+    //     if (err) {
+    //         log.error(err)
+    //     }
+    //     var batteryObject = {
+    //         'remaining_time_minutes': utils.hoursToMinutes(
+    //             Math.round((parseInt(batteryData['energynow']) / parseInt(batteryData['powernow'])) * 100) / 100),
+    //         'power_rate_w': Math.round(parseInt(batteryData['powernow'] / 10000)) / 100,
+    //         'remaining_capacity_percent': parseInt(batteryData['capacity']),
+    //         'voltage_v': Math.round(parseInt(batteryData['voltage-now'] / 10000)) / 100,
+    //         'charging_bool': batteryData['status'] === 'Charging',
+    //         'discharging_bool': batteryData['status'] === 'Discharging',
+    //         'ac_connected_bool': batteryData['ac-connected'] === '1'
+    //     }
+    //     if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
+    //         db.runQuery({
+    //             'fn': 'addBattery',
+    //             'params': batteryObject
+    //         })
+    //     }
+    //     else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
+    //         db.runQuery({
+    //             'fn': 'addBatteryFirstProfile',
+    //             'params': batteryObject
+    //         })
+    //     }
+    // })
 }

@@ -52,6 +52,39 @@ function monitorPower() {
     setTimeout(monitorPower, config.MONITOR_POWER_INTERVAL)
 }
 
+function updateRunningProfile() {
+    if (shouldAppBeRunning()) {
+        windows.db.runQuery({
+            'fn': 'updateRunningProfile',
+            'params': []
+        })
+    }
+    setTimeout(updateRunningProfile, config.MONITOR_RUNNING_PROFILE_INTERVAL)
+}
+
+function addRunningProfile() {
+    if (shouldAppBeRunning()) {
+        if (config.IS_WINDOWS) {
+        }
+        else if (config.IS_LINUX) {
+            require('./linux-device-analyzer').addRunning()
+        }
+        else if (config.IS_OSX) {
+        }
+    }
+    setTimeout(addRunningProfile, config.ADD_RUNNING_PROFILE_INTERVAL)
+}
+
+function getPowerStats() {
+    if (shouldAppBeRunning()) {
+        windows.db.runQuery({
+            'fn': 'powerStats',
+            'params': []
+        })
+    }
+    setTimeout(getPowerStats, config.MONITOR_RUNNING_PROFILE_INTERVAL)
+}
+
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
         if (config.IS_WINDOWS) {
@@ -73,6 +106,9 @@ function extractDevicesData() {
 
 
 function init() {
-    monitorGeoLocation()
-    monitorPower()
+    setTimeout(getPowerStats, 1000)
+    setTimeout(monitorPower, 5000)
+    setTimeout(addRunningProfile, 10000)
+    setTimeout(updateRunningProfile, 15000)
+    setTimeout(monitorGeoLocation, 20000)
 }

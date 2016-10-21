@@ -14,6 +14,7 @@ const powerControl = require('./power-control')
 const enums = require('./enums')
 const log = require('./log')
 
+
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 function getMenu() {
@@ -75,9 +76,12 @@ function getMenu() {
                     conf.clear()
                 }
             }, {
-                label: 'Clear Registered Email',
+                label: 'Clear Database',
                 click: ()=> {
-                    conf.del('register-email')
+                    windows.db.runQuery({
+                        'fn': 'deleteAllData',
+                        'params': []
+                    })
                 }
             }]
         })

@@ -66,13 +66,19 @@ module.exports = {
 
     MONITOR_POWER_INTERVAL: 10000,
 
+    MONITOR_RUNNING_PROFILE_INTERVAL: 20000,
+    ADD_RUNNING_PROFILE_INTERVAL: 10000,
+
+    UPDATE_POWER_STATS_DAILY: 1000 * 60 * 60 * 24,
+
+
     FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/',
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
     'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
 
     LOVEFIELD_DB_NAME: 'dmtum',
-    LOVEFIELD_DB_VERSION: 26
+    LOVEFIELD_DB_VERSION: 30
 }
 
 function getConfigPath() {

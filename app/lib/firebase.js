@@ -7,6 +7,7 @@ module.exports = {
     saveLocationFirstProfile,
     saveExtractedDevicesData,
     saveBatteryData,
+    updateRunningData,
     enableOfflineCapabilities,
     installedVersion,
     saveBatteryCapabilities,
@@ -127,6 +128,18 @@ function saveBatteryCapabilities(extractedData) {
         .update(extractedData)
 }
 
+function updateRunningData(dayOfWeek, hoursOfDay, appRunning, computerRunning) {
+    var profileId = `${dayOfWeek}-${hoursOfDay}`
+
+    firebase.database()
+        .ref(`power/${global.machineId}/${profileId}`)
+        .update({
+            'app_running_bool': appRunning,
+            'computer_running_bool': computerRunning
+
+        })
+}
+
 function saveBatteryData(powerData, dayOfWeek, hoursOfDay) {
     powerData['last-updated'] = firebase.database.ServerValue.TIMESTAMP
     powerData['day_of_week'] = dayOfWeek
@@ -135,8 +148,8 @@ function saveBatteryData(powerData, dayOfWeek, hoursOfDay) {
     var profileId = `${powerData['day_of_week']}-${powerData['one_hour_duration_beginning']}`
 
     firebase.database()
-        .ref(`battery/${global.machineId}/${profileId}`)
-        .set(powerData)
+        .ref(`power/${global.machineId}/${profileId}`)
+        .update(powerData)
 }
 
 function saveBatteryFirstProfile(batteryProfiles) {
@@ -148,8 +161,8 @@ function saveBatteryFirstProfile(batteryProfiles) {
         var profileId = `${batteryProfile['day_of_week']}-${batteryProfile['one_hour_duration_beginning']}`
 
         firebase.database()
-            .ref(`battery/${global.machineId}/${profileId}`)
-            .set(batteryProfile)
+            .ref(`power/${global.machineId}/${profileId}`)
+            .update(batteryProfile)
     }
 }
 
