@@ -2,12 +2,12 @@
 
 module.exports = {
     registerDevice,
-    saveLocation,
     saveOnlineLocation,
     saveLocationFirstProfile,
+    updateLocationProfile,
     saveExtractedDevicesData,
-    saveBatteryData,
-    updateRunningData,
+    updateBatteryProfile,
+    updateRunningProfile,
     enableOfflineCapabilities,
     installedVersion,
     saveBatteryCapabilities,
@@ -49,21 +49,11 @@ function installedVersion() {
     })
 }
 
-function saveLocation(geolocation) {
-
-    geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
-
-    firebase.database()
-        .ref(`location/${global.machineId}/last-location/`)
-        .set(geolocation)
-}
-
 function saveOnlineLocation(geolocation) {
-
     geolocation['time'] = firebase.database.ServerValue.TIMESTAMP
 
     firebase.database()
-        .ref(`location/${global.machineId}/last-location/`)
+        .ref(`last-location/${global.machineId}/`)
         .set(geolocation)
 
     var geoFire = new GeoFire(firebase.database()
@@ -85,6 +75,21 @@ function saveLocationFirstProfile(locationProfiles) {
             .ref(`location/${global.machineId}/${profileId}`)
             .set(locationProfile)
     }
+}
+
+function updateLocationProfile(locationData, dayOfWeek, hoursOfDay) {
+    var profileId = `${dayOfWeek}-${hoursOfDay}`
+    firebase.database()
+        .ref(`location/${global.machineId}/${profileId}`)
+        .update({
+            'last-updated': firebase.database.ServerValue.TIMESTAMP,
+            'day_of_week': dayOfWeek,
+            'one_hour_duration_beginning': hoursOfDay,
+            'latitude': locationData['latitude'],
+            'longitude': locationData['longitude'],
+            'accuracy': locationData['accuracy'],
+            'is_checked': locationData['is_checked']
+        })
 }
 
 function saveExtractedDevicesData(extractedData) {
@@ -128,7 +133,7 @@ function saveBatteryCapabilities(extractedData) {
         .update(extractedData)
 }
 
-function updateRunningData(dayOfWeek, hoursOfDay, appRunning, computerRunning) {
+function updateRunningProfile(dayOfWeek, hoursOfDay, appRunning, computerRunning) {
     var profileId = `${dayOfWeek}-${hoursOfDay}`
 
     firebase.database()
@@ -140,7 +145,7 @@ function updateRunningData(dayOfWeek, hoursOfDay, appRunning, computerRunning) {
         })
 }
 
-function saveBatteryData(powerData, dayOfWeek, hoursOfDay) {
+function updateBatteryProfile(powerData, dayOfWeek, hoursOfDay) {
     powerData['last-updated'] = firebase.database.ServerValue.TIMESTAMP
     powerData['day_of_week'] = dayOfWeek
     powerData['one_hour_duration_beginning'] = hoursOfDay

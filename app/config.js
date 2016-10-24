@@ -60,25 +60,26 @@ module.exports = {
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
+
     DELAY_START_TIME: 3000,
     DELAY_START_TIME_FIRST_TIME: 10000,
-    MONITOR_GEOLOCATION_INTERVAL: 60000 * 15,
+    MONITOR_GEOLOCATION_INTERVAL: 10000,
 
     MONITOR_POWER_INTERVAL: 10000,
 
     MONITOR_RUNNING_PROFILE_INTERVAL: 20000,
-    ADD_RUNNING_PROFILE_INTERVAL: 10000,
+    ADD_RUNNING_PROFILE_INTERVAL: 3600000,
 
     UPDATE_POWER_STATS_DAILY: 1000 * 60 * 60 * 24,
 
+    FREEGEOIP_URL: 'http://freegeoip.net/json/',
 
-    FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/',
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
     'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
 
     LOVEFIELD_DB_NAME: 'dmtum',
-    LOVEFIELD_DB_VERSION: 30
+    LOVEFIELD_DB_VERSION: 34
 }
 
 function getConfigPath() {
@@ -86,3 +87,4 @@ function getConfigPath() {
 }
 
 
+//FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/'

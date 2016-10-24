@@ -16,6 +16,7 @@ const lf = require('lovefield')
 const Q = require('q')
 const async = require('async')
 const ConfigStore = require('configstore')
+const momemt = require('moment')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -78,6 +79,23 @@ function calculatePowerAverageConsumption(records) {
     }
 }
 
+function calculateLocationAverage(records) {
+    var locationAverage = {}
+    if (records.length) {
+        var count = 0
+        records.forEach((record)=> {
+            if (count <= record['ip_count']) {
+                locationAverage['longitude'] = record['longitude']
+                locationAverage['latitude'] = record['latitude']
+                locationAverage['accuracy'] = Math.round(record['accuracy'])
+                count = record['ip_count']
+            }
+        })
+
+        return locationAverage
+    }
+}
+
 function addRunning() {
     var dayOfWeek = utils.getDayOfWeek()
     var hoursOfDay = utils.getHoursOfDay()
@@ -88,6 +106,7 @@ function addRunning() {
             'computer_running_bool': true,
             'day_of_week': dayOfWeek,
             'one_hour_duration_beginning': hoursOfDay,
+            'auto_start_set_bool': conf.get('run-on-start-up') ? true : false,
             'time': new Date()
         })
         return db.insert()
@@ -107,24 +126,25 @@ function addRunning() {
             var hoursDif = Math.floor((runningRecords[0].time - runningRecords[1].time) / 3600000)
             var running = db.getSchema().table('Running')
             var rows = []
+            var lastDateTime = runningRecords[1].time
+            var autoStartSet = conf.get('run-on-start-up') ? true : false
             for (var i = 0; i < hoursDif; i++) {
+                var tempDate = momemt(lastDateTime).add(i, 'h').toDate()
                 rows.push(running.createRow({
-                    'app_running_bool': true,
-                    'computer_running_bool': true,
-                    'day_of_week': dayOfWeek,
-                    'one_hour_duration_beginning': hoursOfDay,
-                    'time': new Date()
+                    'app_running_bool': false,
+                    'computer_running_bool': false,
+                    'auto_start_set_bool': autoStartSet,
+                    'day_of_week': utils.getDayOfWeek(tempDate.getDay()),
+                    'one_hour_duration_beginning': tempDate.getHours(),
+                    'time': tempDate
                 }))
-
             }
             return db.insert()
                 .into(running)
                 .values(rows).exec()
-
         }
     })
 }
-
 
 function updateRunningProfile() {
     var sumAll = {}
@@ -172,7 +192,7 @@ function updateRunningProfile() {
                     batteryProfile.one_hour_duration_beginning.eq(days_hours[1])))
                 .exec()
                 .then(()=> {
-                    firebase.updateRunningData(days_hours[0], days_hours[1], app_running, computer_running)
+                    firebase.updateRunningProfile(days_hours[0], days_hours[1], app_running, computer_running)
                 })
 
         }
@@ -245,7 +265,7 @@ function addBattery(batteryObject) {
                     .where(batteryProfile.id.eq(batteryProfileRecord['id']))
                     .exec()
                     .then(()=> {
-                        firebase.saveBatteryData(powerAverage, batteryProfileRecord['day_of_week'], hoursOfDay)
+                        firebase.updateBatteryProfile(powerAverage, batteryProfileRecord['day_of_week'], hoursOfDay)
                     })
             }
         })
@@ -296,12 +316,27 @@ function addBatteryFirstProfile(batteryObject) {
 }
 
 function addLocation(locationData) {
+    var dayOfWeek = utils.getDayOfWeek()
+    var hoursOfDay = utils.getHoursOfDay()
+    var locationAverage = {}
     return Q.fcall(getDB).then(()=> {
-        locationData['time'] = new Date()
-        locationData['day_of_week'] = utils.getDayOfWeek()
-        locationData['one_hour_duration_beginning'] = utils.getHoursOfDay()
         var location = db.getSchema().table('Location')
-        var row = location.createRow(locationData)
+        var row = location.createRow({
+            'time': new Date(),
+            'day_of_week': dayOfWeek,
+            'one_hour_duration_beginning': hoursOfDay,
+            'country_code': checkIfUndefined(locationData['country-code']),
+            'country_name': checkIfUndefined(locationData['country-name']),
+            'region_code': checkIfUndefined(locationData['region-code']),
+            'region_name': checkIfUndefined(locationData['region-name']),
+            'city': checkIfUndefined(locationData['city']),
+            'time_zone': checkIfUndefined(locationData['time-zone']),
+            'zip_code': checkIfUndefinedNumber(locationData['zip-code']),
+            'ip': checkIfUndefined(locationData['ip']),
+            'latitude': locationData['latitude'],
+            'longitude': locationData['longitude'],
+            'accuracy': checkIfUndefinedNumber(locationData['accuracy'])
+        })
         return db.insert()
             .into(location)
             .values([row])
@@ -309,10 +344,51 @@ function addLocation(locationData) {
             .then(()=> {
                 firebase.saveOnlineLocation(locationData)
             })
+    }).then(()=> {
+        var location = db.getSchema().table('Location')
+        return db.select(
+            location.ip,
+            lf.fn.count(location.ip).as('ip_count'),
+            lf.fn.avg(location.latitude).as('latitude'),
+            lf.fn.avg(location.longitude).as('longitude'),
+            lf.fn.avg(location.accuracy).as('accuracy'))
+            .from(location)
+            .where(lf.op.and(
+                location.day_of_week.eq(dayOfWeek),
+                location.one_hour_duration_beginning.eq(hoursOfDay))
+            )
+            .groupBy(location.ip)
+            .exec()
+    }).then((locationRecords)=> {
+        locationAverage = calculateLocationAverage(locationRecords)
+        if (locationAverage) {
+            locationAverage['is_checked'] = true
+        }
+        var locationProfile = db.getSchema().table('LocationProfile')
+
+        return db.select(locationProfile.id, locationProfile.is_checked, locationProfile.day_of_week)
+            .from(locationProfile)
+            .where(locationProfile.one_hour_duration_beginning.eq(hoursOfDay))
+            .exec()
+    }).then((locationProfileRecords)=> {
+        var locationProfile = db.getSchema().table('LocationProfile')
+        locationProfileRecords.forEach((locationProfileRecord)=> {
+            if (!locationProfileRecord['is_checked'] || locationProfileRecord['day_of_week'] === dayOfWeek) {
+                db.update(locationProfile)
+                    .set(locationProfile.is_checked, locationAverage['is_checked'])
+                    .set(locationProfile.latitude, locationAverage['latitude'])
+                    .set(locationProfile.longitude, locationAverage['longitude'])
+                    .set(locationProfile.accuracy, locationAverage['accuracy'])
+                    .where(locationProfile.id.eq(locationProfileRecord['id']))
+                    .exec()
+                    .then(()=> {
+                        firebase.updateLocationProfile(locationAverage, locationProfileRecord['day_of_week'], hoursOfDay)
+                    })
+            }
+        })
     })
 }
 
-// TODO Update the location and locations profiles
 function addLocationFirstProfile(locationData) {
     return Q.fcall(getDB).then(()=> {
         var locationProfile = db.getSchema().table('LocationProfile')
@@ -325,13 +401,6 @@ function addLocationFirstProfile(locationData) {
                 for (var dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
                     for (var hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
                         var tempRow = {
-                            'country_code': checkIfUndefined(locationData['country_code']),
-                            'country_name': checkIfUndefined(locationData['country_name']),
-                            'region_code': checkIfUndefined(locationData['region_code']),
-                            'region_name': checkIfUndefined(locationData['region_name']),
-                            'city': checkIfUndefined(locationData['city']),
-                            'zip_code': checkIfUndefined(locationData['zip_code']),
-                            'time_zone': checkIfUndefined(locationData['time_zone']),
                             'latitude': locationData['latitude'],
                             'longitude': locationData['longitude'],
                             'accuracy': checkIfUndefinedNumber(locationData['accuracy']),
@@ -354,12 +423,13 @@ function addLocationFirstProfile(locationData) {
     })
 }
 
-function deleteAllData(locationData) {
+function deleteAllData() {
     return Q.fcall(getDB).then(()=> {
         var battery = db.getSchema().table('Battery')
         var batteryProfile = db.getSchema().table('BatteryProfile')
         var location = db.getSchema().table('Location')
         var locationProfile = db.getSchema().table('LocationProfile')
+        var running = db.getSchema().table('Running')
 
         return db.delete()
             .from(battery)
@@ -375,6 +445,10 @@ function deleteAllData(locationData) {
             }).then(()=> {
                 return db.delete()
                     .from(locationProfile)
+                    .exec()
+            }).then(()=> {
+                return db.delete()
+                    .from(running)
                     .exec()
             })
     })

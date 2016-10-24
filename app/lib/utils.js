@@ -6,7 +6,8 @@ module.exports = {
     tryConvertToJson,
     hoursToMinutes,
     getDayOfWeek,
-    getHoursOfDay
+    getHoursOfDay,
+    getArbDayOfWeek
 }
 
 const fkey = require('firebase-safekey')
@@ -84,6 +85,25 @@ function hoursToMinutes(time) {
 
 function getDayOfWeek() {
     switch (new Date().getDay()) {
+        case 0:
+            return enums.WeekDays.SUNDAY
+        case 1:
+            return enums.WeekDays.MONDAY
+        case 2:
+            return enums.WeekDays.TUESDAY
+        case 3:
+            return enums.WeekDays.WEDNESDAY
+        case 4:
+            return enums.WeekDays.THURSDAY
+        case 5:
+            return enums.WeekDays.FRIDAY
+        case 6:
+            return enums.WeekDays.SATURDAY
+    }
+}
+
+function getArbDayOfWeek(d) {
+    switch (d) {
         case 0:
             return enums.WeekDays.SUNDAY
         case 1:

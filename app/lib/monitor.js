@@ -65,11 +65,13 @@ function updateRunningProfile() {
 function addRunningProfile() {
     if (shouldAppBeRunning()) {
         if (config.IS_WINDOWS) {
+            log('windows running profile')
         }
         else if (config.IS_LINUX) {
             require('./linux-device-analyzer').addRunning()
         }
         else if (config.IS_OSX) {
+            log('osx running profile')
         }
     }
     setTimeout(addRunningProfile, config.ADD_RUNNING_PROFILE_INTERVAL)
@@ -87,6 +89,7 @@ function getPowerStats() {
 
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
+        windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')
             winAnalyzer.deviceAnalysis()
@@ -106,9 +109,9 @@ function extractDevicesData() {
 
 
 function init() {
-    setTimeout(getPowerStats, 1000)
+    setTimeout(getPowerStats, 20000)
     setTimeout(monitorPower, 5000)
     setTimeout(addRunningProfile, 10000)
     setTimeout(updateRunningProfile, 15000)
-    setTimeout(monitorGeoLocation, 20000)
+    setTimeout(monitorGeoLocation, 1000)
 }
