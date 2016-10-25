@@ -41,6 +41,24 @@ function makeTables(schemaBuilder) {
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
 
+    schemaBuilder.createTable('BatteryProfileCluster')
+        .addColumn('id', lf.Type.INTEGER)
+        .addColumn('voltage_v', lf.Type.INTEGER)
+        .addColumn('remaining_time_minutes', lf.Type.NUMBER)
+        .addColumn('power_rate_w', lf.Type.INTEGER)
+        .addColumn('remaining_capacity_percent', lf.Type.NUMBER)
+        .addColumn('ac_connected_prob_percent', lf.Type.INTEGER)
+        .addColumn('app_running_prob_percent', lf.Type.INTEGER)
+        .addColumn('computer_running_prob_percent', lf.Type.INTEGER)
+        .addColumn('day_of_week', lf.Type.STRING)
+        .addColumn('section_of_day', lf.Type.INTEGER)
+        .addColumn('is_checked', lf.Type.BOOLEAN)
+        .addNullable(['remaining_time_minutes', 'power_rate_w', 'app_running_prob_percent', '' +
+        'computer_running_prob_percent', 'voltage_v', 'ac_connected_prob_percent'])
+        .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_section_of_day', ['section_of_day'], false, lf.Order.DESC)
+
     schemaBuilder.createTable('Running')
         .addColumn('id', lf.Type.INTEGER)
         .addColumn('app_running_bool', lf.Type.BOOLEAN)
@@ -88,4 +106,18 @@ function makeTables(schemaBuilder) {
         .addPrimaryKey(['id'], true)
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
+
+
+    schemaBuilder.createTable('LocationProfileCluster')
+        .addColumn('id', lf.Type.INTEGER)
+        .addColumn('latitude', lf.Type.NUMBER)
+        .addColumn('longitude', lf.Type.NUMBER)
+        .addColumn('accuracy', lf.Type.INTEGER)
+        .addColumn('day_of_week', lf.Type.STRING)
+        .addColumn('is_checked', lf.Type.BOOLEAN)
+        .addColumn('section_of_day', lf.Type.INTEGER)
+        .addNullable([ 'accuracy'])
+        .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_section_of_day', ['section_of_day'], false, lf.Order.DESC)
 }

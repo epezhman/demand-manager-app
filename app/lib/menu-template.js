@@ -71,13 +71,22 @@ function getMenu() {
                     powerControl()
                 }
             }, {
-                label: 'Clear All Storage',
+                label: 'Clear Saved Settings',
                 click: ()=> {
                     conf.clear()
                 }
             }, {
                 label: 'Clear Database',
                 click: ()=> {
+                    windows.db.runQuery({
+                        'fn': 'deleteAllData',
+                        'params': []
+                    })
+                }
+            }, {
+                label: 'Clear All Data',
+                click: ()=> {
+                    conf.clear()
                     windows.db.runQuery({
                         'fn': 'deleteAllData',
                         'params': []

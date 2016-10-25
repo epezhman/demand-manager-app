@@ -11,7 +11,10 @@ module.exports = {
     enableOfflineCapabilities,
     installedVersion,
     saveBatteryCapabilities,
-    saveBatteryFirstProfile
+    saveBatteryFirstProfile,
+    saveLocationClusterProfile,
+    saveBatteryClusterProfile
+
 }
 
 const os = require('os')
@@ -73,6 +76,19 @@ function saveLocationFirstProfile(locationProfiles) {
         var profileId = `${locationProfile['day_of_week']}-${locationProfile['one_hour_duration_beginning']}`
         firebase.database()
             .ref(`location/${global.machineId}/${profileId}`)
+            .set(locationProfile)
+    }
+}
+
+function saveLocationClusterProfile(locationProfiles) {
+    for (var locationProfile of locationProfiles) {
+        if (locationProfile['id']) {
+            delete locationProfile['id']
+        }
+        locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        var profileId = `${locationProfile['day_of_week']}-${locationProfile['section_of_day']}`
+        firebase.database()
+            .ref(`location-cluster/${global.machineId}/${profileId}`)
             .set(locationProfile)
     }
 }
@@ -168,6 +184,20 @@ function saveBatteryFirstProfile(batteryProfiles) {
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
             .update(batteryProfile)
+    }
+}
+
+function saveBatteryClusterProfile(batteryProfiles) {
+    for (var batteryProfile of batteryProfiles) {
+        if (batteryProfile['id']) {
+            delete batteryProfile['id']
+        }
+        batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        var profileId = `${batteryProfile['day_of_week']}-${batteryProfile['section_of_day']}`
+
+        firebase.database()
+            .ref(`power-cluster/${global.machineId}/${profileId}`)
+            .set(batteryProfile)
     }
 }
 

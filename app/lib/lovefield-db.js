@@ -16,7 +16,7 @@ const lf = require('lovefield')
 const Q = require('q')
 const async = require('async')
 const ConfigStore = require('configstore')
-const momemt = require('moment')
+const moment = require('moment')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -91,9 +91,102 @@ function calculateLocationAverage(records) {
                 count = record['ip_count']
             }
         })
-
         return locationAverage
     }
+}
+
+function clusterLocationProfile(records) {
+    var locationProfileClustered = {}
+    records.forEach((record)=> {
+        var sectionOfDay = 0
+        var hour = record['one_hour_duration_beginning']
+        if (hour <= 7) {
+            sectionOfDay = 1
+        }
+        else if (hour > 7 && hour <= 18) {
+            sectionOfDay = 2
+
+        } else {
+            sectionOfDay = 3
+        }
+        var profileId = `${record['day_of_week']}-${sectionOfDay}`
+        if (locationProfileClustered[profileId]) {
+            locationProfileClustered[profileId]['latitude'] =
+                (locationProfileClustered[profileId]['latitude'] + record['latitude']) / 2
+            locationProfileClustered[profileId]['longitude'] =
+                (locationProfileClustered[profileId]['longitude'] + record['longitude']) / 2
+            locationProfileClustered[profileId]['accuracy'] =
+                Math.round((locationProfileClustered[profileId]['accuracy'] + record['accuracy']) / 2)
+            locationProfileClustered[profileId]['is_checked'] = record['is_checked']
+            locationProfileClustered[profileId]['day_of_week'] = record['day_of_week']
+            locationProfileClustered[profileId]['section_of_day'] = sectionOfDay
+        }
+        else {
+            locationProfileClustered[profileId] = {
+                'latitude': record['latitude'],
+                'longitude': record['longitude'],
+                'accuracy': record['accuracy'],
+                'is_checked': record['is_checked'],
+                'day_of_week': record['day_of_week'],
+                'section_of_day': sectionOfDay
+            }
+        }
+
+    })
+    return locationProfileClustered
+}
+
+function clusterBatteryProfile(records) {
+    var batteryProfileClustered = {}
+    records.forEach((record)=> {
+        var sectionOfDay = 0
+        var hour = record['one_hour_duration_beginning']
+        if (hour <= 7) {
+            sectionOfDay = 1
+        }
+        else if (hour > 7 && hour <= 18) {
+            sectionOfDay = 2
+
+        } else {
+            sectionOfDay = 3
+        }
+        var profileId = `${record['day_of_week']}-${sectionOfDay}`
+        if (batteryProfileClustered[profileId]) {
+            batteryProfileClustered[profileId]['voltage_v'] =
+                Math.round(((batteryProfileClustered[profileId]['voltage_v'] + record['voltage_v']) / 2) * 100) / 100
+            batteryProfileClustered[profileId]['remaining_time_minutes'] =
+                Math.round((batteryProfileClustered[profileId]['remaining_time_minutes'] + record['remaining_time_minutes']) / 2)
+            batteryProfileClustered[profileId]['power_rate_w'] =
+                Math.round(((batteryProfileClustered[profileId]['power_rate_w'] + record['power_rate_w']) / 2) * 100) / 100
+            batteryProfileClustered[profileId]['remaining_capacity_percent'] =
+                Math.round((batteryProfileClustered[profileId]['remaining_capacity_percent'] + record['remaining_capacity_percent']) / 2)
+            batteryProfileClustered[profileId]['ac_connected_prob_percent'] =
+                Math.round((batteryProfileClustered[profileId]['ac_connected_prob_percent'] + record['ac_connected_prob_percent']) / 2)
+            batteryProfileClustered[profileId]['app_running_prob_percent'] =
+                Math.round((batteryProfileClustered[profileId]['app_running_prob_percent'] + record['app_running_prob_percent']) / 2)
+            batteryProfileClustered[profileId]['computer_running_prob_percent'] =
+                Math.round((batteryProfileClustered[profileId]['computer_running_prob_percent'] + record['computer_running_prob_percent']) / 2)
+            batteryProfileClustered[profileId]['is_checked'] = record['is_checked']
+            batteryProfileClustered[profileId]['day_of_week'] = record['day_of_week']
+            batteryProfileClustered[profileId]['section_of_day'] = sectionOfDay
+        }
+        else {
+            batteryProfileClustered[profileId] = {
+                'voltage_v': record['voltage_v'],
+                'remaining_time_minutes': record['remaining_time_minutes'],
+                'power_rate_w': record['power_rate_w'],
+                'remaining_capacity_percent': record['remaining_capacity_percent'],
+                'ac_connected_prob_percent': record['ac_connected_prob_percent'],
+                'app_running_prob_percent': record['app_running_prob_percent'],
+                'computer_running_prob_percent': record['computer_running_prob_percent'],
+                'is_checked': record['is_checked'],
+                'day_of_week': record['day_of_week'],
+                'section_of_day': sectionOfDay
+            }
+        }
+
+    })
+    return batteryProfileClustered
 }
 
 function addRunning() {
@@ -129,7 +222,7 @@ function addRunning() {
             var lastDateTime = runningRecords[1].time
             var autoStartSet = conf.get('run-on-start-up') ? true : false
             for (var i = 0; i < hoursDif; i++) {
-                var tempDate = momemt(lastDateTime).add(i, 'h').toDate()
+                var tempDate = moment(lastDateTime).add(i, 'h').toDate()
                 rows.push(running.createRow({
                     'app_running_bool': false,
                     'computer_running_bool': false,
@@ -245,7 +338,6 @@ function addBattery(batteryObject) {
             powerAverage['is_checked'] = true
         }
         var batteryProfile = db.getSchema().table('BatteryProfile')
-
         return db.select(batteryProfile.id, batteryProfile.is_checked, batteryProfile.day_of_week)
             .from(batteryProfile)
             .where(batteryProfile.one_hour_duration_beginning.eq(hoursOfDay))
@@ -269,49 +361,131 @@ function addBattery(batteryObject) {
                     })
             }
         })
+    }).then(()=> {
+        var batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
+        return db.delete()
+            .from(batteryProfileCluster)
+            .exec()
+    }).then(()=> {
+        var batteryProfile = db.getSchema().table('BatteryProfile')
+        return db.select()
+            .from(batteryProfile)
+            .exec()
+    }).then((batteryProfileRecords)=> {
+        var batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
+        var batteryClusters = clusterBatteryProfile(batteryProfileRecords)
+        var rows = []
+        var firebaseRows = []
+        for (var _key in batteryClusters) if (batteryClusters.hasOwnProperty(_key)) {
+            var tempRow = {
+                'voltage_v': batteryClusters[_key]['voltage_v'],
+                'remaining_time_minutes': batteryClusters[_key]['remaining_time_minutes'],
+                'power_rate_w': batteryClusters[_key]['power_rate_w'],
+                'remaining_capacity_percent': batteryClusters[_key]['remaining_capacity_percent'],
+                'ac_connected_prob_percent': batteryClusters[_key]['ac_connected_prob_percent'],
+                'app_running_prob_percent': batteryClusters[_key]['app_running_prob_percent'],
+                'computer_running_prob_percent': batteryClusters[_key]['computer_running_prob_percent'],
+                'day_of_week': batteryClusters[_key]['day_of_week'],
+                'section_of_day': batteryClusters[_key]['section_of_day'],
+                'is_checked': batteryClusters[_key]['is_checked'],
+            }
+            firebaseRows.push(tempRow)
+            rows.push(batteryProfileCluster.createRow(tempRow))
+        }
+        return db.insert()
+            .into(batteryProfileCluster)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveBatteryClusterProfile(firebaseRows)
+            })
     })
 }
 
 function addBatteryFirstProfile(batteryObject) {
     return Q.fcall(getDB).then(()=> {
         var batteryProfile = db.getSchema().table('BatteryProfile')
-        return db.delete().from(batteryProfile).exec().then(()=> {
-            var rows = []
-            var firebaseRows = []
-            for (var dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
-                for (var hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
-                    var tempRow = {
-                        'remaining_time_minutes': batteryObject['remaining_time_minutes'],
-                        'power_rate_w': batteryObject['power_rate_w'],
-                        'remaining_capacity_percent': batteryObject['remaining_capacity_percent'],
-                        'voltage_v': batteryObject['voltage_v'],
-                        'ac_connected_prob_percent': 50,
-                        'day_of_week': enums.WeekDays[dayName],
-                        'one_hour_duration_beginning': enums.DayHours[hourName],
-                        'is_checked': false,
-                        'app_running_bool': true,
-                        'computer_running_bool': true,
-                        'app_running_prob_percent': 50,
-                        'computer_running_prob_percent': 50
-                    }
-                    if (enums.DayHours[hourName] <= 7) {
-                        tempRow['power_rate_w'] = 0
-                        tempRow['voltage_v'] = 0
-                        tempRow['app_running_prob_percent'] = 0
-                        tempRow['computer_running_prob_percent'] = 0
-                    }
-                    firebaseRows.push(tempRow)
-                    rows.push(batteryProfile.createRow(tempRow))
-                }
+        return db.delete()
+            .from(batteryProfile)
+            .exec()
+    }).then(()=> {
+        var batteryProfile = db.getSchema().table('BatteryProfile')
+        var rows = []
+        var firebaseRows = []
+        if (batteryObject['remaining_capacity_percent'] > 95) {
+            if (batteryObject['power_rate_w'] === 0) {
+                batteryObject['power_rate_w'] = 15
             }
-            return db.insert()
-                .into(batteryProfile)
-                .values(rows)
-                .exec()
-                .then(()=> {
-                    firebase.saveBatteryFirstProfile(firebaseRows)
-                })
-        })
+            if (batteryObject['remaining_time_minutes'] === 0) {
+                batteryObject['remaining_time_minutes'] = 60
+            }
+        }
+        for (var dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
+            for (var hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
+                var tempRow = {
+                    'remaining_time_minutes': batteryObject['remaining_time_minutes'],
+                    'power_rate_w': batteryObject['power_rate_w'],
+                    'remaining_capacity_percent': batteryObject['remaining_capacity_percent'],
+                    'voltage_v': batteryObject['voltage_v'],
+                    'ac_connected_prob_percent': 50,
+                    'day_of_week': enums.WeekDays[dayName],
+                    'one_hour_duration_beginning': enums.DayHours[hourName],
+                    'is_checked': false,
+                    'app_running_bool': true,
+                    'computer_running_bool': true,
+                    'app_running_prob_percent': 50,
+                    'computer_running_prob_percent': 50
+                }
+                if (enums.DayHours[hourName] <= 7) {
+                    tempRow['power_rate_w'] = 0
+                    tempRow['voltage_v'] = 0
+                    tempRow['app_running_prob_percent'] = 0
+                    tempRow['computer_running_prob_percent'] = 0
+                }
+                firebaseRows.push(tempRow)
+                rows.push(batteryProfile.createRow(tempRow))
+            }
+        }
+        return db.insert()
+            .into(batteryProfile)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveBatteryFirstProfile(firebaseRows)
+            })
+    }).then(()=> {
+        var batteryProfile = db.getSchema().table('BatteryProfile')
+        return db.select()
+            .from(batteryProfile)
+            .exec()
+    }).then((batteryProfileRecords)=> {
+        var batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
+        var batteryClusters = clusterBatteryProfile(batteryProfileRecords)
+        var rows = []
+        var firebaseRows = []
+        for (var _key in batteryProfileRecords) if (batteryProfileRecords.hasOwnProperty(_key)) {
+            var tempRow = {
+                'voltage_v': batteryClusters[_key]['voltage_v'],
+                'remaining_time_minutes': batteryClusters[_key]['remaining_time_minutes'],
+                'power_rate_w': batteryClusters[_key]['power_rate_w'],
+                'remaining_capacity_percent': batteryClusters[_key]['remaining_capacity_percent'],
+                'ac_connected_prob_percent': batteryClusters[_key]['ac_connected_prob_percent'],
+                'app_running_prob_percent': batteryClusters[_key]['app_running_prob_percent'],
+                'computer_running_prob_percent': batteryClusters[_key]['computer_running_prob_percent'],
+                'day_of_week': batteryClusters[_key]['day_of_week'],
+                'section_of_day': batteryClusters[_key]['section_of_day'],
+                'is_checked': batteryClusters[_key]['is_checked'],
+            }
+            firebaseRows.push(tempRow)
+            rows.push(batteryProfileCluster.createRow(tempRow))
+        }
+        return db.insert()
+            .into(batteryProfileCluster)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveBatteryClusterProfile(firebaseRows)
+            })
     })
 }
 
@@ -386,6 +560,40 @@ function addLocation(locationData) {
                     })
             }
         })
+    }).then(()=> {
+        var locationProfileCluster = db.getSchema().table('LocationProfileCluster')
+        return db.delete()
+            .from(locationProfileCluster)
+            .exec()
+    }).then(()=> {
+        var locationProfile = db.getSchema().table('LocationProfile')
+        return db.select()
+            .from(locationProfile)
+            .exec()
+    }).then((locationProfileRecords)=> {
+        var locationProfileCluster = db.getSchema().table('LocationProfileCluster')
+        var locationClusters = clusterLocationProfile(locationProfileRecords)
+        var rows = []
+        var firebaseRows = []
+        for (var _key in locationClusters) if (locationClusters.hasOwnProperty(_key)) {
+            var tempRow = {
+                'latitude': locationClusters[_key]['latitude'],
+                'longitude': locationClusters[_key]['longitude'],
+                'accuracy': checkIfUndefinedNumber(locationClusters[_key]['accuracy']),
+                'day_of_week': locationClusters[_key]['day_of_week'],
+                'section_of_day': locationClusters[_key]['section_of_day'],
+                'is_checked': locationClusters[_key]['is_checked'],
+            }
+            firebaseRows.push(tempRow)
+            rows.push(locationProfileCluster.createRow(tempRow))
+        }
+        return db.insert()
+            .into(locationProfileCluster)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveLocationClusterProfile(firebaseRows)
+            })
     })
 }
 
@@ -395,30 +603,59 @@ function addLocationFirstProfile(locationData) {
         return db.delete()
             .from(locationProfile)
             .exec()
-            .then(()=> {
-                var rows = []
-                var firebaseRows = []
-                for (var dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
-                    for (var hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
-                        var tempRow = {
-                            'latitude': locationData['latitude'],
-                            'longitude': locationData['longitude'],
-                            'accuracy': checkIfUndefinedNumber(locationData['accuracy']),
-                            'day_of_week': enums.WeekDays[dayName],
-                            'one_hour_duration_beginning': enums.DayHours[hourName],
-                            'is_checked': false,
-                        }
-                        firebaseRows.push(tempRow)
-                        rows.push(locationProfile.createRow(tempRow))
-                    }
+    }).then(()=> {
+        var locationProfile = db.getSchema().table('LocationProfile')
+        var rows = []
+        var firebaseRows = []
+        for (var dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
+            for (var hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
+                var tempRow = {
+                    'latitude': locationData['latitude'],
+                    'longitude': locationData['longitude'],
+                    'accuracy': checkIfUndefinedNumber(locationData['accuracy']),
+                    'day_of_week': enums.WeekDays[dayName],
+                    'one_hour_duration_beginning': enums.DayHours[hourName],
+                    'is_checked': false,
                 }
-                return db.insert()
-                    .into(locationProfile)
-                    .values(rows)
-                    .exec()
-                    .then(()=> {
-                        firebase.saveLocationFirstProfile(firebaseRows)
-                    })
+                firebaseRows.push(tempRow)
+                rows.push(locationProfile.createRow(tempRow))
+            }
+        }
+        return db.insert()
+            .into(locationProfile)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveLocationFirstProfile(firebaseRows)
+            })
+    }).then(()=> {
+        var locationProfile = db.getSchema().table('LocationProfile')
+        return db.select()
+            .from(locationProfile)
+            .exec()
+    }).then((locationProfileRecords)=> {
+        var locationProfileCluster = db.getSchema().table('LocationProfileCluster')
+        var locationClusters = clusterLocationProfile(locationProfileRecords)
+        var rows = []
+        var firebaseRows = []
+        for (var _key in locationClusters) if (locationClusters.hasOwnProperty(_key)) {
+            var tempRow = {
+                'latitude': locationClusters[_key]['latitude'],
+                'longitude': locationClusters[_key]['longitude'],
+                'accuracy': checkIfUndefinedNumber(locationClusters[_key]['accuracy']),
+                'day_of_week': locationClusters[_key]['day_of_week'],
+                'section_of_day': locationClusters[_key]['section_of_day'],
+                'is_checked': locationClusters[_key]['is_checked'],
+            }
+            firebaseRows.push(tempRow)
+            rows.push(locationProfileCluster.createRow(tempRow))
+        }
+        return db.insert()
+            .into(locationProfileCluster)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveLocationClusterProfile(firebaseRows)
             })
     })
 }
@@ -430,7 +667,8 @@ function deleteAllData() {
         var location = db.getSchema().table('Location')
         var locationProfile = db.getSchema().table('LocationProfile')
         var running = db.getSchema().table('Running')
-
+        var locationProfileCluster = db.getSchema().table('LocationProfileCluster')
+        var batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
         return db.delete()
             .from(battery)
             .exec()
@@ -449,6 +687,14 @@ function deleteAllData() {
             }).then(()=> {
                 return db.delete()
                     .from(running)
+                    .exec()
+            }).then(()=> {
+                return db.delete()
+                    .from(locationProfileCluster)
+                    .exec()
+            }).then(()=> {
+                return db.delete()
+                    .from(batteryProfileCluster)
                     .exec()
             })
     })
