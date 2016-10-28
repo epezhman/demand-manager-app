@@ -716,6 +716,37 @@ function powerStats() {
     })
 }
 
+function addCommandsFirstSchedule() {
+    return Q.fcall(getDB).then(()=> {
+        var schedule = db.getSchema().table('Schedule')
+        return db.delete()
+            .from(schedule)
+            .exec()
+    }).then(()=> {
+        var schedule = db.getSchema().table('Schedule')
+        var rows = []
+        var firebaseRows = []
+        for (var dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
+            for (var hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
+                var tempRow = {
+                    'dr_running_bool': false,
+                    'day_of_week': enums.WeekDays[dayName],
+                    'one_hour_duration_beginning': enums.DayHours[hourName],
+                }
+                firebaseRows.push(tempRow)
+                rows.push(schedule.createRow(tempRow))
+            }
+        }
+        return db.insert()
+            .into(schedule)
+            .values(rows)
+            .exec()
+            .then(()=> {
+                firebase.saveCommandsFirstSchedule(firebaseRows)
+            })
+    })
+}
+
 var operations = {
     addRunning: addRunning,
     updateRunningProfile: updateRunningProfile,
@@ -724,7 +755,8 @@ var operations = {
     addLocation: addLocation,
     addLocationFirstProfile: addLocationFirstProfile,
     deleteAllData: deleteAllData,
-    powerStats: powerStats
+    powerStats: powerStats,
+    addCommandsFirstSchedule: addCommandsFirstSchedule
 }
 
 function genericCaller(op, cb) {

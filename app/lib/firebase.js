@@ -13,8 +13,8 @@ module.exports = {
     saveBatteryCapabilities,
     saveBatteryFirstProfile,
     saveLocationClusterProfile,
-    saveBatteryClusterProfile
-
+    saveBatteryClusterProfile,
+    saveCommandsFirstSchedule
 }
 
 const os = require('os')
@@ -24,6 +24,7 @@ const config = require('../config')
 const osInfo = require('./os-info')
 const GeoFire = require('geofire')
 const log = require('./log')
+const utils = require('./utils')
 
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
@@ -73,7 +74,7 @@ function saveLocationFirstProfile(locationProfiles) {
             delete locationProfile['id']
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${locationProfile['day_of_week']}-${locationProfile['one_hour_duration_beginning']}`
+        var profileId = `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['one_hour_duration_beginning']}`
         firebase.database()
             .ref(`location/${global.machineId}/${profileId}`)
             .set(locationProfile)
@@ -86,7 +87,7 @@ function saveLocationClusterProfile(locationProfiles) {
             delete locationProfile['id']
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${locationProfile['day_of_week']}-${locationProfile['section_of_day']}`
+        var profileId = `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['section_of_day']}`
         firebase.database()
             .ref(`location-cluster/${global.machineId}/${profileId}`)
             .set(locationProfile)
@@ -94,7 +95,7 @@ function saveLocationClusterProfile(locationProfiles) {
 }
 
 function updateLocationProfile(locationData, dayOfWeek, hoursOfDay) {
-    var profileId = `${dayOfWeek}-${hoursOfDay}`
+    var profileId = `${utils.getDayNum(dayOfWeek)}-${hoursOfDay}`
     firebase.database()
         .ref(`location/${global.machineId}/${profileId}`)
         .update({
@@ -150,7 +151,7 @@ function saveBatteryCapabilities(extractedData) {
 }
 
 function updateRunningProfile(dayOfWeek, hoursOfDay, appRunning, computerRunning) {
-    var profileId = `${dayOfWeek}-${hoursOfDay}`
+    var profileId = `${utils.getDayNum(dayOfWeek)}-${hoursOfDay}`
 
     firebase.database()
         .ref(`power/${global.machineId}/${profileId}`)
@@ -166,7 +167,7 @@ function updateBatteryProfile(powerData, dayOfWeek, hoursOfDay) {
     powerData['day_of_week'] = dayOfWeek
     powerData['one_hour_duration_beginning'] = hoursOfDay
 
-    var profileId = `${powerData['day_of_week']}-${powerData['one_hour_duration_beginning']}`
+    var profileId = `${utils.getDayNum(powerData['day_of_week'])}-${powerData['one_hour_duration_beginning']}`
 
     firebase.database()
         .ref(`power/${global.machineId}/${profileId}`)
@@ -179,7 +180,7 @@ function saveBatteryFirstProfile(batteryProfiles) {
             delete batteryProfile['id']
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${batteryProfile['day_of_week']}-${batteryProfile['one_hour_duration_beginning']}`
+        var profileId = `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['one_hour_duration_beginning']}`
 
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
@@ -193,7 +194,7 @@ function saveBatteryClusterProfile(batteryProfiles) {
             delete batteryProfile['id']
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${batteryProfile['day_of_week']}-${batteryProfile['section_of_day']}`
+        var profileId = `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['section_of_day']}`
 
         firebase.database()
             .ref(`power-cluster/${global.machineId}/${profileId}`)
@@ -214,4 +215,18 @@ function enableOfflineCapabilities() {
             lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
         }
     })
+}
+
+
+function saveCommandsFirstSchedule(schedules) {
+    for (var schedule of schedules) {
+        if (schedule['id']) {
+            delete schedule['id']
+        }
+        schedule['last-updated'] = firebase.database.ServerValue.TIMESTAMP
+        var profileId = `${utils.getDayNum(schedule['day_of_week'])}-${schedule['one_hour_duration_beginning']}`
+        firebase.database()
+            .ref(`schedule/${global.machineId}/${profileId}`)
+            .set(schedule)
+    }
 }

@@ -16,6 +16,7 @@ const enums = require('./enums')
 
 const log = require('./log')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
+const cm = require('./command-manager')
 
 
 function shouldAppBeRunning() {
@@ -90,6 +91,7 @@ function getPowerStats() {
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
         windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
+        cm.makeFirstCommandsSchedule()
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')
             winAnalyzer.deviceAnalysis()

@@ -120,4 +120,15 @@ function makeTables(schemaBuilder) {
         .addPrimaryKey(['id'], true)
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_section_of_day', ['section_of_day'], false, lf.Order.DESC)
+
+
+    schemaBuilder.createTable('Schedule')
+        .addColumn('id', lf.Type.INTEGER)
+        .addColumn('dr_running_bool', lf.Type.BOOLEAN)
+        .addColumn('day_of_week', lf.Type.STRING)
+        .addColumn('one_hour_duration_beginning', lf.Type.INTEGER)
+        .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
+        .addIndex('idx_one_hour_duration_beginning', ['one_hour_duration_beginning'], false, lf.Order.DESC)
+
 }
