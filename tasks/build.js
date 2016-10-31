@@ -47,7 +47,7 @@ var buildForOS = (platform) => {
                     }
                 }
             }).then(()=> {
-                var fileName = config.appName + '-' + config.appVersion + '.deb'
+                var fileName = config.appName + '-' + config.appVersion + '-amd64.deb'
                 mv(baseDistDir + fileName,
                     baseDistDir + config.distLinux64Dir + fileName,
                     {mkdirp: true}, () => {

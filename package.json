@@ -52,7 +52,8 @@
       "!assets/stylesheets/sass"
     ],
     "linux": {
-      "synopsis": "TUM Demand Manager"
+      "synopsis": "TUM Demand Manager",
+      "target": ["deb"]
     },
     "dmg": {
       "title": "TUM Demand Manager",

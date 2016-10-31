@@ -14,7 +14,8 @@ module.exports = {
     saveBatteryFirstProfile,
     saveLocationClusterProfile,
     saveBatteryClusterProfile,
-    saveCommandsFirstSchedule
+    saveCommandsFirstSchedule,
+    watchScheduleChanges
 }
 
 const os = require('os')
@@ -25,6 +26,7 @@ const osInfo = require('./os-info')
 const GeoFire = require('geofire')
 const log = require('./log')
 const utils = require('./utils')
+const db = require('../main/windows').db
 
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
@@ -74,7 +76,8 @@ function saveLocationFirstProfile(locationProfiles) {
             delete locationProfile['id']
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['one_hour_duration_beginning']}`
+        var profileId =
+            `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['one_hour_duration_beginning']}`
         firebase.database()
             .ref(`location/${global.machineId}/${profileId}`)
             .set(locationProfile)
@@ -180,7 +183,8 @@ function saveBatteryFirstProfile(batteryProfiles) {
             delete batteryProfile['id']
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['one_hour_duration_beginning']}`
+        var profileId =
+            `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['one_hour_duration_beginning']}`
 
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
@@ -229,4 +233,20 @@ function saveCommandsFirstSchedule(schedules) {
             .ref(`schedule/${global.machineId}/${profileId}`)
             .set(schedule)
     }
+}
+
+function watchScheduleChanges() {
+    var scheduleRef = firebase.database().ref(`schedule/${global.machineId}`)
+    scheduleRef.once('value', (snapshot) => {
+        db.runQuery({
+            'fn': 'updateScheduleAfterLaunch',
+            'params': snapshot.val()
+        })
+    })
+    return scheduleRef.on('child_changed', (snapshot) => {
+        db.runQuery({
+            'fn': 'updateSchedule',
+            'params': snapshot.val()
+        })
+    })
 }

@@ -716,7 +716,7 @@ function powerStats() {
     })
 }
 
-function addCommandsFirstSchedule() {
+function addFirstSchedule() {
     return Q.fcall(getDB).then(()=> {
         var schedule = db.getSchema().table('Schedule')
         return db.delete()
@@ -747,6 +747,46 @@ function addCommandsFirstSchedule() {
     })
 }
 
+function updateScheduleAfterLaunch(schedulesData) {
+    return Q.fcall(getDB).then(()=> {
+        var schedule = db.getSchema().table('Schedule')
+        return db.delete()
+            .from(schedule)
+            .exec()
+    }).then(()=> {
+        var schedule = db.getSchema().table('Schedule')
+        var rows = []
+        log(schedulesData)
+        for (var _key in schedulesData) if (schedulesData.hasOwnProperty(_key)) {
+            var tempRow = {
+                'dr_running_bool': schedulesData[_key].dr_running_bool,
+                'day_of_week': schedulesData[_key].day_of_week,
+                'one_hour_duration_beginning': schedulesData[_key].one_hour_duration_beginning
+            }
+            rows.push(schedule.createRow(tempRow))
+        }
+        return db.insert()
+            .into(schedule)
+            .values(rows)
+            .exec()
+    })
+}
+
+function updateSchedule(scheduleData) {
+    var scheduleD = scheduleData
+    return Q.fcall(getDB).then(()=> {
+        log(scheduleD)
+        var schedule = db.getSchema().table('Schedule')
+        return db.update(schedule)
+            .set(schedule.dr_running_bool, scheduleD.dr_running_bool)
+            .where(lf.op.and(
+                schedule.day_of_week.eq(scheduleD.day_of_week),
+                schedule.one_hour_duration_beginning.eq(scheduleD.one_hour_duration_beginning)))
+            .exec()
+    })
+}
+
+
 var operations = {
     addRunning: addRunning,
     updateRunningProfile: updateRunningProfile,
@@ -756,7 +796,9 @@ var operations = {
     addLocationFirstProfile: addLocationFirstProfile,
     deleteAllData: deleteAllData,
     powerStats: powerStats,
-    addCommandsFirstSchedule: addCommandsFirstSchedule
+    addFirstSchedule: addFirstSchedule,
+    updateScheduleAfterLaunch: updateScheduleAfterLaunch,
+    updateSchedule: updateSchedule
 }
 
 function genericCaller(op, cb) {

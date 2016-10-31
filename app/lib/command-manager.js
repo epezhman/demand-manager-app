@@ -11,7 +11,7 @@ const log = require('./log')
 
 function makeFirstCommandsSchedule() {
     db.runQuery({
-        'fn': 'addCommandsFirstSchedule',
+        'fn': 'addFirstSchedule',
         'params': []
     })
 }
