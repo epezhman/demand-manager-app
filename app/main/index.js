@@ -19,6 +19,7 @@ const monitor = require('../lib/monitor')
 const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
 const env = require('../lib/envs')
+const cm = require('../lib/command-manager')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -37,6 +38,7 @@ var firebaseScheduleWatch = null
 
 function delayedStart() {
     monitor.init()
+    cm.init()
     firebase.enableOfflineCapabilities()
     firebase.installedVersion()
     firebaseScheduleWatch = firebase.watchScheduleChanges()

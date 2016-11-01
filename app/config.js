@@ -28,13 +28,13 @@ module.exports = {
     IS_OSX: IS_OSX,
 
     AUTO_UPDATE_WIN_BASE_URL: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win',
-    AUTO_UPDATE_LINUX_BASE_URL: 'http://188.166.160.83/update_server/updates/latest/linux',
-    AUTO_UPDATE_OSX_BASE_URL: 'http://188.166.160.83/update_server/updates/latest/osx',
+    AUTO_UPDATE_LINUX_BASE_URL: 'http://131.159.52.146/update_server/updates/latest/linux',
+    AUTO_UPDATE_OSX_BASE_URL: 'http://131.159.52.146/update_server/updates/latest/osx',
     AUTO_UPDATE_CHECK_INTERVAL: 43200000,
 
     AUTO_LAUNCH_LINUX_COMMAND: '/opt/TUM\\ Demand\\ Manager/TUM\\ Demand\\ Manager',
 
-    CRASH_REPORT_URL: 'http://188.166.160.83/crash_report/post',
+    CRASH_REPORT_URL: 'http://131.159.52.146/crash_report/post',
 
     CONFIG_PATH: getConfigPath(),
 
@@ -65,6 +65,8 @@ module.exports = {
     DELAY_START_TIME_FIRST_TIME: 10000,
     MONITOR_GEOLOCATION_INTERVAL: 10000,
 
+    RUN_DM_INTERVAL_CHECK: 10000,
+
     MONITOR_POWER_INTERVAL: 10000,
 
     MONITOR_RUNNING_PROFILE_INTERVAL: 20000,
@@ -72,7 +74,7 @@ module.exports = {
 
     UPDATE_POWER_STATS_DAILY: 1000 * 60 * 60 * 24,
 
-    FREEGEOIP_URL: 'http://freegeoip.net/json/',
+    FREEGEOIP_URL: 'http://131.159.52.146/freegeoip/json/',
 
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
     'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
@@ -85,6 +87,3 @@ module.exports = {
 function getConfigPath() {
     return path.dirname(appConfig.filePath)
 }
-
-
-//FREEGEOIP_URL: 'http://188.166.160.83/freegeoip/json/'

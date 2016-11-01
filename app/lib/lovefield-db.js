@@ -10,6 +10,7 @@ const {remote} = require('electron')
 const log = require('./log')
 const makeTables = require('./lovefield-tables')
 const firebase = remote.require('./lib/firebase')
+const cm = remote.require('./lib/command-manager')
 const utils = require('./utils')
 const enums = require('./enums')
 const lf = require('lovefield')
@@ -756,7 +757,6 @@ function updateScheduleAfterLaunch(schedulesData) {
     }).then(()=> {
         var schedule = db.getSchema().table('Schedule')
         var rows = []
-        log(schedulesData)
         for (var _key in schedulesData) if (schedulesData.hasOwnProperty(_key)) {
             var tempRow = {
                 'dr_running_bool': schedulesData[_key].dr_running_bool,
@@ -775,7 +775,6 @@ function updateScheduleAfterLaunch(schedulesData) {
 function updateSchedule(scheduleData) {
     var scheduleD = scheduleData
     return Q.fcall(getDB).then(()=> {
-        log(scheduleD)
         var schedule = db.getSchema().table('Schedule')
         return db.update(schedule)
             .set(schedule.dr_running_bool, scheduleD.dr_running_bool)
@@ -783,6 +782,32 @@ function updateSchedule(scheduleData) {
                 schedule.day_of_week.eq(scheduleD.day_of_week),
                 schedule.one_hour_duration_beginning.eq(scheduleD.one_hour_duration_beginning)))
             .exec()
+    })
+}
+
+function runCheckDM() {
+    var dayOfWeek = utils.getDayOfWeek()
+    var hoursOfDay = utils.getHoursOfDay()
+    return Q.fcall(getDB).then(()=> {
+        var schedule = db.getSchema().table('Schedule')
+        return db.select(
+            schedule.dr_running_bool)
+            .from(schedule)
+            .where(lf.op.and(
+                schedule.day_of_week.eq(dayOfWeek),
+                schedule.one_hour_duration_beginning.eq(hoursOfDay))
+            )
+            .exec()
+    }).then((dmRecords)=> {
+        dmRecords.forEach((dm)=> {
+            if(dm['dr_running_bool'])
+            {
+                cm.startDM()
+            }
+            else {
+                cm.stopDM()
+            }
+        })
     })
 }
 
@@ -798,7 +823,8 @@ var operations = {
     powerStats: powerStats,
     addFirstSchedule: addFirstSchedule,
     updateScheduleAfterLaunch: updateScheduleAfterLaunch,
-    updateSchedule: updateSchedule
+    updateSchedule: updateSchedule,
+    runCheckDM: runCheckDM
 }
 
 function genericCaller(op, cb) {

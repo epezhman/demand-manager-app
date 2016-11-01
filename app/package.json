@@ -12,6 +12,7 @@
   "license": "MIT",
   "homepage": "https://www.i13.in.tum.de/",
   "dependencies": {
+    "@paulcbetts/system-idle-time": "git+https://github.com/paulcbetts/node-system-idle-time.git",
     "application-config": "1.0.1",
     "async": "2.1.2",
     "auto-launch": "5.0.1",

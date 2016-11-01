@@ -7,6 +7,7 @@ const windows = require('../main/windows')
 const config = require('../config')
 
 function log(...args) {
+    windows.main.logMessage(...args)
     if (config.IS_DEVELOPMENT) {
         console.log('LOG: ', ...args)
     }
