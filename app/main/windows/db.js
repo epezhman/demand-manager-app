@@ -22,9 +22,9 @@ function runQuery(op) {
     win.setMenu(null)
 
 
-    if (config.IS_DEVELOPMENT) {
-        win.webContents.openDevTools()
-    }
+    // if (config.IS_DEVELOPMENT) {
+    //     win.webContents.openDevTools()
+    // }
 
     win.webContents.on('did-frame-finish-load', ()=> {
         win.webContents.send('db', op)
