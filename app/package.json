@@ -1,7 +1,7 @@
 {
-  "name": "tumdmdesktop",
-  "productName": "TUM Demand Manager",
-  "description": "TUM Demand Manager for Desktop",
+  "name": "i13dmdesktop",
+  "productName": "i13 Demand Manager",
+  "description": "i13 Demand Manager for Desktop",
   "version": "0.1.31",
   "author": {
     "name": "TUM, Institute of Informatics",
@@ -12,7 +12,6 @@
   "license": "MIT",
   "homepage": "https://www.i13.in.tum.de/",
   "dependencies": {
-    "@paulcbetts/system-idle-time": "1.0.2",
     "application-config": "1.0.1",
     "async": "2.1.2",
     "auto-launch": "5.0.1",

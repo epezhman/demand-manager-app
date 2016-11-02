@@ -39,9 +39,6 @@ function startDM() {
     else if (config.IS_LINUX) {
         require('./linux-power-control').startDM()
     }
-    else if (config.IS_OSX) {
-        require('./osx-power-control').startDM()
-    }
 }
 
 function stopDM() {
@@ -50,9 +47,6 @@ function stopDM() {
     }
     else if (config.IS_LINUX) {
         require('./linux-power-control').stopDM()
-    }
-    else if (config.IS_OSX) {
-        require('./osx-power-control').stopDM()
     }
 }
 

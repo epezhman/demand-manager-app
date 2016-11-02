@@ -5,7 +5,8 @@ module.exports = {
     deviceAnalysis,
     monitorPower,
     batteryCapabilities,
-    batteryFirstTimeProfile
+    batteryFirstTimeProfile,
+    addRunning
 }
 
 const config = require('../config')
@@ -152,4 +153,11 @@ function batteryFirstTimeProfile() {
         commandType: enums.WMICommandType.BATTERY_FIRST_PROFILE,
     }
     runAsyncCommands(wmicCommands)
+}
+
+function addRunning() {
+    db.runQuery({
+        'fn': 'addRunning',
+        'params': []
+    })
 }

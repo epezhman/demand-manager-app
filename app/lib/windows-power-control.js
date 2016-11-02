@@ -5,15 +5,12 @@ module.exports = {
     stopDM
 }
 
-const fr = require('@paulcbetts/system-idle-time')
 const log = require('./log')
+var exec = require('child_process').exec
+
 
 function startDM() {
-    log('start DM')
-    log(fr.getIdleTime())
 }
 
 function stopDM() {
-    log('stop DM')
-    log(fr.getIdleTime())
 }

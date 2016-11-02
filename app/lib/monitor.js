@@ -5,7 +5,8 @@ module.exports = {
     extractDevicesData,
     monitorGeoLocation,
     monitorPower,
-    shouldAppBeRunning
+    shouldAppBeRunning,
+    initDMFlags
 }
 
 const ConfigStore = require('configstore')
@@ -46,9 +47,6 @@ function monitorPower() {
         else if (config.IS_LINUX) {
             require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY)
         }
-        else if (config.IS_OSX) {
-            require('./osx-device-analyzer').monitorPower()
-        }
     }
     setTimeout(monitorPower, config.MONITOR_POWER_INTERVAL)
 }
@@ -66,14 +64,12 @@ function updateRunningProfile() {
 function addRunningProfile() {
     if (shouldAppBeRunning()) {
         if (config.IS_WINDOWS) {
-            log('windows running profile')
+            require('./windows-device-analyzer').addRunning()
         }
         else if (config.IS_LINUX) {
             require('./linux-device-analyzer').addRunning()
         }
-        else if (config.IS_OSX) {
-            log('osx running profile')
-        }
+
     }
     setTimeout(addRunningProfile, config.ADD_RUNNING_PROFILE_INTERVAL)
 }
@@ -85,35 +81,47 @@ function getPowerStats() {
             'params': []
         })
     }
-    setTimeout(getPowerStats, config.MONITOR_RUNNING_PROFILE_INTERVAL)
+    setTimeout(getPowerStats, config.UPDATE_POWER_STATS_DAILY)
 }
 
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
-        windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
         cm.makeFirstCommandsSchedule()
-        if (config.IS_WINDOWS) {
-            const winAnalyzer = require('./windows-device-analyzer')
-            winAnalyzer.deviceAnalysis()
-            winAnalyzer.batteryCapabilities()
-            winAnalyzer.batteryFirstTimeProfile()
-        }
-        else if (config.IS_LINUX) {
-            const linuxAnalyzer = require('./linux-device-analyzer')
-            linuxAnalyzer.deviceAnalysis()
-            linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
-        }
-        else if (config.IS_OSX) {
-            require('./osx-device-analyzer').deviceAnalysis()
-        }
+
+        setTimeout(()=> {
+            windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
+
+        }, 5000)
+
+        setTimeout(()=> {
+            if (config.IS_WINDOWS) {
+                const winAnalyzer = require('./windows-device-analyzer')
+                winAnalyzer.deviceAnalysis()
+                winAnalyzer.batteryCapabilities()
+                winAnalyzer.batteryFirstTimeProfile()
+            }
+            else if (config.IS_LINUX) {
+                const linuxAnalyzer = require('./linux-device-analyzer')
+                linuxAnalyzer.deviceAnalysis()
+                linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
+            }
+            else if (config.IS_OSX) {
+                require('./osx-device-analyzer').deviceAnalysis()
+            }
+        }, 2000)
     }
 }
 
 
+function initDMFlags() {
+    conf.set('dm-already-start', false)
+    conf.set('dm-already-stop', false)
+}
+
 function init() {
-    setTimeout(getPowerStats, 20000)
-    setTimeout(monitorPower, 5000)
-    setTimeout(addRunningProfile, 10000)
-    setTimeout(updateRunningProfile, 15000)
-    setTimeout(monitorGeoLocation, 1000)
+    setTimeout(getPowerStats, 5000)
+    setTimeout(monitorPower, 10000)
+    setTimeout(addRunningProfile, 15000)
+    setTimeout(updateRunningProfile, 20000)
+    setTimeout(monitorGeoLocation, 25000)
 }

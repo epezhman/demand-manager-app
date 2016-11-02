@@ -38,6 +38,7 @@ var firebaseScheduleWatch = null
 
 function delayedStart() {
     monitor.init()
+    monitor.initDMFlags()
     cm.init()
     firebase.enableOfflineCapabilities()
     firebase.installedVersion()
@@ -73,5 +74,6 @@ app.on('ready', () => {
     electron.powerMonitor.on('resume', () => {
         firebase.enableOfflineCapabilities()
         firebaseScheduleWatch = firebase.watchScheduleChanges()
+        monitor.initDMFlags()
     })
 })

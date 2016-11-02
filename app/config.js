@@ -1,6 +1,6 @@
 'use strict'
 
-const appConfig = require('application-config')('TUMDMDesktop')
+const appConfig = require('application-config')('i13DMDesktop')
 const fs = require('fs')
 const path = require('path')
 
@@ -22,64 +22,48 @@ module.exports = {
     APP_TEAM: APP_TEAM,
     APP_VERSION: APP_VERSION,
     APP_HOMEPAGE: APP_HOMEPAGE,
-
     IS_WINDOWS: IS_WINDOWS,
     IS_LINUX: IS_LINUX,
     IS_OSX: IS_OSX,
-
     AUTO_UPDATE_WIN_BASE_URL: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win',
     AUTO_UPDATE_LINUX_BASE_URL: 'http://131.159.52.146/update_server/updates/latest/linux',
     AUTO_UPDATE_OSX_BASE_URL: 'http://131.159.52.146/update_server/updates/latest/osx',
     AUTO_UPDATE_CHECK_INTERVAL: 43200000,
-
-    AUTO_LAUNCH_LINUX_COMMAND: '/opt/TUM\\ Demand\\ Manager/TUM\\ Demand\\ Manager',
-
+    AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13\\ Demand\\ Manager/TUM\\ Demand\\ Manager',
     CRASH_REPORT_URL: 'http://131.159.52.146/crash_report/post',
-
     CONFIG_PATH: getConfigPath(),
-
     GITHUB_URL: 'https://github.com/epezhman/demand-manager-app',
     GITHUB_URL_ISSUES: 'https://github.com/epezhman/demand-manager-app/issues',
-
     ROOT_PATH: __dirname,
     BASE_ASSETS_IMG: path.resolve(__dirname, 'assets', 'img') + '/',
     APP_ICON: path.join(__dirname, 'assets', 'img', 'icon.png'),
     APP_ICON_MENU: path.join(__dirname, 'assets', 'img', 'icon-menu.png'),
-
     WINDOW_MAIN: 'file://' + path.join(__dirname, 'renderer', 'main.html'),
     WINDOW_NOTIFY: 'file://' + path.join(__dirname, 'renderer', 'lib', 'notify.html'),
     WINDOW_GEOLOCATION: 'file://' + path.join(__dirname, 'renderer', 'lib', 'geolocation.html'),
     WINDOW_DB: 'file://' + path.join(__dirname, 'renderer', 'lib', 'db.html'),
     WINDOW_REGISTER: path.join(__dirname, 'renderer', 'lib', 'register.html'),
-
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,
     WINDOW_MIN_WIDTH: 800,
-
     FIREBASE_DATABASE_URL: 'https://tum-dm-fireb.firebaseio.com',
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
     IS_DEVELOPMENT: IS_DEVELOPMENT,
 
-    DELAY_START_TIME: 3000,
+    DELAY_START_TIME: 60000,
     DELAY_START_TIME_FIRST_TIME: 10000,
-    MONITOR_GEOLOCATION_INTERVAL: 10000,
-
-    RUN_DM_INTERVAL_CHECK: 10000,
-
-    MONITOR_POWER_INTERVAL: 10000,
-
-    MONITOR_RUNNING_PROFILE_INTERVAL: 20000,
+    MONITOR_GEOLOCATION_INTERVAL: 900000,
+    RUN_DM_INTERVAL_CHECK: 65000,
+    MONITOR_POWER_INTERVAL: 60000,
+    MONITOR_RUNNING_PROFILE_INTERVAL: 900000,
     ADD_RUNNING_PROFILE_INTERVAL: 3600000,
-
-    UPDATE_POWER_STATS_DAILY: 1000 * 60 * 60 * 24,
+    UPDATE_POWER_STATS_DAILY: 86400000,
 
     FREEGEOIP_URL: 'http://131.159.52.146/freegeoip/json/',
-
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
     'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
-
     LOVEFIELD_DB_NAME: 'dmtum',
     LOVEFIELD_DB_VERSION: 36
 }
