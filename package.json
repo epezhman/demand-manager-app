@@ -45,7 +45,7 @@
     "yargs": "6.2.0"
   },
   "build": {
-    "appId": "de.tum.tumdmdesktop",
+    "appId": "de.tum.i13dmdesktop",
     "app-category-type": "public.app-category.utilities",
     "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico",
     "files": [
