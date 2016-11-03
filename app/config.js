@@ -29,7 +29,7 @@ module.exports = {
     AUTO_UPDATE_LINUX_BASE_URL: 'http://131.159.52.146/update_server/updates/latest/linux',
     AUTO_UPDATE_OSX_BASE_URL: 'http://131.159.52.146/update_server/updates/latest/osx',
     AUTO_UPDATE_CHECK_INTERVAL: 43200000,
-    AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13\\ Demand\\ Manager/i13g\\ Demand\\ Manager',
+    AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13\\ Demand\\ Manager/i13\\ Demand\\ Manager',
     CRASH_REPORT_URL: 'http://131.159.52.146/crash_report/post',
     CONFIG_PATH: getConfigPath(),
     GITHUB_URL: 'https://github.com/epezhman/demand-manager-app',
