@@ -1,7 +1,7 @@
 {
-  "name": "tumdmdesktop",
-  "productName": "TUM Demand Manager",
-  "description": "TUM Demand Manager for Computers.",
+  "name": "i13dmdesktop",
+  "productName": "i13 Demand Manager",
+  "description": "i13 Demand Manager for Computers.",
   "author": {
     "name": "TUM, Institute of Informatics",
     "email": "p.nasirifard@tum.de",
@@ -53,13 +53,13 @@
       "!assets/stylesheets/sass"
     ],
     "linux": {
-      "synopsis": "TUM Demand Manager",
+      "synopsis": "i13 Demand Manager",
       "target": [
         "deb"
       ]
     },
     "dmg": {
-      "title": "TUM Demand Manager",
+      "title": "i13 Demand Manager",
       "icon-size": 128,
       "contents": [
         {
