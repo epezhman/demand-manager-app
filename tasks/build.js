@@ -55,22 +55,22 @@ var buildForOS = (platform) => {
                     })
             })
         }).then(()=> {
-            utils.log('Building for Linux 32-bit')
-            return builder.build({
-                targets: Platform.LINUX.createTarget(null, Arch.ia32),
-                devMetadata: {
-                    'build': {
-                        'asar': false
-                    }
-                }
-            }).then(()=> {
-                var fileName = config.appName + '-' + config.appVersion + '-ia32.deb'
-                mv(baseDistDir + fileName,
-                    baseDistDir + config.distLinux32Dir + fileName,
-                    {mkdirp: true}, ()=> {
-                        addBuildVersionFile(config.distLinux32Dir)
-                    })
-            })
+            // utils.log('Building for Linux 32-bit')
+            // return builder.build({
+            //     targets: Platform.LINUX.createTarget(null, Arch.ia32),
+            //     devMetadata: {
+            //         'build': {
+            //             'asar': false
+            //         }
+            //     }
+            // }).then(()=> {
+            //     var fileName = config.appName + '-' + config.appVersion + '-ia32.deb'
+            //     mv(baseDistDir + fileName,
+            //         baseDistDir + config.distLinux32Dir + fileName,
+            //         {mkdirp: true}, ()=> {
+            //             addBuildVersionFile(config.distLinux32Dir)
+            //         })
+            // })
         })
     }
     else if (platform === 'osx') {
