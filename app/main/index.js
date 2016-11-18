@@ -7,6 +7,7 @@ if (require('electron-squirrel-startup')) {
 const electron = require('electron')
 const app = electron.app
 const ConfigStore = require('configstore')
+const log = require('../lib/log')
 
 const config = require('../config')
 const windows = require('./windows')

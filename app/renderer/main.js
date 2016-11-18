@@ -10,6 +10,7 @@ const config = require('../config')
 const log = require('../lib/log')
 const enums = require('../lib/enums')
 const notify = remote.require('./lib/notify')
+const cm = remote.require('./lib/command-manager')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -36,6 +37,10 @@ var registeredEmail
 var emailRegisterButton
 var registerEmailForm
 var emailInput
+var dimScreen
+var turnOffScreenIdle
+var suspendIdle
+var disableBackLight
 
 var selectedTab = null
 var ipcReady = false
@@ -54,18 +59,18 @@ else {
     })
 }
 
-ipcRenderer.on('selected-window', (event, windowType)=> {
+ipcRenderer.on('selected-window', (event, windowType) => {
     selectedTab = windowType
     if (ipcReady) {
         checkIfShouldSelectTab()
     }
 })
 
-ipcRenderer.on('log-message', (event, msg)=> {
+ipcRenderer.on('log-message', (event, msg) => {
     console.log(msg)
 })
 
-ipcRenderer.on('log-error-message', (event, msg)=> {
+ipcRenderer.on('log-error-message', (event, msg) => {
     console.error(msg)
 })
 
@@ -88,11 +93,11 @@ function enableAutoStart() {
 }
 
 function disableAutoStart() {
-    appLauncher.isEnabled().then((enabled)=> {
+    appLauncher.isEnabled().then((enabled) => {
         if (enabled) {
             return appLauncher.disable()
         }
-    }).then((disabled)=> {
+    }).then((disabled) => {
         conf.set('run-on-start-up', false)
     })
 }
@@ -100,6 +105,19 @@ function disableAutoStart() {
 function checkIfAutoStartRunning() {
     if (conf.get('run-on-start-up')) {
         runStartUpCheckBox.prop('checked', true)
+    }
+}
+
+
+function checkPowerControlSettings() {
+    if (conf.get('dim-screen')) {
+        dimScreen.prop('checked', true)
+    }
+    if (conf.get('turn-off-screen')) {
+        turnOffScreenIdle.prop('checked', true)
+    }
+    if (conf.get('suspend-computer')) {
+        suspendIdle.prop('checked', true)
     }
 }
 
@@ -202,7 +220,7 @@ function showEmail(email) {
 function registerEmail(email) {
     var password = require('node-uuid').v1()
 
-    firebase.auth().createUserWithEmailAndPassword(email, password).then(()=> { // jshint ignore:line
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(() => { // jshint ignore:line
         return showEmail(email)
     }).catch(function (errorSignUp) {
         if (errorSignUp.code === 'auth/email-already-in-use') {
@@ -211,12 +229,12 @@ function registerEmail(email) {
         return notify(errorSignUp.message)
     })
 
-    firebase.auth().onAuthStateChanged((user)=> { // jshint ignore:line
+    firebase.auth().onAuthStateChanged((user) => { // jshint ignore:line
         user.sendEmailVerification()
     })
 }
 
-$(document).ready(()=> {
+$(document).ready(() => {
 
     runStartUpCheckBox = $('#run-at-start-up')
     timeLimitUpCheckBox = $('#limited-activity')
@@ -236,6 +254,10 @@ $(document).ready(()=> {
     emailRegisterButton = $('#email-register-button')
     registerEmailForm = $('.email-form')
     emailInput = $('#email-input')
+    dimScreen = $('#dim-screen-power-save')
+    turnOffScreenIdle = $('#turn-screen-off-power-save-idle')
+    suspendIdle = $('#suspend-power-save-idle')
+    disableBackLight = $('#disable-dim-scree')
 
     ipcReady = true
 
@@ -243,23 +265,24 @@ $(document).ready(()=> {
     checkIfLimitedActivitySet()
     checkIfAppRunning()
     checkIfShouldSelectTab()
+    checkPowerControlSettings()
 
     checkIfRegisteredUser()
 
-    navItems.click((e)=> {
+    navItems.click((e) => {
         selectTab($(e.target))
     })
 
-    emailRegisterButton.click(()=> {
+    emailRegisterButton.click(() => {
         registerEmailForm.toggle(100)
     })
 
-    registerEmailForm.on('submit', (e)=> {
+    registerEmailForm.on('submit', (e) => {
         e.preventDefault()
         registerEmail(emailInput.val())
     })
 
-    runStartUpCheckBox.click(()=> {
+    runStartUpCheckBox.click(() => {
         if (runStartUpCheckBox.prop('checked')) {
             enableAutoStart()
         }
@@ -268,7 +291,38 @@ $(document).ready(()=> {
         }
     })
 
-    timeLimitUpCheckBox.click(()=> {
+    dimScreen.click(() => {
+        if (dimScreen.prop('checked')) {
+            conf.set('dim-screen', true)
+        }
+        else {
+            conf.set('dim-screen', false)
+        }
+    })
+
+    turnOffScreenIdle.click(() => {
+        if (turnOffScreenIdle.prop('checked')) {
+            conf.set('turn-off-screen', true)
+        }
+        else {
+            conf.set('turn-off-screen', false)
+        }
+    })
+
+    suspendIdle.click(() => {
+        if (suspendIdle.prop('checked')) {
+            conf.set('suspend-computer', true)
+        }
+        else {
+            conf.set('suspend-computer', false)
+        }
+    })
+
+    disableBackLight.click(() => {
+        cm.restoreBacklight()
+    })
+
+    timeLimitUpCheckBox.click(() => {
         if (timeLimitUpCheckBox.prop('checked')) {
             enableLimitedActivity()
         }
@@ -278,14 +332,14 @@ $(document).ready(()=> {
         checkEndTimeValidation()
     })
 
-    timeLimitStart.change(()=> {
+    timeLimitStart.change(() => {
         if (checkEndTimeValidation()) {
             conf.set('limited-activity-start-time', timeLimitStart.val())
             checkIfAppRunning()
         }
     })
 
-    timeLimitUpEnd.change(()=> {
+    timeLimitUpEnd.change(() => {
         if (checkEndTimeValidation()) {
             conf.set('limited-activity-end-time', timeLimitUpEnd.val())
             checkIfAppRunning()

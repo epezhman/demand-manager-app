@@ -2,7 +2,34 @@
 
 module.exports = powerToggle
 
+const ConfigStore = require('configstore')
+
+const config = require('../config')
+
+const conf = new ConfigStore(config.APP_SHORT_NAME)
+
+
 function powerToggle() {
+    if (!conf.get('power-save-on')) {
+        if (config.IS_WINDOWS) {
+        }
+        else if (config.IS_LINUX) {
+            require('./linux-power-control').startDM()
+        }
+        conf.set('power-save-on', true)
+    }
+    else {
+        if (config.IS_WINDOWS) {
+        }
+        else if (config.IS_LINUX) {
+            require('./linux-power-control').stopDM()
+        }
+        conf.set('power-save-on', false)
+    }
+}
+
+
+function powerToggleDeparted() {
     var exec = require('child_process').exec
     if (process.platform === 'win32') {
         exec('powercfg.exe -getactivescheme').stdout.on('data', function (data) {
@@ -32,14 +59,5 @@ function powerToggle() {
             }
         })
     }
-    else if (process.platform === 'darwin') {
-        exec('pmset -g sched').stdout.on('data', function (data) {
-            if (data.indexOf('2') > -1 || data.indexOf('3') > -1) {
-                exec('pmset -b 1')
-            }
-            else {
-                exec('pmset -b 2')
-            }
-        })
-    }
+
 }

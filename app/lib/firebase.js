@@ -31,9 +31,19 @@ const db = require('../main/windows').db
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
-var firebaseConfig = {
-    apiKey: config.FIREBASE_API_KEY,
-    databaseURL: config.FIREBASE_DATABASE_URL
+var firebaseConfig = {}
+
+if (config.IS_DEVELOPMENT) {
+    firebaseConfig = {
+        apiKey: config.FIREBASE_TEST_API_KEY,
+        databaseURL: config.FIREBASE_TEST_DATABASE_URL
+    }
+}
+else {
+    firebaseConfig = {
+        apiKey: config.FIREBASE_API_KEY,
+        databaseURL: config.FIREBASE_DATABASE_URL
+    }
 }
 
 firebase.initializeApp(firebaseConfig)

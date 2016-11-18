@@ -49,6 +49,11 @@ module.exports = {
     FIREBASE_DATABASE_URL: 'https://tum-dm-fireb.firebaseio.com',
     FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
     FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
+
+    FIREBASE_TEST_DATABASE_URL: 'https://dm-test-data.firebaseio.com',
+    FIREBASE_TEST_API_KEY: 'AIzaSyBUurlevQCRuK5n62-MBhjCeIFWm97gYIM',
+    FIREBASE_TEST_AUTH_DOMAIN: 'dm-test-data.firebaseapp.com',
+
     IS_DEVELOPMENT: IS_DEVELOPMENT,
 
     DELAY_START_TIME: 60000,
@@ -59,6 +64,9 @@ module.exports = {
     MONITOR_RUNNING_PROFILE_INTERVAL: 900000,
     ADD_RUNNING_PROFILE_INTERVAL: 3600000,
     UPDATE_POWER_STATS_DAILY: 86400000,
+
+    MONITOR_IDLE: 10000,
+    MONITOR_IDLE_TIMEOUT: 60000,
 
     FREEGEOIP_URL: 'http://131.159.52.146/freegeoip/json/',
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +

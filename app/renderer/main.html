@@ -35,6 +35,7 @@
 
             <div class="pane">
 
+
                 <div class="status manager-pane" id="status-pane" style="display: none">
                     <h3 style="display: none" id="app-running-message">
                         <span class="icon icon-play"></span>
@@ -73,8 +74,6 @@
                         tray.
                     </p>
                 </div>
-
-
                 <div class="preferences manager-pane" id="settings-pane" style="display: none">
                     <div class="setting-form">
                         <div class="checkbox">
@@ -82,6 +81,27 @@
                                 <input type="checkbox" id="run-at-start-up"> Run when the computer starts
                             </label>
                         </div>
+                    </div>
+                    <hr>
+                    <div class="setting-form">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="turn-screen-off-power-save-idle"> Turn the screen off at
+                                power save after 1 minute idle
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="suspend-power-save-idle"> Suspend the computer at power save
+                                after 1 minute idle
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="dim-screen-power-save"> Dim the screen at power save mode
+                            </label>
+                        </div>
+                        <button class="btn btn-mini btn-default" id="disable-dim-scree">Put Screen to Full Backlight</button>
                     </div>
                     <hr>
                     <div class="setting-form">
@@ -173,7 +193,6 @@
                             <h6>
                                 <span class="icon icon-info-circled"></span>
                                 We only use the email to contact you in case you won a prize.
-
                             </h6>
                         </div>
                     </div>

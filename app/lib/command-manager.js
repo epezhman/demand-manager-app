@@ -5,7 +5,8 @@ module.exports = {
     makeFirstCommandsSchedule,
     runCheckDM,
     startDM,
-    stopDM
+    stopDM,
+    restoreBacklight
 }
 
 const config = require('../config')
@@ -47,6 +48,15 @@ function stopDM() {
     }
     else if (config.IS_LINUX) {
         require('./linux-power-control').stopDM()
+    }
+}
+
+function restoreBacklight() {
+    if (config.IS_WINDOWS) {
+
+    }
+    else if (config.IS_LINUX) {
+        require('./linux-power-control').restoreBacklight()
     }
 }
 
