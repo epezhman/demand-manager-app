@@ -14,38 +14,39 @@ const cm = remote.require('./lib/command-manager')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
-var firebaseConfig = {
+let firebaseConfig = {
     apiKey: config.FIREBASE_API_KEY,
     authDomain: config.FIREBASE_AUTH_DOMAIN
 }
 
-var runStartUpCheckBox
-var timeLimitUpCheckBox
-var timeLimitStart
-var timeLimitUpEnd
-var timeValidatorError
-var navItems
-var navPanes
-var statusNavItem
-var settingsNavItem
-var aboutNavItem
-var appRunning
-var appPaused
-var registered
-var notRegistered
-var registeredEmail
-var emailRegisterButton
-var registerEmailForm
-var emailInput
-var dimScreen
-var turnOffScreenIdle
-var suspendIdle
-var disableBackLight
+let runStartUpCheckBox
+let timeLimitUpCheckBox
+let timeLimitStart
+let timeLimitUpEnd
+let timeValidatorError
+let navItems
+let navPanes
+let statusNavItem
+let settingsNavItem
+let aboutNavItem
+let appRunning
+let appPaused
+let registered
+let notRegistered
+let registeredEmail
+let emailRegisterButton
+let registerEmailForm
+let emailInput
+let dimScreen
+let turnOffScreenIdle
+let suspendIdle
+let disableBackLight
+let settingsToHide
 
-var selectedTab = null
-var ipcReady = false
+let selectedTab = null
+let ipcReady = false
 
-var appLauncher = null
+let appLauncher = null
 
 if (config.IS_LINUX) {
     appLauncher = new AutoLaunch({
@@ -150,20 +151,20 @@ function checkIfLimitedActivitySet() {
         timeLimitUpCheckBox.prop('checked', true)
     }
 
-    var startTime = conf.get('limited-activity-start-time')
+    let startTime = conf.get('limited-activity-start-time')
     if (startTime !== undefined) {
         timeLimitStart.val(startTime)
     }
 
-    var endTime = conf.get('limited-activity-end-time')
+    let endTime = conf.get('limited-activity-end-time')
     if (endTime !== undefined) {
         timeLimitUpEnd.val(endTime)
     }
 }
 
 function checkEndTimeValidation() {
-    var startTime = timeLimitStart.val()
-    var endTime = timeLimitUpEnd.val()
+    let startTime = timeLimitStart.val()
+    let endTime = timeLimitUpEnd.val()
     if (parseInt(startTime) >= parseInt(endTime)) {
         timeValidatorError.show()
         return false
@@ -218,7 +219,7 @@ function showEmail(email) {
 }
 
 function registerEmail(email) {
-    var password = require('node-uuid').v1()
+    let password = require('node-uuid').v1()
 
     firebase.auth().createUserWithEmailAndPassword(email, password).then(() => { // jshint ignore:line
         return showEmail(email)
@@ -232,6 +233,12 @@ function registerEmail(email) {
     firebase.auth().onAuthStateChanged((user) => { // jshint ignore:line
         user.sendEmailVerification()
     })
+}
+
+function showOptionsBasedOnOS() {
+    if (config.IS_LINUX) {
+        settingsToHide.show()
+    }
 }
 
 $(document).ready(() => {
@@ -257,7 +264,8 @@ $(document).ready(() => {
     dimScreen = $('#dim-screen-power-save')
     turnOffScreenIdle = $('#turn-screen-off-power-save-idle')
     suspendIdle = $('#suspend-power-save-idle')
-    disableBackLight = $('#disable-dim-scree')
+    disableBackLight = $('#disable-dim-screen')
+    settingsToHide = $('.settings-to-hide')
 
     ipcReady = true
 
@@ -266,6 +274,7 @@ $(document).ready(() => {
     checkIfAppRunning()
     checkIfShouldSelectTab()
     checkPowerControlSettings()
+    showOptionsBasedOnOS()
 
     checkIfRegisteredUser()
 

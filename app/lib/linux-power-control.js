@@ -14,7 +14,6 @@ const notify = require('./notify')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 const idle = require('@paulcbetts/system-idle-time')
 
-
 let monitorIdleInterval = null
 
 function toggleDimScreen(dimOn) {
@@ -36,25 +35,23 @@ function toggleDimScreen(dimOn) {
     })
 }
 
-
 function suspendComputer() {
     exec('systemctl suspend')
     exec('dbus-send --system --print-reply --dest="org.freedesktop.login1" ' +
         '/org/freedesktop/login1 org.freedesktop.login1.Manager.Suspend boolean:true')
     exec('dbus-send --system --print-reply --dest="org.freedesktop.UPower" ' +
         '/org/freedesktop/UPower org.freedesktop.UPower.Suspend')
-
 }
 
 function turnScreenOff() {
     exec('sleep 3; xset dpms force off')
 }
 
-
 function monitorIdle() {
     if (conf.get('turn-off-screen') || conf.get('suspend-computer')) {
         if (idle.getIdleTime() >= config.MONITOR_IDLE_TIMEOUT) {
-            if (conf.get('suspend-computer')) {
+            if (conf.get('suspend-computer')
+                && idle.getIdleTime() >= config.MONITOR_IDLE_TIMEOUT_SUSPEND) {
                 suspendComputer()
             }
             else if (conf.get('turn-off-screen')) {
@@ -69,11 +66,9 @@ function startDM() {
     if (!conf.get('dm-already-start')) {
         conf.set('dm-already-start', true)
         notify('Power save mode has started')
-
         if (conf.get('dim-screen')) {
             toggleDimScreen(true)
         }
-
         monitorIdleInterval = setInterval(monitorIdle, config.MONITOR_IDLE)
     }
 }
@@ -83,15 +78,12 @@ function stopDM() {
     if (!conf.get('dm-already-stop')) {
         conf.set('dm-already-stop', true)
         notify('Power save mode has ended')
-
         if (conf.get('dim-screen')) {
             toggleDimScreen(false)
         }
-
         if (monitorIdleInterval) {
             clearInterval(monitorIdleInterval)
         }
-
     }
 }
 

@@ -52,10 +52,7 @@ function stopDM() {
 }
 
 function restoreBacklight() {
-    if (config.IS_WINDOWS) {
-
-    }
-    else if (config.IS_LINUX) {
+    if (config.IS_LINUX) {
         require('./linux-power-control').restoreBacklight()
     }
 }

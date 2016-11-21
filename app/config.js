@@ -67,6 +67,7 @@ module.exports = {
 
     MONITOR_IDLE: 10000,
     MONITOR_IDLE_TIMEOUT: 60000,
+    MONITOR_IDLE_TIMEOUT_SUSPEND: 300000,
 
     FREEGEOIP_URL: 'http://131.159.52.146/freegeoip/json/',
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
