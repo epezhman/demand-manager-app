@@ -37,14 +37,51 @@
 
 
                 <div class="status manager-pane" id="status-pane" style="display: none">
-                    <h3 style="display: none" id="app-running-message">
-                        <span class="icon icon-play"></span>
-                        App is running
-                    </h3>
-                    <h3 style="display: none" id="app-paused-message">
-                        <span class="icon icon-pause"></span>
-                        App is paused
-                    </h3>
+                    <h4>
+                        <span class="icon icon-globe"></span>
+                        i13 Demand Manager Status
+                    </h4>
+                    <table class="status-table">
+                        <tr>
+                            <td class="td-title">App Running</td>
+                            <td>
+                                <span class="icon icon-check" id="app-running-yes"></span>
+                                <span class="icon icon-cancel" id="app-running-no"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-title">Computer in Power Save mode</td>
+                            <td>
+                                <span class="icon icon-check" id="computer-power-save-yes"></span>
+                                <span class="icon icon-cancel" id="computer-power-save-no"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-title">Computer participating in Demand Response</td>
+                            <td>
+                                <span class="icon icon-check" id="computer-dm-yes"></span>
+                                <span class="icon icon-cancel" id="computer-dm-no"></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">
+                                <hr>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-title">How many minutes participated?</td>
+                            <td class="measurement-values"><span id="minutes-participated">N/A</span> minutes</td>
+                        </tr>
+                        <tr>
+                            <td class="td-title">How much energy saved?</td>
+                            <td class="measurement-values"><span id="energy-saved">N/A</span> Wh</td>
+                        </tr>
+                        <tr>
+                            <td class="td-title">How much money saved?</td>
+                            <td class="measurement-values"><span id="money-saved">N/A</span> €</td>
+                        </tr>
+                    </table>
                 </div>
 
 

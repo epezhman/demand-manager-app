@@ -42,6 +42,14 @@ let turnOffScreenIdle
 let suspendIdle
 let disableBackLight
 let settingsToHide
+let powerSaveRunningYes
+let powerSaveRunningNo
+let dmRunningYes
+let dmRunningNo
+let minutesSaved
+let energySaved
+let moneySaved
+
 
 let selectedTab = null
 let ipcReady = false
@@ -182,6 +190,21 @@ function checkIfAppRunning() {
         appPaused.show()
         appRunning.hide()
     }
+
+    if (conf.get('dm-already-start')) {
+        dmRunningNo.hide()
+        dmRunningYes.show()
+
+        powerSaveRunningNo.hide()
+        powerSaveRunningYes.show()
+    }
+    else {
+        dmRunningNo.show()
+        dmRunningYes.hide()
+
+        powerSaveRunningNo.show()
+        powerSaveRunningYes.hide()
+    }
 }
 
 function checkIfShouldSelectTab() {
@@ -241,6 +264,14 @@ function showOptionsBasedOnOS() {
     }
 }
 
+function getStatistics() {
+    if (conf.get('saved-minutes')) {
+        minutesSaved.text(conf.get('saved-minutes'))
+        energySaved.text('N/A')
+        moneySaved.text('N/A')
+    }
+}
+
 $(document).ready(() => {
 
     runStartUpCheckBox = $('#run-at-start-up')
@@ -253,8 +284,6 @@ $(document).ready(() => {
     statusNavItem = $('#status-menu-item')
     settingsNavItem = $('#settings-menu-item')
     aboutNavItem = $('#about-menu-item')
-    appPaused = $('#app-paused-message')
-    appRunning = $('#app-running-message')
     registered = $('#already-registered')
     notRegistered = $('#not-registered')
     registeredEmail = $('#user-registered-email')
@@ -266,6 +295,15 @@ $(document).ready(() => {
     suspendIdle = $('#suspend-power-save-idle')
     disableBackLight = $('#disable-dim-screen')
     settingsToHide = $('.settings-to-hide')
+    appRunning = $('#app-running-yes')
+    appPaused = $('#app-running-no')
+    powerSaveRunningYes = $('#computer-power-save-yes')
+    powerSaveRunningNo = $('#computer-power-save-no')
+    dmRunningYes = $('#computer-dm-yes')
+    dmRunningNo = $('#computer-dm-no')
+    minutesSaved = $('#minutes-participated')
+    energySaved = $('#energy-saved')
+    moneySaved = $('#money-saved')
 
     ipcReady = true
 
@@ -275,7 +313,7 @@ $(document).ready(() => {
     checkIfShouldSelectTab()
     checkPowerControlSettings()
     showOptionsBasedOnOS()
-
+    getStatistics()
     checkIfRegisteredUser()
 
     navItems.click((e) => {

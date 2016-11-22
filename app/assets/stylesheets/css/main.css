@@ -73,3 +73,10 @@ body {
       width: 300px; }
     .register .registration-status #user-registered-email {
       color: #388df8; }
+
+.status-table {
+  font-size: 15px; }
+  .status-table .td-title {
+    width: 150px; }
+  .status-table .measurement-values {
+    font-weight: bold; }

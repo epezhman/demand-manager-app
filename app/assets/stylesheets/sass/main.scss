@@ -118,3 +118,14 @@ body {
   }
 
 }
+
+.status-table {
+  font-size: 15px;
+
+  .td-title {
+    width: 150px
+  }
+  .measurement-values {
+    font-weight: bold;
+  }
+}

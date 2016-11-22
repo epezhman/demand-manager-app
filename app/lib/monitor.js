@@ -6,7 +6,8 @@ module.exports = {
     monitorGeoLocation,
     monitorPower,
     shouldAppBeRunning,
-    initDMFlags
+    initDMFlags,
+    calculateSavedMinutes
 }
 
 const ConfigStore = require('configstore')
@@ -120,6 +121,19 @@ function extractDevicesData() {
 function initDMFlags() {
     conf.set('dm-already-start', false)
     conf.set('dm-already-stop', false)
+}
+
+function calculateSavedMinutes() {
+    if (!conf.get('saved-minutes')) {
+        conf.set('saved-minutes', 0)
+    }
+    if (conf.get('started-running')) {
+        let currentTime = new Date()
+        let startTime = new Date(conf.get('started-running'))
+        let minutes = Math.ceil((currentTime - startTime) / 60000)
+        conf.set('saved-minutes', conf.get('saved-minutes') + minutes)
+        conf.set('started-running', 0)
+    }
 }
 
 function init() {

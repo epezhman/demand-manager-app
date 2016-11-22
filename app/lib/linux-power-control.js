@@ -13,6 +13,7 @@ const config = require('../config')
 const notify = require('./notify')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 const idle = require('@paulcbetts/system-idle-time')
+const monitor = require('./monitor')
 
 let monitorIdleInterval = null
 
@@ -65,6 +66,7 @@ function startDM() {
     conf.set('dm-already-stop', false)
     if (!conf.get('dm-already-start')) {
         conf.set('dm-already-start', true)
+        conf.set('started-running', new Date())
         notify('Power save mode has started')
         if (conf.get('dim-screen')) {
             toggleDimScreen(true)
@@ -77,6 +79,7 @@ function stopDM() {
     conf.set('dm-already-start', false)
     if (!conf.get('dm-already-stop')) {
         conf.set('dm-already-stop', true)
+        monitor.calculateSavedMinutes()
         notify('Power save mode has ended')
         if (conf.get('dim-screen')) {
             toggleDimScreen(false)
