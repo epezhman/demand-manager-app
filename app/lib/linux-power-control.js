@@ -51,8 +51,7 @@ function turnScreenOff() {
 function monitorIdle() {
     if (conf.get('turn-off-screen') || conf.get('suspend-computer')) {
         if (idle.getIdleTime() >= config.MONITOR_IDLE_TIMEOUT) {
-            if (conf.get('suspend-computer')
-                && idle.getIdleTime() >= config.MONITOR_IDLE_TIMEOUT_SUSPEND) {
+            if (conf.get('suspend-computer') && idle.getIdleTime() >= config.MONITOR_IDLE_TIMEOUT_SUSPEND) {
                 suspendComputer()
             }
             else if (conf.get('turn-off-screen')) {

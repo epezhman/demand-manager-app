@@ -107,9 +107,9 @@ var releaseForOS = (platform) => {
             return pDirs.deferredPromised.promise
         }).then(()=> {
             utils.log('Releasing for Linux 32-bit')
-            var pDirs = platformReleaseDirs(config.awsS3Linux32Dir, config.distLinux32Dir)
-            getLatestReleasedVersionAndUploadNewRelease(pDirs)
-            return pDirs.deferredPromised.promise
+            // var pDirs = platformReleaseDirs(config.awsS3Linux32Dir, config.distLinux32Dir)
+            // getLatestReleasedVersionAndUploadNewRelease(pDirs)
+            // return pDirs.deferredPromised.promise
         })
     }
     else if (platform === 'osx') {
