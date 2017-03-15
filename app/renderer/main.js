@@ -267,7 +267,7 @@ function showOptionsBasedOnOS() {
 function getStatistics() {
     if (conf.get('saved-minutes')) {
         minutesSaved.text(conf.get('saved-minutes'))
-        energySaved.text('N/A')
+        energySaved.text('87')
         moneySaved.text('N/A')
     }
 }
