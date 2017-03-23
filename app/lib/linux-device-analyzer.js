@@ -12,6 +12,7 @@ const exec = require('child_process').exec
 const async = require('async')
 const _ = require('lodash')
 const sudo = require('sudo-prompt')
+const ConfigStore = require('configstore')
 
 const config = require('../config')
 const log = require('./log')
@@ -21,6 +22,7 @@ const notify = require('./notify')
 const db = require('../main/windows').db
 const enums = require('./enums')
 
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 let linuxDeviceData = {}
 
@@ -73,9 +75,7 @@ function getDmidecodeCommandData(performThisMethod, cb) {
     else {
         cb(null, false)
     }
-
 }
-
 
 function getCommandsSetData(performThisMethod, cb) {
     var commands = [
@@ -116,19 +116,15 @@ function sendExtractedData(err, result) {
     if (linuxDeviceData && _.size(linuxDeviceData)) {
         firebase.saveExtractedDevicesData(linuxDeviceData)
     }
-
 }
 
 function deviceAnalysis() {
-
     async.waterfall([
         getLshwCommandData,
         getDmidecodeCommandData,
         getCommandsSetData
     ], sendExtractedData)
-
 }
-
 
 function monitorPower(monitorType) {
     let batteryData = {}
@@ -195,48 +191,21 @@ function monitorPower(monitorType) {
             'upload_kb': Math.round(parseFloat(network[1])),
             'wifi': true
         }
-        //if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
-            /* jshint ignore:start */
-            let fs = require('fs');
-            // fs.open("/home/epezhman/exports/battery.csv", 'a', 666, function (e, file) {
-            //     let dataToExport = batteryObject['remaining_time_minutes'] + ', '
-            //         + batteryObject['power_rate_w'] + ', '
-            //         + batteryObject['remaining_capacity_percent'] + ', '
-            //         + batteryObject['voltage_v'] + ', '
-            //         + batteryObject['charging_bool'] + ', '
-            //         + batteryObject['discharging_bool'] + ', '
-            //         + batteryObject['ac_connected_bool'] + ', '
-            //         + batteryObject['brightness_percent'] + ', '
-            //         + batteryObject['memory_percent'] + ', '
-            //         + batteryObject['memory_mb'] + ', '
-            //         + batteryObject['read_request_per_s'] + ', '
-            //         + batteryObject['read_kb_per_s'] + ', '
-            //         + batteryObject['write_request_per_s'] + ', '
-            //         + batteryObject['write_kb_per_s'] + ', '
-            //         + batteryObject['cpu_usage_percent'] + ', '
-            //         + batteryObject['cpu_cores'] + ', '
-            //         + batteryObject['download_kb'] + ', '
-            //         + batteryObject['upload_kb'] + ', '
-            //         + batteryObject['wifi'] + ', '
-            //         + new Date() + "\r\n"
-            //     fs.write(file, dataToExport, null, 'utf8', function () {
-            //         fs.close(file, function () {
-            //         });
-            //     });
-            // });
-            /* jshint ignore:end */
-
+        if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
+            if (conf.get('logging-enabled')) {
+                firebase.saveBatteryLogging(batteryObject)
+            }
             // db.runQuery({
             //     'fn': 'addBattery',
             //     'params': batteryObject
             // })
-        // }
-        // else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
-        //     // db.runQuery({
-        //     //     'fn': 'addBatteryFirstProfile',
-        //     //     'params': batteryObject
-        //     // })
-        // }
+        }
+        else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
+            db.runQuery({
+                'fn': 'addBatteryFirstProfile',
+                'params': batteryObject
+            })
+        }
     })
 }
 

@@ -15,7 +15,9 @@ module.exports = {
     saveLocationClusterProfile,
     saveBatteryClusterProfile,
     saveCommandsFirstSchedule,
-    watchScheduleChanges
+    watchScheduleChanges,
+    watchSettingsChanges,
+    saveBatteryLogging
 }
 
 const os = require('os')
@@ -47,6 +49,10 @@ function registerDevice() {
     let deviceCount = firebase.database().ref('statistics/devices-count')
     deviceCount.transaction(function (count) {
         return count + 1
+    })
+    firebase.database().ref(`settings/${global.machineId}`).set({
+        'logging': false,
+        'power-model': ' '
     })
 }
 
@@ -245,4 +251,30 @@ function watchScheduleChanges() {
             'params': snapshot.val()
         })
     })
+}
+
+function watchSettingsChanges() {
+    let scheduleRef = firebase.database().ref(`settings/${global.machineId}`)
+    scheduleRef.once('value', (snapshot) => {
+        let settings = snapshot.val()
+        if (settings) {
+            conf.set('logging-enabled', settings['logging'])
+            conf.set('power-model', settings['power-model'])
+        }
+    })
+    return scheduleRef.on('child_changed', (snapshot) => {
+        if (snapshot.key === 'logging') {
+            conf.set('logging-enabled', snapshot.val())
+        }
+        else if (snapshot.key === 'power-model') {
+            conf.set('power-model', snapshot.val())
+        }
+    })
+}
+
+function saveBatteryLogging(extractedData) {
+
+    extractedData['time'] = firebase.database.ServerValue.TIMESTAMP
+    log(extractedData)
+    firebase.database().ref(`logging/${global.machineId}`).push(extractedData)
 }
