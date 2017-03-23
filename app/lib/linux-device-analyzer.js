@@ -181,8 +181,8 @@ function monitorPower(monitorType) {
             'charging_bool': batteryData['status'] === 'Charging',
             'discharging_bool': batteryData['status'] === 'Discharging',
             'ac_connected_bool': batteryData['ac-connected'] === '1',
-            'brightness_percent': Math.round((parseInt(batteryData['current-screen-light']) * 100 )
-                / parseInt(batteryData['max-screen-light'])),
+            'brightness_percent': Math.round((parseInt(batteryData['current-screen-light']) * 100 ) /
+                parseInt(batteryData['max-screen-light'])),
             'memory_percent': Math.round((parseInt(memory[1]) * 100) / parseInt(memory[0])),
             'memory_mb': parseInt(memory[0]),
             'read_request_per_s': parseInt(iodisk[0]),
@@ -195,7 +195,7 @@ function monitorPower(monitorType) {
             'upload_kb': Math.round(parseFloat(network[1])),
             'wifi': true
         }
-        if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
+        //if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
             /* jshint ignore:start */
             let fs = require('fs');
             // fs.open("/home/epezhman/exports/battery.csv", 'a', 666, function (e, file) {
@@ -230,13 +230,13 @@ function monitorPower(monitorType) {
             //     'fn': 'addBattery',
             //     'params': batteryObject
             // })
-        }
-        else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
-            // db.runQuery({
-            //     'fn': 'addBatteryFirstProfile',
-            //     'params': batteryObject
-            // })
-        }
+        // }
+        // else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
+        //     // db.runQuery({
+        //     //     'fn': 'addBatteryFirstProfile',
+        //     //     'params': batteryObject
+        //     // })
+        // }
     })
 }
 

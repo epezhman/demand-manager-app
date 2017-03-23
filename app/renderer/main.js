@@ -58,13 +58,13 @@ let appLauncher = null
 
 if (config.IS_LINUX) {
     appLauncher = new AutoLaunch({
-        name: config.APP_SHORT_NAME,
+        name: config.APP_NAME,
         path: config.AUTO_LAUNCH_LINUX_COMMAND
     })
 }
 else {
     appLauncher = new AutoLaunch({
-        name: config.APP_SHORT_NAME
+        name: config.APP_NAME
     })
 }
 

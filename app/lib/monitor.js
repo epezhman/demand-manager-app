@@ -110,9 +110,7 @@ function extractDevicesData() {
                 linuxAnalyzer.deviceAnalysis()
                 linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
             }
-            else if (config.IS_OSX) {
-                require('./osx-device-analyzer').deviceAnalysis()
-            }
+
         }, 2000)
     }
 }

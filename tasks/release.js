@@ -112,12 +112,6 @@ var releaseForOS = (platform) => {
             // return pDirs.deferredPromised.promise
         })
     }
-    else if (platform === 'osx') {
-        utils.log('Releasing for OSX 64-bit')
-        var pDirs = platformReleaseDirs(config.awsS3OSXDir, config.distOSXDir)
-        getLatestReleasedVersionAndUploadNewRelease(pDirs)
-        return pDirs.deferredPromised.promise
-    }
     else if (platform === 'windows') {
         return Q.fcall(()=> {
             utils.log('Releasing for Windows 64-bit')

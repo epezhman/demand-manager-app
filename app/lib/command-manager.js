@@ -12,7 +12,6 @@ module.exports = {
 const config = require('../config')
 
 const db = require('../main/windows').db
-const log = require('./log')
 const monitor = require('./monitor')
 
 function makeFirstCommandsSchedule() {

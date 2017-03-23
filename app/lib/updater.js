@@ -20,7 +20,7 @@ const config = require('../config')
 const log = require('./log')
 const notify = require('./notify')
 
-var manualUpdate = false
+let manualUpdate = false
 
 
 function installUpdate(downloadPath) {
@@ -32,7 +32,7 @@ function installUpdate(downloadPath) {
             The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
         }
         notify(`Update was installed successfully.`)
-        app.relaunch({args: process.argv.slice(1) + ['--relaunch']})
+        app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
         app.exit(0)
     })
 }
@@ -46,13 +46,13 @@ function onLinuxResponse(err, res, data) {
             notify('Update is available and will be downloaded to your home directory.')
         }
         data = JSON.parse(data)
-        var downloadPath = path.resolve(process.env.HOME || process.env.USERPROFILE) +
+        let downloadPath = path.resolve(process.env.HOME || process.env.USERPROFILE) +
             `/${data.file}`
-        fs.access(downloadPath, fs.F_OK, (error)=> {
+        fs.access(downloadPath, fs.F_OK, (error) => {
             if (error) {
-                var newVersionFile = fs.createWriteStream(downloadPath)
+                let newVersionFile = fs.createWriteStream(downloadPath)
                 https.get(data.url, (response) => {
-                    response.pipe(newVersionFile).on('close', ()=> {
+                    response.pipe(newVersionFile).on('close', () => {
                         installUpdate(downloadPath)
                     })
                 })
@@ -73,19 +73,15 @@ function onLinuxResponse(err, res, data) {
 }
 
 function initLinux() {
-    var feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
+    let feedURL = config.AUTO_UPDATE_LINUX_BASE_URL + (os.arch() === 'x64' ? '64' : '32') +
         '?v=' + config.APP_VERSION
     request(feedURL, onLinuxResponse)
 }
 
-function initDarwinWin32() {
-    var feedURL = ''
-    if (config.IS_OSX) {
-        feedURL = config.AUTO_UPDATE_OSX_BASE_URL
-    }
-    else if (config.IS_WINDOWS) {
-        feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
-    }
+function initWin32() {
+
+    let feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
+
 
     autoUpdater.on(
         'error',
@@ -133,12 +129,12 @@ function initDarwinWin32() {
 
 function checkUpdate(manual) {
     manualUpdate = !!manual
-    isOnline(function (err, online) {
+    isOnline().then(online => {
         if (online) {
             if (config.IS_LINUX) {
                 initLinux()
             } else {
-                initDarwinWin32()
+                initWin32()
             }
         }
         else {
@@ -146,7 +142,7 @@ function checkUpdate(manual) {
                 notify('No internet connection')
             }
         }
-    })
+    });
 }
 
 function init() {

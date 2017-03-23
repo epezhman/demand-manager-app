@@ -82,7 +82,7 @@ var initLinux = ()=> {
     })
 }
 
-var initDarwinWin32 = () => {
+var initWin32 = () => {
     createTray()
 }
 
@@ -98,7 +98,6 @@ function init() {
         initLinux()
     }
     else {
-        initDarwinWin32()
+        initWin32()
     }
-
 }

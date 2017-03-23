@@ -11,19 +11,19 @@ const config = require('../config')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
-var appLauncher = null
+let appLauncher = null
 
 if(config.IS_LINUX)
 {
     appLauncher = new AutoLaunch({
-        name: config.APP_SHORT_NAME,
+        name: config.APP_NAME,
         path: config.AUTO_LAUNCH_LINUX_COMMAND
     })
 }
 else
 {
     appLauncher = new AutoLaunch({
-        name: config.APP_SHORT_NAME
+        name: config.APP_NAME
     })
 }
 
