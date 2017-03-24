@@ -52,7 +52,8 @@ function registerDevice() {
     })
     firebase.database().ref(`settings/${global.machineId}`).set({
         'logging': false,
-        'power-model': ' '
+        'power-model': ' ',
+        'power-monitor-interval': 1000,
     })
 }
 
@@ -275,6 +276,15 @@ function watchSettingsChanges() {
 function saveBatteryLogging(extractedData) {
 
     extractedData['time'] = firebase.database.ServerValue.TIMESTAMP
-    log(extractedData)
-    firebase.database().ref(`logging/${global.machineId}`).push(extractedData)
+    log(standardizeObject(extractedData))
+    firebase.database().ref(`logging/${global.machineId}`).push(standardizeObject(extractedData))
+}
+
+function standardizeObject(dirty) {
+    for (let key in dirty) {
+        if (dirty.hasOwnProperty(key)) {
+            dirty[key] = isNaN(dirty[key]) && typeof dirty[key] !== 'object' ? 'NaN' : dirty[key];
+        }
+    }
+    return dirty;
 }

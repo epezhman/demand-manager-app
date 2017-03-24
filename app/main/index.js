@@ -81,3 +81,7 @@ app.on('ready', () => {
         monitor.initDMFlags()
     })
 })
+
+process.on('uncaughtException', (err) => {
+    console.log(err);
+});
