@@ -51,7 +51,7 @@ function runWMIC(wmicCommand, paramCallback) {
         })
     }
     catch (err) {
-        log.error(err)
+        log.sendError(err)
         paramCallback()
     }
 }

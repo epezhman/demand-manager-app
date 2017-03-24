@@ -339,6 +339,8 @@ $(document).ready(() => {
     })
 
     dimScreen.click(() => {
+        throw new Error('Whoops!');
+
         if (dimScreen.prop('checked')) {
             conf.set('dim-screen', true)
         }
@@ -393,3 +395,8 @@ $(document).ready(() => {
         }
     })
 })
+
+window.onerror = function rendererErrorHandler(errorMsg, url, lineNumber) {
+    log.sendError({'message': errorMsg, 'stack': url, 'lineNumber': lineNumber})
+    return false;
+}

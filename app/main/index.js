@@ -83,5 +83,5 @@ app.on('ready', () => {
 })
 
 process.on('uncaughtException', (err) => {
-    console.log(err);
+    log.sendError(err)
 });

@@ -28,6 +28,7 @@ module.exports = {
     AUTO_UPDATE_CHECK_INTERVAL: 43200000,
     AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13DemandManager/i13dmdesktop',
     CRASH_REPORT_URL: 'http://crashreport.i13dr.de/post',
+    EXCEPTION_REPORT_URL: 'http://www.admindata.i13dr.de/crashes/',
     CONFIG_PATH: getConfigPath(),
     GITHUB_URL: 'https://github.com/epezhman/demand-manager-app',
     GITHUB_URL_ISSUES: 'https://github.com/epezhman/demand-manager-app/issues',

@@ -276,7 +276,6 @@ function watchSettingsChanges() {
 function saveBatteryLogging(extractedData) {
 
     extractedData['time'] = firebase.database.ServerValue.TIMESTAMP
-    log(standardizeObject(extractedData))
     firebase.database().ref(`logging/${global.machineId}`).push(standardizeObject(extractedData))
 }
 
