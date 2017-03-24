@@ -339,7 +339,6 @@ $(document).ready(() => {
     })
 
     dimScreen.click(() => {
-        throw new Error('remote')
         if (dimScreen.prop('checked')) {
             conf.set('dim-screen', true)
         }
