@@ -162,3 +162,8 @@ ipcRenderer.on('make-location-profile', (event, msg)=> {
         googleMapLocationFinder
     ], makeLocationProfile)
 })
+
+window.onerror = function rendererErrorHandler(errorMsg, url, lineNumber) {
+    log.sendError({'message': errorMsg, 'stack': url, 'lineNumber': lineNumber})
+    return false;
+}

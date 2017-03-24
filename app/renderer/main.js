@@ -7,7 +7,7 @@ const {ipcRenderer, remote} = require('electron')
 const ConfigStore = require('configstore')
 const AutoLaunch = require('auto-launch')
 const config = require('../config')
-const log = require('../lib/log')
+const log = remote.require('./lib/log')
 const enums = require('../lib/enums')
 const notify = remote.require('./lib/notify')
 const cm = remote.require('./lib/command-manager')
@@ -339,8 +339,7 @@ $(document).ready(() => {
     })
 
     dimScreen.click(() => {
-        throw new Error('Whoops!');
-
+        throw new Error('remote')
         if (dimScreen.prop('checked')) {
             conf.set('dim-screen', true)
         }
