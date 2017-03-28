@@ -21,9 +21,9 @@ const wmic = require('ms-wmic')
 const _ = require('lodash/string')
 const async = require('async')
 
-var windowsDeviceData = {}
-var batteryData = {}
-var batteryCapabilitiesData = {}
+let windowsDeviceData = {}
+let batteryData = {}
+let batteryCapabilitiesData = {}
 
 function runWMIC(wmicCommand, paramCallback) {
     try {
@@ -59,9 +59,9 @@ function runWMIC(wmicCommand, paramCallback) {
 function runAsyncCommands(wmicCommands) {
     async.eachOfLimit(wmicCommands.commands, 2, (wmiClassProps, wmiClass, commandCallback) => {
         async.eachLimit(wmiClassProps, 3, (wmiClassProp, paramCallback) => {
-            var nameSpaceRoot = '\\\\root\\'
-            var wmiClassParts = wmiClass.split('$')
-            var command = {
+            let nameSpaceRoot = '\\\\root\\'
+            let wmiClassParts = wmiClass.split('$')
+            let command = {
                 wmiClass: wmiClassParts[1],
                 command: wmiClassProp,
                 nameSpace: nameSpaceRoot + wmiClassParts[0],
@@ -83,17 +83,17 @@ function runAsyncCommands(wmicCommands) {
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY ||
             wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
-            var chargeRate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
-            var dischargeRate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
+            let chargeRate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
+            let dischargeRate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
             // 0.6 came from my own laptop, it's only an rough estimation
-            var drainEstimation = dischargeRate > 0 ? dischargeRate : chargeRate * 0.6
-            var remainingTime = parseInt(batteryData['win32_battery-estimatedruntime'])
+            let drainEstimation = dischargeRate > 0 ? dischargeRate : chargeRate * 0.6
+            let remainingTime = parseInt(batteryData['win32_battery-estimatedruntime'])
             if (chargeRate > 0) {
                 remainingTime = utils.hoursToMinutes(Math.round(
                         (parseInt(batteryData['batterystatus-remainingcapacity']) /
                         (drainEstimation * 1000) ) * 100) / 100)
             }
-            var batteryObject = {
+            let batteryObject = {
                 'remaining_time_minutes': remainingTime,
                 'power_rate_w': dischargeRate > 0 ? dischargeRate : chargeRate,
                 'remaining_capacity_percent': parseInt(batteryData['win32_battery-estimatedchargeremaining']),
@@ -122,7 +122,7 @@ function runAsyncCommands(wmicCommands) {
 }
 
 function deviceAnalysis() {
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.DeviceDataExtraction,
         commandType: enums.WMICommandType.DEVICE,
     }
@@ -130,7 +130,7 @@ function deviceAnalysis() {
 }
 
 function batteryCapabilities() {
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.BatteryCapabilitiesInfo,
         commandType: enums.WMICommandType.BATTERY_CAPABILITY,
     }
@@ -139,7 +139,7 @@ function batteryCapabilities() {
 
 function monitorPower() {
     batteryData = {}
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
         commandType: enums.WMICommandType.BATTERY,
     }
@@ -148,7 +148,7 @@ function monitorPower() {
 
 function batteryFirstTimeProfile() {
     batteryData = {}
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
         commandType: enums.WMICommandType.BATTERY_FIRST_PROFILE,
     }
