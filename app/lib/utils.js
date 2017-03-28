@@ -37,7 +37,7 @@ function convertWmicStringToList(str) {
 function standardizeForFirebase(jsonStr) {
     return JSON.parse(jsonStr, (key, value)=> {
         if (value && typeof value === 'object') {
-            for (var k in value) {
+            for (let k in value) {
                 if (Object.hasOwnProperty.call(value, k)) {
                     value[`-${fkey.safe(k)}`] = value[k]
                     delete value[k]
@@ -51,15 +51,15 @@ function standardizeForFirebase(jsonStr) {
 
 function tryConvertToJson(orgStr) {
     orgStr = _.trim(orgStr)
-    var splitData = _.split(orgStr, '\n')
+    let splitData = _.split(orgStr, '\n')
     if (splitData.length === 1) {
         return orgStr
     }
-    var cntr = 0
-    var resultJson = {}
+    let cntr = 0
+    let resultJson = {}
     _.forEach(splitData, (value)=> {
         value = _.trim(value)
-        var tempSplit = _.split(value, ':')
+        let tempSplit = _.split(value, ':')
         if (tempSplit.length === 1) {
             tempSplit = _.split(value, '=')
         }
@@ -78,9 +78,9 @@ function tryConvertToJson(orgStr) {
 
 
 function hoursToMinutes(time) {
-    var tempTime = time * 100
-    var hours = Math.floor(tempTime / 100)
-    var minutes = tempTime % 100
+    let tempTime = time * 100
+    let hours = Math.floor(tempTime / 100)
+    let minutes = tempTime % 100
     return hours * 60 + Math.round((minutes / 100) * 60)
 }
 

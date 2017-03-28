@@ -79,10 +79,7 @@ function initLinux() {
 }
 
 function initWin32() {
-
     let feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
-
-
     autoUpdater.on(
         'error',
         (err) => {

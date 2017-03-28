@@ -12,7 +12,7 @@ Database
     const {ipcRenderer} = require('electron')
     const db = require('../../lib/lovefield-db')
     function windowCB() {
-        window.close()
+        // window.close()
     }
     ipcRenderer.on('db', function (event, op) {
         db.genericCaller(op, windowCB)

@@ -36,4 +36,7 @@ function sendError(err) {
         }
     })
 
+    if (config.IS_DEVELOPMENT) {
+        error(err)
+    }
 }

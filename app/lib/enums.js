@@ -61,3 +61,9 @@ module.exports.DayHours = {
     TWENTY_TWO: 22,
     TWENTY_THREE: 23
 }
+
+module.exports.DMCheck = {
+    RUN_DM: 0,
+    CHECK_DB: 1,
+    NOT_RUN_DM: 2
+}

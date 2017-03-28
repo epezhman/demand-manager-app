@@ -18,7 +18,7 @@ const log = require('./log')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 function getMenu() {
-    var template = [{
+    let template = [{
         label: 'File',
         submenu: [{
             label: 'Preferences',

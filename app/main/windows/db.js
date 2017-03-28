@@ -1,4 +1,4 @@
-var db = module.exports = {
+let db = module.exports = {
     runQuery,
     win: null
 }
@@ -11,16 +11,23 @@ function runQuery(op) {
     if (db.win) {
         return db.win.webContents.send('db', op)
     }
-    var win = db.win = new electron.BrowserWindow({
+    let win = db.win = new electron.BrowserWindow({
         icon: config.APP_ICON,
         title: config.APP_WINDOW_TITLE + ' - Database',
+        width: 400,
+        height: 200,
         show: false
     })
 
     win.loadURL(config.WINDOW_DB)
 
-    win.setMenu(null)
-
+    if (config.IS_DEVELOPMENT) {
+        const getMenu = require('../../lib/menu-template')
+        win.setMenu(electron.Menu.buildFromTemplate(getMenu()))
+    }
+    else {
+        win.setMenu(null)
+    }
 
     // if (config.IS_DEVELOPMENT) {
     //     win.webContents.openDevTools()

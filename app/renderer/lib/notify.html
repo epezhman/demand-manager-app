@@ -13,7 +13,7 @@ Notify - This only runs on windows
     const {ipcRenderer} = require('electron')
     const config = require('../../config')
     ipcRenderer.on('notify', function (event, msg) {
-        var notification = new Notification(config.APP_NAME, {
+        let notification = new Notification(config.APP_NAME, {
             silent: true,
             icon: config.APP_ICON,
             body: msg

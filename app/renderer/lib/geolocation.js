@@ -13,9 +13,9 @@ const firebase = remote.require('./lib/firebase')
 const log = remote.require('./lib/log')
 const db = remote.require('./main/windows').db
 
-var freegeoipLocation = null
-var navigatorLocation = null
-var googleMapLocation = null
+let freegeoipLocation = null
+let navigatorLocation = null
+let googleMapLocation = null
 
 function freegeoipLocationFinder(cb) {
     freegeoipLocation = null
@@ -35,7 +35,7 @@ function freegeoipLocationFinder(cb) {
 
 function navigatorLocationFinder(cb) {
     navigatorLocation = null
-    var options = {
+    let options = {
         enableHighAccuracy: true,
         timeout: 27000,
         maximumAge: 30000
@@ -66,7 +66,7 @@ function googleMapLocationFinder(cb) {
 }
 
 function aggregateLocations(err) {
-    var locationData = {
+    let locationData = {
         'latitude': '',
         'longitude': '',
         'ip': '',
@@ -79,7 +79,6 @@ function aggregateLocations(err) {
         'time-zone': '',
         'accuracy': ''
     }
-
 
     if (navigatorLocation && navigatorLocation.coords) {
         locationData['latitude'] = navigatorLocation.coords.latitude
@@ -124,9 +123,8 @@ function aggregateLocations(err) {
 
 }
 
-
 function findLocation() {
-    var locationData = aggregateLocations()
+    let locationData = aggregateLocations()
     if (locationData['latitude'] && locationData['longitude']) {
         db.runQuery({
             'fn': 'addLocation',
@@ -137,7 +135,7 @@ function findLocation() {
 }
 
 function makeLocationProfile() {
-    var locationData = aggregateLocations()
+    let locationData = aggregateLocations()
     if (locationData['latitude'] && locationData['longitude']) {
         db.runQuery({
             'fn': 'addLocationFirstProfile',

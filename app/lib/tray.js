@@ -12,9 +12,9 @@ const config = require('../config')
 const windows = require('../main/windows')
 const enums = require('./enums')
 
-var tray
+let tray
 
-var getMenuTemplate = () => {
+const getMenuTemplate = () => {
     return [
         {
             label: 'Status',
@@ -40,8 +40,8 @@ var getMenuTemplate = () => {
 /**
  * Check for libappindicator1 support before creating tray icon
  */
-var checkLinuxTraySupport = (cb)=> {
-    var cp = require('child_process')
+const checkLinuxTraySupport = (cb)=> {
+    let cp = require('child_process')
 
     // Check that we're on Ubuntu (or another debian system) and that we have
     // libappindicator1. If app was installed from the deb file, we should
@@ -56,12 +56,12 @@ var checkLinuxTraySupport = (cb)=> {
     })
 }
 
-var updateTrayMenu = () => {
-    var contextMenu = electron.Menu.buildFromTemplate(getMenuTemplate())
+const updateTrayMenu = () => {
+    let contextMenu = electron.Menu.buildFromTemplate(getMenuTemplate())
     tray.setContextMenu(contextMenu)
 }
 
-var createTray = ()=> {
+const createTray = ()=> {
     tray = new electron.Tray(config.APP_ICON_MENU)
 
     // On Windows, left click opens the app, right click opens the context menu.
@@ -74,7 +74,7 @@ var createTray = ()=> {
 }
 
 
-var initLinux = ()=> {
+const initLinux = ()=> {
     checkLinuxTraySupport((supportsTray)=> {
         if (supportsTray) {
             createTray()
@@ -82,7 +82,7 @@ var initLinux = ()=> {
     })
 }
 
-var initWin32 = () => {
+const initWin32 = () => {
     createTray()
 }
 

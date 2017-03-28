@@ -78,7 +78,7 @@ function getDmidecodeCommandData(performThisMethod, cb) {
 }
 
 function getCommandsSetData(performThisMethod, cb) {
-    var commands = [
+    let commands = [
         'lspci',
         'lscpu',
         'lsusb',
@@ -195,10 +195,10 @@ function monitorPower(monitorType) {
             if (conf.get('logging-enabled')) {
                 firebase.saveBatteryLogging(batteryObject)
             }
-            // db.runQuery({
-            //     'fn': 'addBattery',
-            //     'params': batteryObject
-            // })
+            db.runQuery({
+                'fn': 'addBattery',
+                'params': batteryObject
+            })
         }
         else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
             db.runQuery({

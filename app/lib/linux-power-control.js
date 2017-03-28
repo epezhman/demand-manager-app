@@ -37,11 +37,11 @@ function toggleDimScreen(dimOn) {
 }
 
 function suspendComputer() {
-    // exec('systemctl suspend')
-    // exec('dbus-send --system --print-reply --dest="org.freedesktop.login1" ' +
-    //     '/org/freedesktop/login1 org.freedesktop.login1.Manager.Suspend boolean:true')
-    // exec('dbus-send --system --print-reply --dest="org.freedesktop.UPower" ' +
-    //     '/org/freedesktop/UPower org.freedesktop.UPower.Suspend')
+    exec('systemctl suspend')
+    exec('dbus-send --system --print-reply --dest="org.freedesktop.login1" ' +
+        '/org/freedesktop/login1 org.freedesktop.login1.Manager.Suspend boolean:true')
+    exec('dbus-send --system --print-reply --dest="org.freedesktop.UPower" ' +
+        '/org/freedesktop/UPower org.freedesktop.UPower.Suspend')
 }
 
 function turnScreenOff() {

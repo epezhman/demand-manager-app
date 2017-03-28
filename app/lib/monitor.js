@@ -24,7 +24,7 @@ const powerControlSettings = require('../lib/power-control-settings')
 
 function shouldAppBeRunning() {
     if (conf.get('limited-activity')) {
-        var startTime = conf.get('limited-activity-start-time')
+        let startTime = conf.get('limited-activity-start-time')
         var endTime = conf.get('limited-activity-end-time')
         startTime = startTime === undefined ? 0 : startTime
         endTime = endTime === undefined ? 24 : endTime
@@ -89,10 +89,7 @@ function getPowerStats() {
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
         cm.makeFirstCommandsSchedule()
-
         powerControlSettings.init()
-
-
         setTimeout(() => {
             windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
 
@@ -114,7 +111,6 @@ function extractDevicesData() {
         }, 2000)
     }
 }
-
 
 function initDMFlags() {
     conf.set('dm-already-start', false)
