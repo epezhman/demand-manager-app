@@ -18,8 +18,9 @@ const enums = require('./enums')
 
 const log = require('./log')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
-const cm = require('./command-manager')
+const powerControl = require('./power-control')
 const powerControlSettings = require('../lib/power-control-settings')
+const powerModelSettings = require('../lib/power-model-settings')
 
 
 function shouldAppBeRunning() {
@@ -76,39 +77,22 @@ function addRunningProfile() {
     setTimeout(addRunningProfile, config.ADD_RUNNING_PROFILE_INTERVAL)
 }
 
-function getPowerStats() {
-    if (shouldAppBeRunning()) {
-        windows.db.runQuery({
-            'fn': 'powerStats',
-            'params': []
-        })
-    }
-    setTimeout(getPowerStats, config.UPDATE_POWER_STATS_DAILY)
-}
-
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
-        cm.makeFirstCommandsSchedule()
         powerControlSettings.init()
-        setTimeout(() => {
-            windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
-
-        }, 5000)
-
-        setTimeout(() => {
-            if (config.IS_WINDOWS) {
-                const winAnalyzer = require('./windows-device-analyzer')
-                winAnalyzer.deviceAnalysis()
-                winAnalyzer.batteryCapabilities()
-                winAnalyzer.batteryFirstTimeProfile()
-            }
-            else if (config.IS_LINUX) {
-                const linuxAnalyzer = require('./linux-device-analyzer')
-                linuxAnalyzer.deviceAnalysis()
-                linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
-            }
-
-        }, 2000)
+        powerModelSettings.init()
+        windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
+        if (config.IS_WINDOWS) {
+            const winAnalyzer = require('./windows-device-analyzer')
+            winAnalyzer.deviceAnalysis()
+            winAnalyzer.batteryCapabilities()
+            winAnalyzer.batteryFirstTimeProfile()
+        }
+        else if (config.IS_LINUX) {
+            const linuxAnalyzer = require('./linux-device-analyzer')
+            linuxAnalyzer.deviceAnalysis()
+            linuxAnalyzer.monitorPower(enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE)
+        }
     }
 }
 
@@ -131,9 +115,8 @@ function calculateSavedMinutes() {
 }
 
 function init() {
-    setTimeout(getPowerStats, 5000)
-    setTimeout(monitorPower, 10000)
-    setTimeout(addRunningProfile, 15000)
-    setTimeout(updateRunningProfile, 20000)
-    setTimeout(monitorGeoLocation, 25000)
+    monitorPower()
+    setTimeout(addRunningProfile, 3000)
+    setTimeout(updateRunningProfile, 6000)
+    setTimeout(monitorGeoLocation, 9000)
 }

@@ -72,7 +72,7 @@ module.exports = {
     'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
     LOVEFIELD_DB_NAME: 'dmtum',
-    LOVEFIELD_DB_VERSION: 36
+    LOVEFIELD_DB_VERSION: 38
 }
 
 function getConfigPath() {

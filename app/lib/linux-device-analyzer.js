@@ -21,6 +21,7 @@ const utils = require('./utils')
 const notify = require('./notify')
 const db = require('../main/windows').db
 const enums = require('./enums')
+const powerModel = require('./power-model')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -196,19 +197,27 @@ function monitorPower(monitorType) {
             'internet_connected': !(isNaN(upload) && isNaN(download)),
             'dm_enabled': !!conf.get('dm-already-start')
         }
+        batteryObject = utils.standardizeNumberObject(batteryObject)
         if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
             if (conf.get('logging-enabled')) {
                 firebase.saveBatteryLogging(batteryObject)
             }
-            // db.runQuery({
-            //     'fn': 'addBattery',
-            //     'params': batteryObject
-            // })
+            db.runQuery({
+                'fn': 'addBattery',
+                'params': {
+                    'ac_connected_bool': batteryObject['ac_connected_bool'],
+                    'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
+                    'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                }
+            })
         }
         else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
             db.runQuery({
                 'fn': 'addBatteryFirstProfile',
-                'params': batteryObject
+                'params': {
+                    'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
+                    'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                }
             })
         }
     })

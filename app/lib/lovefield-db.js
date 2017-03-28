@@ -10,7 +10,6 @@ const {remote} = require('electron')
 const log = remote.require('./lib/log')
 const makeTables = require('./lovefield-tables')
 const firebase = remote.require('./lib/firebase')
-const cm = remote.require('./lib/command-manager')
 const utils = require('./utils')
 const enums = require('./enums')
 const lf = require('lovefield')
@@ -18,6 +17,8 @@ const Q = require('q')
 const async = require('async')
 const ConfigStore = require('configstore')
 const moment = require('moment')
+const _ = require('lodash')
+
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -52,7 +53,7 @@ function checkIfUndefinedNumber(value) {
     return value
 }
 
-function calculatePowerAverageConsumption(records) {
+function calculateAveragePowerProfile(records) {
     let powerAverage = {}
     if (records.length === 2) {
         let count1 = records[0]['ac_connected_count']
@@ -60,153 +61,53 @@ function calculatePowerAverageConsumption(records) {
         let countAll = count1 + count2
         powerAverage['ac_connected_prob_percent'] = Math.round((records[0]['ac_connected_bool']
                 ? count1 / countAll : count2 / countAll) * 100)
-        powerAverage['remaining_time_minutes'] = Math.round(
-            ((records[0]['remaining_time'] * count1) + (records[1]['remaining_time'] * count2)) / countAll)
-        powerAverage['power_rate_w'] = Math.round(
-                (((records[0]['power_rate'] * count1) + (records[1]['power_rate'] * count2)) / countAll) * 100) / 100
-        powerAverage['remaining_capacity_percent'] = Math.round(
-            ((records[0]['remaining_capacity'] * count1) + (records[1]['remaining_capacity'] * count2)) / countAll)
-        powerAverage['voltage_v'] = Math.round(
-                (((records[0]['voltage'] * count1) + (records[1]['voltage'] * count2)) / countAll) * 100) / 100
+        powerAverage['estimated_power_save_w'] = Math.round((((records[0]['estimated_power_save'] * count1) +
+                (records[1]['estimated_power_save'] * count2)) / countAll) * 100) / 100
+        powerAverage['estimated_power_consume_w'] = Math.round((((records[0]['estimated_power_consume'] * count1) +
+                (records[1]['estimated_power_consume'] * count2)) / countAll) * 100) / 100
         return powerAverage
     }
     else if (records.length === 1) {
-        powerAverage['remaining_time_minutes'] = Math.round(records[0]['remaining_time'])
-        powerAverage['power_rate_w'] = Math.round(records[0]['power_rate'] * 100) / 100
-        powerAverage['remaining_capacity_percent'] = Math.round(records[0]['remaining_capacity'])
-        powerAverage['voltage_v'] = Math.round(records[0]['voltage'] * 100) / 100
+        powerAverage['estimated_power_save_w'] = Math.round(records[0]['estimated_power_save'] * 100) / 100
+        powerAverage['estimated_power_consume_w'] = Math.round(records[0]['estimated_power_consume'] * 100) / 100
         powerAverage['ac_connected_prob_percent'] = records[0]['ac_connected_bool'] ? 100 : 0
         return powerAverage
     }
 }
 
-function calculateLocationAverage(records) {
-    let locationAverage = {}
-    if (records.length) {
-        let count = 0
-        records.forEach((record) => {
-            if (count <= record['ip_count']) {
-                locationAverage['longitude'] = record['longitude']
-                locationAverage['latitude'] = record['latitude']
-                locationAverage['accuracy'] = Math.round(record['accuracy'])
-                count = record['ip_count']
-            }
-        })
-        return locationAverage
+function calculateAverageLocationProfile(records) {
+    let locationAverage = {
+        'longitude': 1.4,
+        'latitude': 1.4,
+        'accuracy': 50
     }
-}
+    //let counter = records.length
+    // records.forEach((recordLocation) => {
+    // })
 
-function clusterLocationProfile(records) {
-    let locationProfileClustered = {}
-    records.forEach((record) => {
-        let sectionOfDay = 0
-        let hour = record['one_hour_duration_beginning']
-        if (hour <= 7) {
-            sectionOfDay = 1
-        }
-        else if (hour > 7 && hour <= 18) {
-            sectionOfDay = 2
-
-        } else {
-            sectionOfDay = 3
-        }
-        let profileId = `${record['day_of_week']}-${sectionOfDay}`
-        if (locationProfileClustered[profileId]) {
-            locationProfileClustered[profileId]['latitude'] =
-                (locationProfileClustered[profileId]['latitude'] + record['latitude']) / 2
-            locationProfileClustered[profileId]['longitude'] =
-                (locationProfileClustered[profileId]['longitude'] + record['longitude']) / 2
-            locationProfileClustered[profileId]['accuracy'] =
-                Math.round((locationProfileClustered[profileId]['accuracy'] + record['accuracy']) / 2)
-            locationProfileClustered[profileId]['is_checked'] = record['is_checked']
-            locationProfileClustered[profileId]['day_of_week'] = record['day_of_week']
-            locationProfileClustered[profileId]['section_of_day'] = sectionOfDay
-        }
-        else {
-            locationProfileClustered[profileId] = {
-                'latitude': record['latitude'],
-                'longitude': record['longitude'],
-                'accuracy': record['accuracy'],
-                'is_checked': record['is_checked'],
-                'day_of_week': record['day_of_week'],
-                'section_of_day': sectionOfDay
-            }
-        }
-
-    })
-    return locationProfileClustered
-}
-
-function clusterBatteryProfile(records) {
-    let batteryProfileClustered = {}
-    records.forEach((record) => {
-        let sectionOfDay = 0
-        let hour = record['one_hour_duration_beginning']
-        if (hour <= 7) {
-            sectionOfDay = 1
-        }
-        else if (hour > 7 && hour <= 18) {
-            sectionOfDay = 2
-
-        } else {
-            sectionOfDay = 3
-        }
-        let profileId = `${record['day_of_week']}-${sectionOfDay}`
-        if (batteryProfileClustered[profileId]) {
-            batteryProfileClustered[profileId]['voltage_v'] =
-                Math.round(((batteryProfileClustered[profileId]['voltage_v'] + record['voltage_v']) / 2) * 100) / 100
-            batteryProfileClustered[profileId]['remaining_time_minutes'] =
-                Math.round((batteryProfileClustered[profileId]['remaining_time_minutes'] + record['remaining_time_minutes']) / 2)
-            batteryProfileClustered[profileId]['power_rate_w'] =
-                Math.round(((batteryProfileClustered[profileId]['power_rate_w'] + record['power_rate_w']) / 2) * 100) / 100
-            batteryProfileClustered[profileId]['remaining_capacity_percent'] =
-                Math.round((batteryProfileClustered[profileId]['remaining_capacity_percent'] + record['remaining_capacity_percent']) / 2)
-            batteryProfileClustered[profileId]['ac_connected_prob_percent'] =
-                Math.round((batteryProfileClustered[profileId]['ac_connected_prob_percent'] + record['ac_connected_prob_percent']) / 2)
-            batteryProfileClustered[profileId]['app_running_prob_percent'] =
-                Math.round((batteryProfileClustered[profileId]['app_running_prob_percent'] + record['app_running_prob_percent']) / 2)
-            batteryProfileClustered[profileId]['computer_running_prob_percent'] =
-                Math.round((batteryProfileClustered[profileId]['computer_running_prob_percent'] + record['computer_running_prob_percent']) / 2)
-            batteryProfileClustered[profileId]['is_checked'] = record['is_checked']
-            batteryProfileClustered[profileId]['day_of_week'] = record['day_of_week']
-            batteryProfileClustered[profileId]['section_of_day'] = sectionOfDay
-        }
-        else {
-            batteryProfileClustered[profileId] = {
-                'voltage_v': record['voltage_v'],
-                'remaining_time_minutes': record['remaining_time_minutes'],
-                'power_rate_w': record['power_rate_w'],
-                'remaining_capacity_percent': record['remaining_capacity_percent'],
-                'ac_connected_prob_percent': record['ac_connected_prob_percent'],
-                'app_running_prob_percent': record['app_running_prob_percent'],
-                'computer_running_prob_percent': record['computer_running_prob_percent'],
-                'is_checked': record['is_checked'],
-                'day_of_week': record['day_of_week'],
-                'section_of_day': sectionOfDay
-            }
-        }
-
-    })
-    return batteryProfileClustered
+    return locationAverage
 }
 
 function addRunning() {
     let dayOfWeek = utils.getDayOfWeek()
     let hoursOfDay = utils.getHoursOfDay()
+    let minutesOfHours = utils.getMinutesOfHour()
+
     return Q.fcall(getDB).then(() => {
         let running = db.getSchema().table('Running')
         let row = running.createRow({
             'app_running_bool': true,
             'computer_running_bool': true,
             'day_of_week': dayOfWeek,
-            'one_hour_duration_beginning': hoursOfDay,
+            'hour_index': hoursOfDay,
+            'minute_index': minutesOfHours,
             'auto_start_set_bool': !!conf.get('run-on-start-up'),
-            'time': new Date()
+            'time': moment().toDate()
         })
         return db.insert()
             .into(running)
-            .values([row]
-            ).exec()
+            .values([row])
+            .exec()
     }).then(() => {
         let running = db.getSchema().table('Running')
         return db.select(running.time)
@@ -216,25 +117,27 @@ function addRunning() {
             .exec()
     }).then((runningRecords) => {
         if (runningRecords.length === 2) {
-            let hoursDif = Math.floor((runningRecords[0].time - runningRecords[1].time) / 3600000)
+            let minutesDif = Math.floor((runningRecords[0].time - runningRecords[1].time) / 60000)
             let running = db.getSchema().table('Running')
             let rows = []
             let lastDateTime = runningRecords[1].time
             let autoStartSet = !!conf.get('run-on-start-up')
-            for (let i = 0; i < hoursDif; i++) {
-                let tempDate = moment(lastDateTime).add(i, 'h').toDate()
+            for (let i = 0; i < minutesDif; i++) {
+                let tempDate = moment(lastDateTime).add(i, 'm').toDate()
                 rows.push(running.createRow({
                     'app_running_bool': false,
                     'computer_running_bool': false,
                     'auto_start_set_bool': autoStartSet,
                     'day_of_week': utils.getDayOfWeek(tempDate.getDay()),
-                    'one_hour_duration_beginning': tempDate.getHours(),
+                    'hour_index': tempDate.getHours(),
+                    'minute_index': tempDate.getMinutes(),
                     'time': tempDate
                 }))
             }
             return db.insert()
                 .into(running)
-                .values(rows).exec()
+                .values(rows)
+                .exec()
         }
     })
 }
@@ -243,16 +146,23 @@ function updateRunningProfile() {
     let sumAll = {}
     return Q.fcall(getDB).then(() => {
         let running = db.getSchema().table('Running')
-        return db.select(running.day_of_week, running.one_hour_duration_beginning,
-            running.app_running_bool, running.computer_running_bool,
+        return db.select(running.day_of_week,
+            running.hour_index,
+            running.minute_index,
+            running.app_running_bool,
+            running.computer_running_bool,
             lf.fn.count(running.id).as('count'))
             .from(running)
-            .groupBy(running.day_of_week, running.one_hour_duration_beginning,
-                running.app_running_bool, running.computer_running_bool)
+            .groupBy(running.day_of_week,
+                running.hour_index,
+                running.minute_index,
+                running.one_hour_duration_beginning,
+                running.app_running_bool,
+                running.computer_running_bool)
             .exec()
     }).then((profileRecords) => {
         profileRecords.forEach((profileRecord) => {
-            let profileKey = `${profileRecord['day_of_week']}_${profileRecord['one_hour_duration_beginning']}`
+            let profileKey = `${profileRecord['day_of_week']}_${profileRecord['hour_index']}_${profileRecord['minute_index']}`
             let count = profileRecord['count']
             if (sumAll[profileKey]) {
                 sumAll[profileKey]['app_running_true'] += profileRecord['app_running_bool'] ? count : 0
@@ -276,18 +186,19 @@ function updateRunningProfile() {
             let count = sumAll[_key]['count']
             let app_running = Math.round((sumAll[_key]['app_running_false'] / count) * 100)
             let computer_running = Math.round((sumAll[_key]['computer_running_true'] / count) * 100)
-            let days_hours = _key.split('_')
+            let days_hours_minutes = _key.split('_')
             db.update(batteryProfile)
                 .set(batteryProfile.app_running_prob_percent, app_running)
                 .set(batteryProfile.computer_running_prob_percent, computer_running)
                 .where(lf.op.and(
-                    batteryProfile.day_of_week.eq(days_hours[0]),
-                    batteryProfile.one_hour_duration_beginning.eq(days_hours[1])))
+                    batteryProfile.day_of_week.eq(days_hours_minutes[0]),
+                    batteryProfile.hour_index.eq(days_hours_minutes[1]),
+                    batteryProfile.minute_index.eq(days_hours_minutes[2])))
                 .exec()
                 .then(() => {
-                    firebase.updateRunningProfile(days_hours[0], days_hours[1], app_running, computer_running)
+                    firebase.updateRunningProfile(days_hours_minutes[0], days_hours_minutes[1],
+                        days_hours_minutes[2], app_running, computer_running)
                 })
-
         }
     })
 }
@@ -295,52 +206,47 @@ function updateRunningProfile() {
 function addBattery(batteryObject) {
     let dayOfWeek = utils.getDayOfWeek()
     let hoursOfDay = utils.getHoursOfDay()
-    let avgPower = conf.get('power-rate-avg') ? conf.get('power-rate-avg') : 15
-    let maxTime = conf.get('remaining-time-max') ? conf.get('remaining-time-max') : 60
+    let minutesOfHours = utils.getMinutesOfHour()
+
     let powerAverage = {}
     return Q.fcall(getDB).then(() => {
-        batteryObject['time'] = new Date()
+        batteryObject['time'] = moment().toDate()
         batteryObject['day_of_week'] = dayOfWeek
-        batteryObject['one_hour_duration_beginning'] = hoursOfDay
-        if (batteryObject['remaining_capacity_percent'] > 95) {
-            if (batteryObject['power_rate_w'] === 0) {
-                batteryObject['power_rate_w'] = avgPower
-            }
-            if (batteryObject['remaining_time_minutes'] === 0) {
-                batteryObject['remaining_time_minutes'] = maxTime
-            }
-        }
+        batteryObject['hour_index'] = hoursOfDay
+        batteryObject['minute_index'] = minutesOfHours
+
         let battery = db.getSchema().table('Battery')
         let row = battery.createRow(batteryObject)
         return db.insert()
             .into(battery)
-            .values([row]
-            ).exec()
+            .values([row])
+            .exec()
     }).then(() => {
         let battery = db.getSchema().table('Battery')
-        return db.select(
-            battery.ac_connected_bool,
+        return db.select(battery.ac_connected_bool,
             lf.fn.count(battery.ac_connected_bool).as('ac_connected_count'),
-            lf.fn.avg(battery.voltage_v).as('voltage'),
-            lf.fn.avg(battery.remaining_time_minutes).as('remaining_time'),
-            lf.fn.avg(battery.power_rate_w).as('power_rate'),
-            lf.fn.avg(battery.remaining_capacity_percent).as('remaining_capacity'))
+            lf.fn.avg(battery.estimated_power_save_w).as('estimated_power_save'),
+            lf.fn.avg(battery.estimated_power_consume_w).as('estimated_power_consume'))
             .from(battery)
             .where(lf.op.and(
                 battery.day_of_week.eq(dayOfWeek),
-                battery.one_hour_duration_beginning.eq(hoursOfDay))
-            )
+                battery.hour_index.eq(hoursOfDay),
+                battery.minute_index.eq(minutesOfHours)))
             .groupBy(battery.ac_connected_bool)
             .exec()
     }).then((batteryRecords) => {
-        powerAverage = calculatePowerAverageConsumption(batteryRecords)
+        powerAverage = calculateAveragePowerProfile(batteryRecords)
         if (powerAverage) {
             powerAverage['is_checked'] = true
         }
         let batteryProfile = db.getSchema().table('BatteryProfile')
-        return db.select(batteryProfile.id, batteryProfile.is_checked, batteryProfile.day_of_week)
+        return db.select(batteryProfile.id,
+            batteryProfile.is_checked,
+            batteryProfile.day_of_week)
             .from(batteryProfile)
-            .where(batteryProfile.one_hour_duration_beginning.eq(hoursOfDay))
+            .where(lf.op.and(
+                battery.hour_index.eq(hoursOfDay),
+                battery.minute_index.eq(minutesOfHours)))
             .exec()
     }).then((batteryProfileRecords) => {
         let batteryProfile = db.getSchema().table('BatteryProfile')
@@ -349,56 +255,17 @@ function addBattery(batteryObject) {
             if (!batteryProfileRecord['is_checked'] || batteryProfileRecord['day_of_week'] === dayOfWeek) {
                 db.update(batteryProfile)
                     .set(batteryProfile.is_checked, powerAverage['is_checked'])
-                    .set(batteryProfile.remaining_time_minutes, powerAverage['remaining_time_minutes'])
-                    .set(batteryProfile.power_rate_w, powerAverage['power_rate_w'])
-                    .set(batteryProfile.remaining_capacity_percent, powerAverage['remaining_capacity_percent'])
-                    .set(batteryProfile.voltage_v, powerAverage['voltage_v'])
+                    .set(batteryProfile.estimated_power_save_w, powerAverage['estimated_power_save_w'])
+                    .set(batteryProfile.estimated_power_consume_w, powerAverage['estimated_power_consume_w'])
                     .set(batteryProfile.ac_connected_prob_percent, powerAverage['ac_connected_prob_percent'])
                     .where(batteryProfile.id.eq(batteryProfileRecord['id']))
                     .exec()
                     .then(() => {
-                        firebase.updateBatteryProfile(powerAverage, batteryProfileRecord['day_of_week'], hoursOfDay)
+                        firebase.updateBatteryProfile(batteryProfileRecord['day_of_week'], hoursOfDay,
+                            minutesOfHours, powerAverage)
                     })
             }
         })
-    }).then(() => {
-        let batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
-        return db.delete()
-            .from(batteryProfileCluster)
-            .exec()
-    }).then(() => {
-        let batteryProfile = db.getSchema().table('BatteryProfile')
-        return db.select()
-            .from(batteryProfile)
-            .exec()
-    }).then((batteryProfileRecords) => {
-        let batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
-        let batteryClusters = clusterBatteryProfile(batteryProfileRecords)
-        let rows = []
-        let firebaseRows = []
-        for (let _key in batteryClusters) if (batteryClusters.hasOwnProperty(_key)) {
-            let tempRow = {
-                'voltage_v': batteryClusters[_key]['voltage_v'],
-                'remaining_time_minutes': batteryClusters[_key]['remaining_time_minutes'],
-                'power_rate_w': batteryClusters[_key]['power_rate_w'],
-                'remaining_capacity_percent': batteryClusters[_key]['remaining_capacity_percent'],
-                'ac_connected_prob_percent': batteryClusters[_key]['ac_connected_prob_percent'],
-                'app_running_prob_percent': batteryClusters[_key]['app_running_prob_percent'],
-                'computer_running_prob_percent': batteryClusters[_key]['computer_running_prob_percent'],
-                'day_of_week': batteryClusters[_key]['day_of_week'],
-                'section_of_day': batteryClusters[_key]['section_of_day'],
-                'is_checked': batteryClusters[_key]['is_checked'],
-            }
-            firebaseRows.push(tempRow)
-            rows.push(batteryProfileCluster.createRow(tempRow))
-        }
-        return db.insert()
-            .into(batteryProfileCluster)
-            .values(rows)
-            .exec()
-            .then(() => {
-                firebase.saveBatteryClusterProfile(firebaseRows)
-            })
     })
 }
 
@@ -412,38 +279,30 @@ function addBatteryFirstProfile(batteryObject) {
         let batteryProfile = db.getSchema().table('BatteryProfile')
         let rows = []
         let firebaseRows = []
-        if (batteryObject['remaining_capacity_percent'] > 95) {
-            if (batteryObject['power_rate_w'] === 0) {
-                batteryObject['power_rate_w'] = 15
-            }
-            if (batteryObject['remaining_time_minutes'] === 0) {
-                batteryObject['remaining_time_minutes'] = 60
-            }
-        }
+
         for (let dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
-            for (let hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
-                let tempRow = {
-                    'remaining_time_minutes': batteryObject['remaining_time_minutes'],
-                    'power_rate_w': batteryObject['power_rate_w'],
-                    'remaining_capacity_percent': batteryObject['remaining_capacity_percent'],
-                    'voltage_v': batteryObject['voltage_v'],
-                    'ac_connected_prob_percent': 50,
-                    'day_of_week': enums.WeekDays[dayName],
-                    'one_hour_duration_beginning': enums.DayHours[hourName],
-                    'is_checked': false,
-                    'app_running_bool': true,
-                    'computer_running_bool': true,
-                    'app_running_prob_percent': 50,
-                    'computer_running_prob_percent': 50
+            for (let hour of _.range(24)) {
+                for (let minute of _.range(60)) {
+                    let tempRow = {
+                        'estimated_power_save_w': batteryObject['estimated_power_save_w'],
+                        'estimated_power_consume_w': batteryObject['estimated_power_consume_w'],
+                        'ac_connected_prob_percent': 50,
+                        'app_running_prob_percent': 50,
+                        'computer_running_prob_percent': 50,
+                        'day_of_week': enums.WeekDays[dayName],
+                        'hour_index': hour,
+                        'minute_index': minute,
+                        'is_checked': false
+                    }
+                    if (hour <= 7) {
+                        tempRow['estimated_power_save_w'] = 0
+                        tempRow['estimated_power_consume_w'] = 0
+                        tempRow['app_running_prob_percent'] = 0
+                        tempRow['computer_running_prob_percent'] = 0
+                    }
+                    firebaseRows.push(tempRow)
+                    rows.push(batteryProfile.createRow(tempRow))
                 }
-                if (enums.DayHours[hourName] <= 7) {
-                    tempRow['power_rate_w'] = 0
-                    tempRow['voltage_v'] = 0
-                    tempRow['app_running_prob_percent'] = 0
-                    tempRow['computer_running_prob_percent'] = 0
-                }
-                firebaseRows.push(tempRow)
-                rows.push(batteryProfile.createRow(tempRow))
             }
         }
         return db.insert()
@@ -453,60 +312,23 @@ function addBatteryFirstProfile(batteryObject) {
             .then(() => {
                 firebase.saveBatteryFirstProfile(firebaseRows)
             })
-    }).then(() => {
-        let batteryProfile = db.getSchema().table('BatteryProfile')
-        return db.select()
-            .from(batteryProfile)
-            .exec()
-    }).then((batteryProfileRecords) => {
-        let batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
-        let batteryClusters = clusterBatteryProfile(batteryProfileRecords)
-        let rows = []
-        let firebaseRows = []
-        for (let _key in batteryProfileRecords) if (batteryProfileRecords.hasOwnProperty(_key)) {
-            if (batteryClusters[_key]) {
-                let tempRow = {
-                    'voltage_v': batteryClusters[_key]['voltage_v'],
-                    'remaining_time_minutes': batteryClusters[_key]['remaining_time_minutes'],
-                    'power_rate_w': batteryClusters[_key]['power_rate_w'],
-                    'remaining_capacity_percent': batteryClusters[_key]['remaining_capacity_percent'],
-                    'ac_connected_prob_percent': batteryClusters[_key]['ac_connected_prob_percent'],
-                    'app_running_prob_percent': batteryClusters[_key]['app_running_prob_percent'],
-                    'computer_running_prob_percent': batteryClusters[_key]['computer_running_prob_percent'],
-                    'day_of_week': batteryClusters[_key]['day_of_week'],
-                    'section_of_day': batteryClusters[_key]['section_of_day'],
-                    'is_checked': batteryClusters[_key]['is_checked'],
-                }
-                firebaseRows.push(tempRow)
-                rows.push(batteryProfileCluster.createRow(tempRow))
-            }
-        }
-        return db.insert()
-            .into(batteryProfileCluster)
-            .values(rows)
-            .exec()
-            .then(() => {
-                firebase.saveBatteryClusterProfile(firebaseRows)
-            })
     })
 }
 
 function addLocation(locationData) {
     let dayOfWeek = utils.getDayOfWeek()
     let hoursOfDay = utils.getHoursOfDay()
+    let minutesOfHours = utils.getMinutesOfHourForLocation()
+
     let locationAverage = {}
     return Q.fcall(getDB).then(() => {
         let location = db.getSchema().table('Location')
         let row = location.createRow({
-            'time': new Date(),
+            'time': moment().toDate(),
             'day_of_week': dayOfWeek,
-            'one_hour_duration_beginning': hoursOfDay,
+            'hour_index': hoursOfDay,
+            'minute_index': minutesOfHours,
             'country_code': checkIfUndefined(locationData['country-code']),
-            'country_name': checkIfUndefined(locationData['country-name']),
-            'region_code': checkIfUndefined(locationData['region-code']),
-            'region_name': checkIfUndefined(locationData['region-name']),
-            'city': checkIfUndefined(locationData['city']),
-            'time_zone': checkIfUndefined(locationData['time-zone']),
             'zip_code': checkIfUndefinedNumber(locationData['zip-code']),
             'ip': checkIfUndefined(locationData['ip']),
             'latitude': locationData['latitude'],
@@ -523,28 +345,32 @@ function addLocation(locationData) {
     }).then(() => {
         let location = db.getSchema().table('Location')
         return db.select(
-            location.ip,
-            lf.fn.count(location.ip).as('ip_count'),
-            lf.fn.avg(location.latitude).as('latitude'),
-            lf.fn.avg(location.longitude).as('longitude'),
-            lf.fn.avg(location.accuracy).as('accuracy'))
+            location.accuracy,
+            location.latitude,
+            location.longitude)
             .from(location)
             .where(lf.op.and(
                 location.day_of_week.eq(dayOfWeek),
-                location.one_hour_duration_beginning.eq(hoursOfDay))
-            )
-            .groupBy(location.ip)
+                location.hour_index.eq(hoursOfDay),
+                location.minute_index.eq(minutesOfHours),
+                location.accuracy.lt(500)))
+            .orderBy(location.time, lf.Order.DESC)
+            .limit(10)
             .exec()
     }).then((locationRecords) => {
-        locationAverage = calculateLocationAverage(locationRecords)
+        locationAverage = calculateAverageLocationProfile(locationRecords)
         if (locationAverage) {
             locationAverage['is_checked'] = true
         }
         let locationProfile = db.getSchema().table('LocationProfile')
 
-        return db.select(locationProfile.id, locationProfile.is_checked, locationProfile.day_of_week)
+        return db.select(locationProfile.id,
+            locationProfile.is_checked,
+            locationProfile.day_of_week)
             .from(locationProfile)
-            .where(locationProfile.one_hour_duration_beginning.eq(hoursOfDay))
+            .where(lf.op.and(
+                locationProfile.hour_index.eq(hoursOfDay),
+                locationProfile.minute_index.eq(minutesOfHours)))
             .exec()
     }).then((locationProfileRecords) => {
         let locationProfile = db.getSchema().table('LocationProfile')
@@ -558,44 +384,11 @@ function addLocation(locationData) {
                     .where(locationProfile.id.eq(locationProfileRecord['id']))
                     .exec()
                     .then(() => {
-                        firebase.updateLocationProfile(locationAverage, locationProfileRecord['day_of_week'], hoursOfDay)
+                        firebase.updateLocationProfile(locationProfileRecord['day_of_week'], hoursOfDay,
+                            minutesOfHours, locationAverage)
                     })
             }
         })
-    }).then(() => {
-        let locationProfileCluster = db.getSchema().table('LocationProfileCluster')
-        return db.delete()
-            .from(locationProfileCluster)
-            .exec()
-    }).then(() => {
-        let locationProfile = db.getSchema().table('LocationProfile')
-        return db.select()
-            .from(locationProfile)
-            .exec()
-    }).then((locationProfileRecords) => {
-        let locationProfileCluster = db.getSchema().table('LocationProfileCluster')
-        let locationClusters = clusterLocationProfile(locationProfileRecords)
-        let rows = []
-        let firebaseRows = []
-        for (let _key in locationClusters) if (locationClusters.hasOwnProperty(_key)) {
-            let tempRow = {
-                'latitude': locationClusters[_key]['latitude'],
-                'longitude': locationClusters[_key]['longitude'],
-                'accuracy': checkIfUndefinedNumber(locationClusters[_key]['accuracy']),
-                'day_of_week': locationClusters[_key]['day_of_week'],
-                'section_of_day': locationClusters[_key]['section_of_day'],
-                'is_checked': locationClusters[_key]['is_checked'],
-            }
-            firebaseRows.push(tempRow)
-            rows.push(locationProfileCluster.createRow(tempRow))
-        }
-        return db.insert()
-            .into(locationProfileCluster)
-            .values(rows)
-            .exec()
-            .then(() => {
-                firebase.saveLocationClusterProfile(firebaseRows)
-            })
     })
 }
 
@@ -609,18 +402,23 @@ function addLocationFirstProfile(locationData) {
         let locationProfile = db.getSchema().table('LocationProfile')
         let rows = []
         let firebaseRows = []
+        let minutesRange = [0, 15, 30, 45]
+
         for (let dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
-            for (let hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
-                let tempRow = {
-                    'latitude': locationData['latitude'],
-                    'longitude': locationData['longitude'],
-                    'accuracy': checkIfUndefinedNumber(locationData['accuracy']),
-                    'day_of_week': enums.WeekDays[dayName],
-                    'one_hour_duration_beginning': enums.DayHours[hourName],
-                    'is_checked': false,
+            for (let hour of _.range(24)) {
+                for (let minute of minutesRange) {
+                    let tempRow = {
+                        'latitude': locationData['latitude'],
+                        'longitude': locationData['longitude'],
+                        'accuracy': checkIfUndefinedNumber(locationData['accuracy']),
+                        'day_of_week': enums.WeekDays[dayName],
+                        'hour_index': hour,
+                        'minute_index': minute,
+                        'is_checked': false,
+                    }
+                    firebaseRows.push(tempRow)
+                    rows.push(locationProfile.createRow(tempRow))
                 }
-                firebaseRows.push(tempRow)
-                rows.push(locationProfile.createRow(tempRow))
             }
         }
         return db.insert()
@@ -629,35 +427,6 @@ function addLocationFirstProfile(locationData) {
             .exec()
             .then(() => {
                 firebase.saveLocationFirstProfile(firebaseRows)
-            })
-    }).then(() => {
-        let locationProfile = db.getSchema().table('LocationProfile')
-        return db.select()
-            .from(locationProfile)
-            .exec()
-    }).then((locationProfileRecords) => {
-        let locationProfileCluster = db.getSchema().table('LocationProfileCluster')
-        let locationClusters = clusterLocationProfile(locationProfileRecords)
-        let rows = []
-        let firebaseRows = []
-        for (let _key in locationClusters) if (locationClusters.hasOwnProperty(_key)) {
-            let tempRow = {
-                'latitude': locationClusters[_key]['latitude'],
-                'longitude': locationClusters[_key]['longitude'],
-                'accuracy': checkIfUndefinedNumber(locationClusters[_key]['accuracy']),
-                'day_of_week': locationClusters[_key]['day_of_week'],
-                'section_of_day': locationClusters[_key]['section_of_day'],
-                'is_checked': locationClusters[_key]['is_checked'],
-            }
-            firebaseRows.push(tempRow)
-            rows.push(locationProfileCluster.createRow(tempRow))
-        }
-        return db.insert()
-            .into(locationProfileCluster)
-            .values(rows)
-            .exec()
-            .then(() => {
-                firebase.saveLocationClusterProfile(firebaseRows)
             })
     })
 }
@@ -669,8 +438,6 @@ function deleteAllData() {
         let location = db.getSchema().table('Location')
         let locationProfile = db.getSchema().table('LocationProfile')
         let running = db.getSchema().table('Running')
-        let locationProfileCluster = db.getSchema().table('LocationProfileCluster')
-        let batteryProfileCluster = db.getSchema().table('BatteryProfileCluster')
         return db.delete()
             .from(battery)
             .exec()
@@ -690,127 +457,9 @@ function deleteAllData() {
                 return db.delete()
                     .from(running)
                     .exec()
-            }).then(() => {
-                return db.delete()
-                    .from(locationProfileCluster)
-                    .exec()
-            }).then(() => {
-                return db.delete()
-                    .from(batteryProfileCluster)
-                    .exec()
             })
     })
 }
-
-function powerStats() {
-    return Q.fcall(getDB).then(() => {
-        let battery = db.getSchema().table('Battery')
-        return db.select(
-            lf.fn.avg(battery.power_rate_w).as('power_rate'),
-            lf.fn.max(battery.remaining_time_minutes).as('remaining_time'))
-            .from(battery)
-            .exec()
-    }).then((statRecords) => {
-        statRecords.forEach((statRecord) => {
-            conf.set('power-rate-avg', Math.round(statRecord['power_rate']))
-            conf.set('remaining-time-max', statRecord['remaining_time'])
-        })
-    })
-}
-
-function addFirstSchedule() {
-    return Q.fcall(getDB).then(() => {
-        let schedule = db.getSchema().table('Schedule')
-        return db.delete()
-            .from(schedule)
-            .exec()
-    }).then(() => {
-        let schedule = db.getSchema().table('Schedule')
-        let rows = []
-        let firebaseRows = []
-        for (let dayName in enums.WeekDays) if (enums.WeekDays.hasOwnProperty(dayName)) {
-            for (let hourName in enums.DayHours) if (enums.DayHours.hasOwnProperty(hourName)) {
-                let tempRow = {
-                    'dr_running_bool': false,
-                    'day_of_week': enums.WeekDays[dayName],
-                    'one_hour_duration_beginning': enums.DayHours[hourName],
-                }
-                firebaseRows.push(tempRow)
-                rows.push(schedule.createRow(tempRow))
-            }
-        }
-        return db.insert()
-            .into(schedule)
-            .values(rows)
-            .exec()
-            .then(() => {
-                firebase.saveCommandsFirstSchedule(firebaseRows)
-            })
-    })
-}
-
-function updateScheduleAfterLaunch(schedulesData) {
-    return Q.fcall(getDB).then(() => {
-        let schedule = db.getSchema().table('Schedule')
-        return db.delete()
-            .from(schedule)
-            .exec()
-    }).then(() => {
-        let schedule = db.getSchema().table('Schedule')
-        let rows = []
-        for (let _key in schedulesData) if (schedulesData.hasOwnProperty(_key)) {
-            let tempRow = {
-                'dr_running_bool': schedulesData[_key].dr_running_bool,
-                'day_of_week': schedulesData[_key].day_of_week,
-                'one_hour_duration_beginning': schedulesData[_key].one_hour_duration_beginning
-            }
-            rows.push(schedule.createRow(tempRow))
-        }
-        return db.insert()
-            .into(schedule)
-            .values(rows)
-            .exec()
-    })
-}
-
-function updateSchedule(scheduleData) {
-    let scheduleD = scheduleData
-    return Q.fcall(getDB).then(() => {
-        let schedule = db.getSchema().table('Schedule')
-        return db.update(schedule)
-            .set(schedule.dr_running_bool, scheduleD.dr_running_bool)
-            .where(lf.op.and(
-                schedule.day_of_week.eq(scheduleD.day_of_week),
-                schedule.one_hour_duration_beginning.eq(scheduleD.one_hour_duration_beginning)))
-            .exec()
-    })
-}
-
-function runCheckDM() {
-    let dayOfWeek = utils.getDayOfWeek()
-    let hoursOfDay = utils.getHoursOfDay()
-    return Q.fcall(getDB).then(() => {
-        let schedule = db.getSchema().table('Schedule')
-        return db.select(
-            schedule.dr_running_bool)
-            .from(schedule)
-            .where(lf.op.and(
-                schedule.day_of_week.eq(dayOfWeek),
-                schedule.one_hour_duration_beginning.eq(hoursOfDay))
-            )
-            .exec()
-    }).then((dmRecords) => {
-        dmRecords.forEach((dm) => {
-            if (dm['dr_running_bool']) {
-                cm.startDM()
-            }
-            else {
-                cm.stopDM()
-            }
-        })
-    })
-}
-
 
 const operations = {
     getDB: getDB,
@@ -820,12 +469,7 @@ const operations = {
     addBatteryFirstProfile: addBatteryFirstProfile,
     addLocation: addLocation,
     addLocationFirstProfile: addLocationFirstProfile,
-    deleteAllData: deleteAllData,
-    powerStats: powerStats,
-    addFirstSchedule: addFirstSchedule,
-    updateScheduleAfterLaunch: updateScheduleAfterLaunch,
-    updateSchedule: updateSchedule,
-    runCheckDM: runCheckDM
+    deleteAllData: deleteAllData
 }
 
 function genericCaller(op, cb) {

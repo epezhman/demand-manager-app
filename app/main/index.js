@@ -20,7 +20,7 @@ const monitor = require('../lib/monitor')
 const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
 const env = require('../lib/envs')
-const cm = require('../lib/command-manager')
+const powerControl = require('../lib/power-control')
 const db = windows.db
 
 
@@ -43,7 +43,7 @@ let firebaseWatchers = null
 function delayedStart() {
     monitor.init()
     monitor.initDMFlags()
-    cm.init()
+    powerControl.init()
     firebase.enableOfflineCapabilities()
     firebase.installedVersion()
     firebaseWatchers = firebase.firebaseWatchers()

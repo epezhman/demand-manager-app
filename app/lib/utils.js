@@ -8,8 +8,13 @@ module.exports = {
     getDayOfWeek,
     getHoursOfDay,
     getArbDayOfWeek,
-    getDayNum
-
+    getDayNum,
+    standardizeObject,
+    standardizeNumberObject,
+    getDistanceFromLatLonInKm,
+    distanceLatLonKm,
+    getMinutesOfHour,
+    getMinutesOfHourForLocation
 }
 
 const fkey = require('firebase-safekey')
@@ -35,7 +40,7 @@ function convertWmicStringToList(str) {
 
 
 function standardizeForFirebase(jsonStr) {
-    return JSON.parse(jsonStr, (key, value)=> {
+    return JSON.parse(jsonStr, (key, value) => {
         if (value && typeof value === 'object') {
             for (let k in value) {
                 if (Object.hasOwnProperty.call(value, k)) {
@@ -57,7 +62,7 @@ function tryConvertToJson(orgStr) {
     }
     let cntr = 0
     let resultJson = {}
-    _.forEach(splitData, (value)=> {
+    _.forEach(splitData, (value) => {
         value = _.trim(value)
         let tempSplit = _.split(value, ':')
         if (tempSplit.length === 1) {
@@ -145,4 +150,70 @@ function getArbDayOfWeek(d) {
 
 function getHoursOfDay() {
     return new Date().getHours()
+}
+
+function getMinutesOfHour() {
+    return new Date().getMinutes()
+}
+
+function getMinutesOfHourForLocation() {
+    let minutes = new Date().getMinutes()
+    if (minutes < 15) {
+        return 0
+    }
+    if (minutes < 30) {
+        return 15
+    }
+    if (minutes < 45) {
+        return 30
+    }
+    return 45
+}
+
+function standardizeObject(dirty) {
+    for (let key in dirty) {
+        if (dirty.hasOwnProperty(key)) {
+            dirty[key] = isNaN(dirty[key]) && typeof dirty[key] !== 'object' ? 'NaN' : dirty[key]
+        }
+    }
+    return dirty
+}
+
+
+function standardizeNumberObject(dirty) {
+    for (let key in dirty) {
+        if (dirty.hasOwnProperty(key)) {
+            dirty[key] = isNaN(dirty[key]) && typeof dirty[key] !== 'object' ? 0 : dirty[key]
+        }
+    }
+    return dirty
+}
+
+function distanceLatLonKm(lat1, lon1, lat2, lon2) {
+    let rad_lat1 = Math.PI * lat1 / 180
+    let rad_lat2 = Math.PI * lat2 / 180
+    let theta = lon1 - lon2
+    let radtheta = Math.PI * theta / 180
+    let dist = Math.sin(rad_lat1) * Math.sin(rad_lat2) + Math.cos(rad_lat1) * Math.cos(rad_lat2) * Math.cos(radtheta)
+    dist = Math.acos(dist)
+    dist = dist * 180 / Math.PI
+    dist = dist * 60 * 1.1515 * 1.609344
+    return dist
+}
+
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    let R = 6371 // Radius of the earth in km
+    let dLat = deg2rad(lat2 - lat1)  // deg2rad below
+    let dLon = deg2rad(lon2 - lon1)
+    let a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c // Distance in km
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180)
 }

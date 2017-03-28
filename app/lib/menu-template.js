@@ -68,7 +68,7 @@ function getMenu() {
             submenu: [{
                 label: 'Toggle Energy Mode',
                 click: () => {
-                    powerControl()
+                    powerControl.powerToggle()
                 }
             }, {
                 label: 'Clear Saved Settings',
