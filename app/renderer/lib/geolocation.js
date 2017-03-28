@@ -21,12 +21,12 @@ function freegeoipLocationFinder(cb) {
     freegeoipLocation = null
     request(config.FREEGEOIP_URL, (err, res, data) => {
             if (err) {
-                log.error(`FreeGeoIP error: ${err.message}`)
+                log.sendError(err)
             }
             else if (res.statusCode === 200) {
                 freegeoipLocation = JSON.parse(data)
             } else {
-                log.error(`FreeGeoIP Unexpected status code: ${res.statusCode}`)
+                log.sendError({'message': `FreeGeoIP Unexpected status code: ${res.statusCode}`})
             }
             cb(null)
         }
@@ -40,11 +40,11 @@ function navigatorLocationFinder(cb) {
         timeout: 27000,
         maximumAge: 30000
     }
-    navigator.geolocation.getCurrentPosition((position)=> {
+    navigator.geolocation.getCurrentPosition((position) => {
         navigatorLocation = position
         cb(null)
-    }, (error)=> {
-        log.error(`Navigator geolocation error: ${error.message}`)
+    }, (err) => {
+        log.sendError(err)
         cb(null)
     }, options)
 }
@@ -53,12 +53,12 @@ function googleMapLocationFinder(cb) {
     googleMapLocation = null
     request.post(config.GOOGLE_GEOLOCATION, (err, res, data) => {
             if (err) {
-                log.error(`Google Maps error: ${err.message}`)
+                log.sendError(err)
             }
             else if (res.statusCode === 200) {
                 googleMapLocation = JSON.parse(data)
             } else {
-                log.error(`Google Maps Unexpected status code: ${res.statusCode}`)
+                log.sendError({'message': `Google Maps Unexpected status code: ${res.statusCode}`})
             }
             cb(null)
         }
@@ -145,7 +145,7 @@ function makeLocationProfile() {
     window.close()
 }
 
-ipcRenderer.on('find-location', (event, msg)=> {
+ipcRenderer.on('find-location', (event, msg) => {
     async.parallel([
         freegeoipLocationFinder,
         navigatorLocationFinder,
@@ -153,7 +153,7 @@ ipcRenderer.on('find-location', (event, msg)=> {
     ], findLocation)
 })
 
-ipcRenderer.on('make-location-profile', (event, msg)=> {
+ipcRenderer.on('make-location-profile', (event, msg) => {
     async.parallel([
         freegeoipLocationFinder,
         navigatorLocationFinder,

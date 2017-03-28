@@ -27,7 +27,7 @@ function installUpdate(downloadPath) {
     notify(`The latest version of the ${config.APP_NAME} is being installed.`)
     sudo.exec(`dpkg -i ${downloadPath}`, {name: config.APP_NAME}, (lshwJsonErr, lshwJsonStdout, lshwJsonStderr) => {
         if (lshwJsonErr) {
-            log.error(lshwJsonErr)
+            log.sendError(lshwJsonErr)
             return notify(`The update could not be installed. 
             The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
         }
@@ -39,7 +39,7 @@ function installUpdate(downloadPath) {
 
 function onLinuxResponse(err, res, data) {
     if (err) {
-        return log.error(`Update error: ${err.message}`)
+        return log.sendError(err)
     }
     if (res.statusCode === 200) {
         if (manualUpdate) {
@@ -68,7 +68,8 @@ function onLinuxResponse(err, res, data) {
         }
     } else {
         // Unexpected status code
-        log.error(`Update error: Unexpected status code: ${res.statusCode}`)
+        log.sendError({'message': 'Unexpected update status code', 'lineNumber': res.statusCode})
+
     }
 }
 
@@ -84,7 +85,7 @@ function initWin32() {
         'error',
         (err) => {
             notify(`Update error: ${err.message}`)
-            log.error(`Update error: ${err.message}`)
+            log.sendError(err)
         }
     )
 

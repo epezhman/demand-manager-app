@@ -145,7 +145,8 @@ function monitorPower(monitorType) {
         iodisk: `iostat -dx /dev/sda 1 2 | grep "sd" | awk '{ print $4, $6, $5, $7 }'`,
         cpu: `vmstat 1 2|tail -1|awk '{print $15}'`,
         cpuCores: `nproc`,
-        network: `ifstat 1 1 | tail -1 | awk '{ print $3, $4 }'`
+        network: `ifstat 1 1 | tail -1 | awk '{ print $3, $4 }'`,
+        wifi: `ip route get 8.8.8.8 | grep 8.8.8.8 | awk '{ print $4 $5 }'`
     }
     async.eachOfSeries(commands, (commandValue, commandKey, commandCb) => {
         exec(commandValue, (commandErr, commandStdout, commandStderr) => {
@@ -164,10 +165,11 @@ function monitorPower(monitorType) {
         if (err) {
             log.error(err)
         }
-        //log(batteryData)
         let memory = _.split(batteryData['memory'], ' ')
         let iodisk = _.split(batteryData['iodisk'][1], ' ')
         let network = _.split(batteryData['network'], ' ')
+        let download = Math.round(parseFloat(network[0]))
+        let upload = Math.round(parseFloat(network[1]))
         let batteryObject = {
             'remaining_time_minutes': utils.hoursToMinutes(
                 Math.round((parseInt(batteryData['energynow']) / parseInt(batteryData['powernow'])) * 100) / 100),
@@ -187,18 +189,21 @@ function monitorPower(monitorType) {
             'write_kb_per_s': parseInt(iodisk[3]),
             'cpu_usage_percent': 100 - parseInt(batteryData['cpu']),
             'cpu_cores': parseInt(batteryData['cpu-cores']),
-            'download_kb': Math.round(parseFloat(network[0])),
-            'upload_kb': Math.round(parseFloat(network[1])),
-            'wifi': true
+            'download_kb': download,
+            'upload_kb': upload,
+            'wifi': !!batteryData['wifi'] &&
+            (batteryData['wifi'].includes('less') || batteryData['wifi'].includes('wl')),
+            'internet_connected': !(isNaN(upload) && isNaN(download)),
+            'dm_enabled': !!conf.get('dm-already-start')
         }
         if (monitorType === enums.LinuxPowerMonitor.BATTERY) {
             if (conf.get('logging-enabled')) {
                 firebase.saveBatteryLogging(batteryObject)
             }
-            db.runQuery({
-                'fn': 'addBattery',
-                'params': batteryObject
-            })
+            // db.runQuery({
+            //     'fn': 'addBattery',
+            //     'params': batteryObject
+            // })
         }
         else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
             db.runQuery({

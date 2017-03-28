@@ -17,7 +17,7 @@ const conf = new ConfigStore(config.APP_SHORT_NAME)
 function goToPowerSaveMode(guid) {
     exec(`powercfg -l `, (error, listLines, stderr) => {
         if (error) {
-            log.error(error)
+            log.sendError(error)
         }
         let guidParts = listLines.split(' ')
         let notIncluded = true
@@ -31,7 +31,7 @@ function goToPowerSaveMode(guid) {
         {
             exec(`powercfg -import  %CD%\\app\\assets\\power\\power_save_suspend_5`, (error, guidLine, stderr) => {
                 if (error) {
-                    log.error(error)
+                    log.sendError(error)
                 }
                 let guidParts = guidLine.split(' ')
                 guidParts.forEach((guidPart) => {
@@ -68,7 +68,7 @@ function startDM() {
         else {
             exec(`powercfg -import  %CD%\\app\\assets\\power\\power_save_suspend_5`, (error, guidLine, stderr) => {
                 if (error) {
-                    log.error(error)
+                    log.sendError(error)
                 }
                 let guidParts = guidLine.split(' ')
                 guidParts.forEach((guidPart) => {
