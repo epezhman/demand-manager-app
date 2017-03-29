@@ -37,5 +37,6 @@ module.exports.WeekDays = {
 
 module.exports.DMCheck = {
     RUN_DM: 0,
-    NOT_RUN_DM: 1
+    NOT_RUN_DM: 1,
+    NOT_SCHEDULE: 2,
 }
