@@ -16,7 +16,7 @@
     "postinstall": "install-app-deps",
     "start": "electron ./app --remote-debugging-port=9222",
     "dev:win": "set NODE_ENV=development&& npm start",
-    "dev:linux": "NODE_ENV=development $NODE_DEBUG_OPTION npm start",
+    "dev:linux": "NODE_ENV=development npm start",
     "reload": "live-reload app --port 35729"
   },
   "devDependencies": {

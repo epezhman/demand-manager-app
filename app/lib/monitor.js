@@ -18,8 +18,7 @@ const enums = require('./enums')
 
 const log = require('./log')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
-const powerControl = require('./power-control')
-const powerControlSettings = require('../lib/power-control-settings')
+const InitialSettings = require('./initial-settings')
 const powerModelSettings = require('../lib/power-model-settings')
 
 
@@ -64,6 +63,16 @@ function updateRunningProfile() {
     setTimeout(updateRunningProfile, config.MONITOR_RUNNING_PROFILE_INTERVAL)
 }
 
+function deleteOutdatedData() {
+    if (shouldAppBeRunning()) {
+        windows.db.runQuery({
+            'fn': 'deleteOutDatedData',
+            'params': []
+        })
+    }
+    setTimeout(deleteOutdatedData, config.DELETE_OUTDATED_DATA)
+}
+
 function addRunningProfile() {
     if (shouldAppBeRunning()) {
         if (config.IS_WINDOWS) {
@@ -79,7 +88,7 @@ function addRunningProfile() {
 
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
-        powerControlSettings.init()
+        InitialSettings.init()
         powerModelSettings.init()
         windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
         if (config.IS_WINDOWS) {
@@ -119,4 +128,5 @@ function init() {
     setTimeout(addRunningProfile, 3000)
     setTimeout(updateRunningProfile, 6000)
     setTimeout(monitorGeoLocation, 9000)
+    setTimeout(deleteOutdatedData, 60000)
 }

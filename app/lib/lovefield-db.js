@@ -76,16 +76,20 @@ function calculateAveragePowerProfile(records) {
 }
 
 function calculateAverageLocationProfile(records) {
-    let locationAverage = {
+    // let locationAverage = {
+    //     'longitude': 1.4,
+    //     'latitude': 1.4,
+    //     'accuracy': 50
+    // }
+    //let counter = records.length
+    records.forEach((recordLocation) => {
+    })
+
+    return {
         'longitude': 1.4,
         'latitude': 1.4,
         'accuracy': 50
     }
-    //let counter = records.length
-    // records.forEach((recordLocation) => {
-    // })
-
-    return locationAverage
 }
 
 function addRunning() {
@@ -156,7 +160,6 @@ function updateRunningProfile() {
             .groupBy(running.day_of_week,
                 running.hour_index,
                 running.minute_index,
-                running.one_hour_duration_beginning,
                 running.app_running_bool,
                 running.computer_running_bool)
             .exec()
@@ -245,8 +248,8 @@ function addBattery(batteryObject) {
             batteryProfile.day_of_week)
             .from(batteryProfile)
             .where(lf.op.and(
-                battery.hour_index.eq(hoursOfDay),
-                battery.minute_index.eq(minutesOfHours)))
+                batteryProfile.hour_index.eq(hoursOfDay),
+                batteryProfile.minute_index.eq(minutesOfHours)))
             .exec()
     }).then((batteryProfileRecords) => {
         let batteryProfile = db.getSchema().table('BatteryProfile')
@@ -461,6 +464,30 @@ function deleteAllData() {
     })
 }
 
+function deleteOutDatedData() {
+    return Q.fcall(getDB).then(() => {
+        let battery = db.getSchema().table('Battery')
+        let location = db.getSchema().table('Location')
+        let running = db.getSchema().table('Running')
+        let daysBefore = moment().subtract(conf.get('days-delete-db'), 'days').toDate()
+        return db.delete()
+            .from(battery)
+            .where(battery.time.lt(daysBefore))
+            .exec()
+            .then(() => {
+                return db.delete()
+                    .from(location)
+                    .where(location.time.lt(daysBefore))
+                    .exec()
+            }).then(() => {
+                return db.delete()
+                    .from(running)
+                    .where(running.time.lt(daysBefore))
+                    .exec()
+            })
+    })
+}
+
 const operations = {
     getDB: getDB,
     addRunning: addRunning,
@@ -469,7 +496,8 @@ const operations = {
     addBatteryFirstProfile: addBatteryFirstProfile,
     addLocation: addLocation,
     addLocationFirstProfile: addLocationFirstProfile,
-    deleteAllData: deleteAllData
+    deleteAllData: deleteAllData,
+    deleteOutDatedData: deleteOutDatedData
 }
 
 function genericCaller(op, cb) {

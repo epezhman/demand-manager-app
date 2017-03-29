@@ -173,7 +173,7 @@ function getMinutesOfHourForLocation() {
 function standardizeObject(dirty) {
     for (let key in dirty) {
         if (dirty.hasOwnProperty(key)) {
-            dirty[key] = isNaN(dirty[key]) && typeof dirty[key] !== 'object' ? 'NaN' : dirty[key]
+            dirty[key] = Number.isNaN(dirty[key]) ? 'NaN' : dirty[key]
         }
     }
     return dirty
@@ -183,7 +183,7 @@ function standardizeObject(dirty) {
 function standardizeNumberObject(dirty) {
     for (let key in dirty) {
         if (dirty.hasOwnProperty(key)) {
-            dirty[key] = isNaN(dirty[key]) && typeof dirty[key] !== 'object' ? 0 : dirty[key]
+            dirty[key] = Number.isNaN(dirty[key]) ? 0 : dirty[key]
         }
     }
     return dirty
