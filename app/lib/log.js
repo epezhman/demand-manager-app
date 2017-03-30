@@ -29,12 +29,14 @@ function error(...args) {
 function sendError(err) {
     let tempId = global.machineId ? global.machineId : 'NoId'
     let errorString = JSON.stringify(err, ['message', 'arguments', 'type', 'name', 'fileName', 'lineNumber', 'stack'])
+    /* jshint ignore:start */
     request.post(config.EXCEPTION_REPORT_URL, {form: {device_id: tempId, error: errorString}}, (err, res, data) => {
         if (err) {
             error(res);
             error(data);
         }
     })
+    /* jshint ignore:end */
 
     if (config.IS_DEVELOPMENT) {
         error(err)

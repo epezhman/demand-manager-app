@@ -45,13 +45,16 @@ function powerToggle() {
 }
 
 function checkSchedulePeriod() {
-    let schedule_period = conf.get('schedule-period')
-    if (schedule_period && _.trim(String(schedule_period)).length) {
-        for (let period of _.split(schedule_period, '|')) {
+    let schedulePeriod = conf.get('schedule-period')
+    if (schedulePeriod && _.trim(String(schedulePeriod)).length) {
+        for (let period of _.split(schedulePeriod, '|')) {
             period = _.trim(period)
-            let tempSplitFullTime = _.split(period, '$') // Specific Schedule e.g.: 2017-03-29T17:53:23+02:00$2017-03-29T18:55:23+02:00
-            let tempSplitDaily = _.split(period, '%') // Daily Schedule  e.g.:  17:53:23+02:00%18:55:23+02:00
-            let tempSplitWeekly = _.split(period, '#') // Weekly Schedule e.g.:  3W17:53:23+02:00#4W18:55:23+02:00 , Monday = 1 , Sunday = 7
+            // Specific Schedule e.g.: 2017-03-29T17:53:23+02:00$2017-03-29T18:55:23+02:00
+            let tempSplitFullTime = _.split(period, '$')
+            // Daily Schedule  e.g.:  17:53:23+02:00%18:55:23+02:00
+            let tempSplitDaily = _.split(period, '%')
+            // Weekly Schedule e.g.:  3W17:53:23+02:00#4W18:55:23+02:00 , Monday = 1 , Sunday = 7
+            let tempSplitWeekly = _.split(period, '#')
             if (tempSplitFullTime.length === 2 || tempSplitWeekly.length === 2 || tempSplitDaily.length === 2) {
                 if (tempSplitFullTime.length === 2 && moment().isBetween(tempSplitFullTime[0], tempSplitFullTime[1])) {
                     return enums.DMCheck.RUN_DM

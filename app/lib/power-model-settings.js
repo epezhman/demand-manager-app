@@ -37,12 +37,12 @@ function init() {
 }
 
 function updatePowerModelCoef() {
-    let power_model = conf.get('power-model')
-    if (power_model && _.trim(String(power_model)).length) {
-        for (let coef of _.split(power_model, '|')) {
+    let powerModel = conf.get('power-model')
+    if (powerModel && _.trim(String(powerModel)).length) {
+        for (let coef of _.split(powerModel, '|')) {
             coef = _.trim(coef)
-            let temp_split = _.split(coef, '$')
-            if (temp_split.length === 2) {
+            let tempSplit = _.split(coef, '$')
+            if (tempSplit.length === 2) {
                 conf.set(tempSplit[0], parseFloat(tempSplit[1]))
             }
         }

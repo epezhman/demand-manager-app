@@ -190,11 +190,11 @@ function standardizeNumberObject(dirty) {
 }
 
 function distanceLatLonKm(lat1, lon1, lat2, lon2) {
-    let rad_lat1 = Math.PI * lat1 / 180
-    let rad_lat2 = Math.PI * lat2 / 180
+    let radLat1 = Math.PI * lat1 / 180
+    let radLat2 = Math.PI * lat2 / 180
     let theta = lon1 - lon2
     let radtheta = Math.PI * theta / 180
-    let dist = Math.sin(rad_lat1) * Math.sin(rad_lat2) + Math.cos(rad_lat1) * Math.cos(rad_lat2) * Math.cos(radtheta)
+    let dist = Math.sin(radLat1) * Math.sin(radLat2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radtheta)
     dist = Math.acos(dist)
     dist = dist * 180 / Math.PI
     dist = dist * 60 * 1.1515 * 1.609344
