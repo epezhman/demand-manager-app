@@ -88,8 +88,7 @@ function saveLocationFirstProfile(locationProfiles) {
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
         let profileId =
-            `${utils.getDayNum(locationProfile['day_of_week'])}-
-            ${locationProfile['hour_index']}-${locationProfile['minute_index']}`
+            `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['hour_index']}-${locationProfile['minute_index']}` // jshint ignore:line
         firebase.database()
             .ref(`location/${global.machineId}/${profileId}`)
             .set(utils.standardizeObject(locationProfile)).then(() => {
@@ -175,8 +174,7 @@ function updateBatteryProfile(dayOfWeek, hoursOfDay, minutesOfHour, powerData) {
     powerData['hour_index'] = hoursOfDay
     powerData['minute_index'] = minutesOfHour
 
-    let profileId = `${utils.getDayNum(powerData['day_of_week'])}
-    -${powerData['hour_index']}-${powerData['minute_index']}`
+    let profileId = `${utils.getDayNum(powerData['day_of_week'])}-${powerData['hour_index']}-${powerData['minute_index']}` // jshint ignore:line
 
     firebase.database()
         .ref(`power/${global.machineId}/${profileId}`)
@@ -190,8 +188,7 @@ function saveBatteryFirstProfile(batteryProfiles) {
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
         let profileId =
-            `${utils.getDayNum(batteryProfile['day_of_week'])}
-            -${batteryProfile['hour_index']}-${batteryProfile['minute_index']}`
+            `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['hour_index']}-${batteryProfile['minute_index']}` // jshint ignore:line
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
             .set(utils.standardizeObject(batteryProfile)).then(() => {
