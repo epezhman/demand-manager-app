@@ -18,6 +18,7 @@ function makeTables(schemaBuilder) {
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_hour_index', ['hour_index'], false, lf.Order.DESC)
         .addIndex('idx_minute_index', ['minute_index'], false, lf.Order.DESC)
+        .addIndex('idx_ac_connected_bool', ['ac_connected_bool'], false, lf.Order.DESC)
 
     schemaBuilder.createTable('BatteryProfile')
         .addColumn('id', lf.Type.INTEGER)
@@ -31,6 +32,7 @@ function makeTables(schemaBuilder) {
         .addColumn('minute_index', lf.Type.INTEGER)
         .addColumn('is_checked', lf.Type.BOOLEAN)
         .addPrimaryKey(['id'], true)
+        .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_hour_index', ['hour_index'], false, lf.Order.DESC)
         .addIndex('idx_minute_index', ['minute_index'], false, lf.Order.DESC)
 
@@ -47,6 +49,8 @@ function makeTables(schemaBuilder) {
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_hour_index', ['hour_index'], false, lf.Order.DESC)
         .addIndex('idx_minute_index', ['minute_index'], false, lf.Order.DESC)
+        .addIndex('idx_app_running_bool', ['app_running_bool'], false, lf.Order.DESC)
+        .addIndex('idx_computer_running_bool', ['computer_running_bool'], false, lf.Order.DESC)
 
     schemaBuilder.createTable('Location')
         .addColumn('id', lf.Type.INTEGER)
@@ -65,6 +69,8 @@ function makeTables(schemaBuilder) {
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_hour_index', ['hour_index'], false, lf.Order.DESC)
         .addIndex('idx_minute_index', ['minute_index'], false, lf.Order.DESC)
+        .addIndex('idx_accuracy', ['accuracy'], false, lf.Order.DESC)
+        .addIndex('idx_zip_code', ['zip_code'], false, lf.Order.DESC)
 
     schemaBuilder.createTable('LocationProfile')
         .addColumn('id', lf.Type.INTEGER)
@@ -74,8 +80,10 @@ function makeTables(schemaBuilder) {
         .addColumn('day_of_week', lf.Type.STRING)
         .addColumn('hour_index', lf.Type.INTEGER)
         .addColumn('minute_index', lf.Type.INTEGER)
+        .addColumn('zip_code', lf.Type.STRING)
+        .addColumn('presented_in_location_prob_percent', lf.Type.INTEGER)
         .addColumn('is_checked', lf.Type.BOOLEAN)
-        .addNullable(['accuracy'])
+        .addNullable(['accuracy', 'zip_code'])
         .addPrimaryKey(['id'], true)
         .addIndex('idx_day_of_week', ['day_of_week'], false, lf.Order.DESC)
         .addIndex('idx_hour_index', ['hour_index'], false, lf.Order.DESC)

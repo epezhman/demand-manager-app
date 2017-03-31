@@ -61,35 +61,35 @@ function calculateAveragePowerProfile(records) {
         let countAll = count1 + count2
         powerAverage['ac_connected_prob_percent'] = Math.round((records[0]['ac_connected_bool']
                 ? count1 / countAll : count2 / countAll) * 100)
-        powerAverage['estimated_power_save_w'] = Math.round((((records[0]['estimated_power_save'] * count1) +
-                (records[1]['estimated_power_save'] * count2)) / countAll) * 100) / 100
-        powerAverage['estimated_power_consume_w'] = Math.round((((records[0]['estimated_power_consume'] * count1) +
-                (records[1]['estimated_power_consume'] * count2)) / countAll) * 100) / 100
-        return powerAverage
+        powerAverage['estimated_power_save_w'] = Math.round((((records[0]['estimated_power_save_avg'] * count1) +
+                (records[1]['estimated_power_save_avg'] * count2)) / countAll) * 100) / 100
+        powerAverage['estimated_power_consume_w'] = Math.round((((records[0]['estimated_power_consume_avg'] * count1) +
+                (records[1]['estimated_power_consume_avg'] * count2)) / countAll) * 100) / 100
     }
     else if (records.length === 1) {
-        powerAverage['estimated_power_save_w'] = Math.round(records[0]['estimated_power_save'] * 100) / 100
-        powerAverage['estimated_power_consume_w'] = Math.round(records[0]['estimated_power_consume'] * 100) / 100
+        powerAverage['estimated_power_save_w'] = Math.round(records[0]['estimated_power_save_avg'] * 100) / 100
+        powerAverage['estimated_power_consume_w'] = Math.round(records[0]['estimated_power_consume_avg'] * 100) / 100
         powerAverage['ac_connected_prob_percent'] = records[0]['ac_connected_bool'] ? 100 : 0
-        return powerAverage
     }
+    return powerAverage
 }
 
 function calculateAverageLocationProfile(records) {
-    // let locationAverage = {
-    //     'longitude': 1.4,
-    //     'latitude': 1.4,
-    //     'accuracy': 50
-    // }
-    //let counter = records.length
-    records.forEach((recordLocation) => {
+    let locationAverage = {}
+    let maxZipCodeCount = 0
+    let counter = 0
+    records.forEach((location) => {
+        if (location['zip_code'] > maxZipCodeCount) {
+            maxZipCodeCount = location['zip_code_count']
+            counter += location['zip_code_count']
+            locationAverage['zip_code'] = location['zip_code']
+            locationAverage['latitude'] = location['latitude_avg']
+            locationAverage['longitude'] = location['longitude_avg']
+            locationAverage['accuracy'] = location['accuracy_avg']
+        }
     })
-
-    return {
-        'longitude': 1.4,
-        'latitude': 1.4,
-        'accuracy': 50
-    }
+    locationAverage['presented_in_location_prob_percent'] = counter ? Math.round((maxZipCodeCount / counter) * 100) : 0
+    return locationAverage
 }
 
 function addRunning() {
@@ -211,7 +211,6 @@ function addBattery(batteryObject) {
     let hoursOfDay = utils.getHoursOfDay()
     let minutesOfHours = utils.getMinutesOfHour()
 
-    let powerAverage = {}
     return Q.fcall(getDB).then(() => {
         batteryObject['time'] = moment().toDate()
         batteryObject['day_of_week'] = dayOfWeek
@@ -224,12 +223,21 @@ function addBattery(batteryObject) {
             .into(battery)
             .values([row])
             .exec()
-    }).then(() => {
+    })
+}
+
+function updateBatteryProfile() {
+    let dayOfWeek = utils.getDayOfWeekOneMinuteBefore()
+    let hoursOfDay = utils.getHoursOfDayOneMinuteBefore()
+    let minutesOfHours = utils.getMinutesOfHourOneMinuteBefore()
+
+    let powerAverage = {}
+    return Q.fcall(getDB).then(() => {
         let battery = db.getSchema().table('Battery')
         return db.select(battery.ac_connected_bool,
             lf.fn.count(battery.ac_connected_bool).as('ac_connected_count'),
-            lf.fn.avg(battery.estimated_power_save_w).as('estimated_power_save'),
-            lf.fn.avg(battery.estimated_power_consume_w).as('estimated_power_consume'))
+            lf.fn.avg(battery.estimated_power_save_w).as('estimated_power_save_avg'),
+            lf.fn.avg(battery.estimated_power_consume_w).as('estimated_power_consume_avg'))
             .from(battery)
             .where(lf.op.and(
                 battery.day_of_week.eq(dayOfWeek),
@@ -239,9 +247,10 @@ function addBattery(batteryObject) {
             .exec()
     }).then((batteryRecords) => {
         powerAverage = calculateAveragePowerProfile(batteryRecords)
-        if (powerAverage) {
-            powerAverage['is_checked'] = true
+        if (Object.keys(powerAverage).length === 0) {
+            return
         }
+        powerAverage['is_checked'] = true
         let batteryProfile = db.getSchema().table('BatteryProfile')
         return db.select(batteryProfile.id,
             batteryProfile.is_checked,
@@ -347,26 +356,26 @@ function addLocation(locationData) {
             })
     }).then(() => {
         let location = db.getSchema().table('Location')
-        return db.select(
-            location.accuracy,
-            location.latitude,
-            location.longitude)
+        return db.select(location.zip_code,
+            lf.fn.count(location.zip_code).as('zip_code_count'),
+            lf.fn.avg(location.latitude).as('latitude_avg'),
+            lf.fn.avg(location.longitude).as('longitude_avg'),
+            lf.fn.avg(location.accuracy).as('accuracy_avg'))
             .from(location)
             .where(lf.op.and(
                 location.day_of_week.eq(dayOfWeek),
                 location.hour_index.eq(hoursOfDay),
                 location.minute_index.eq(minutesOfHours),
                 location.accuracy.lt(500)))
-            .orderBy(location.time, lf.Order.DESC)
-            .limit(10)
+            .groupBy(location.zip_code)
             .exec()
     }).then((locationRecords) => {
         locationAverage = calculateAverageLocationProfile(locationRecords)
-        if (locationAverage) {
-            locationAverage['is_checked'] = true
+        if (Object.keys(locationAverage).length === 0) {
+            return
         }
+        locationAverage['is_checked'] = true
         let locationProfile = db.getSchema().table('LocationProfile')
-
         return db.select(locationProfile.id,
             locationProfile.is_checked,
             locationProfile.day_of_week)
@@ -383,6 +392,9 @@ function addLocation(locationData) {
                     .set(locationProfile.is_checked, locationAverage['is_checked'])
                     .set(locationProfile.latitude, locationAverage['latitude'])
                     .set(locationProfile.longitude, locationAverage['longitude'])
+                    .set(locationProfile.zip_code, locationAverage['zip_code'])
+                    .set(locationProfile.presented_in_location_prob_percent,
+                        locationAverage['presented_in_location_prob_percent'])
                     .set(locationProfile.accuracy, locationAverage['accuracy'])
                     .where(locationProfile.id.eq(locationProfileRecord['id']))
                     .exec()
@@ -414,6 +426,8 @@ function addLocationFirstProfile(locationData) {
                         'latitude': locationData['latitude'],
                         'longitude': locationData['longitude'],
                         'accuracy': checkIfUndefinedNumber(locationData['accuracy']),
+                        'zip_code': checkIfUndefinedNumber(locationData['zip-code']),
+                        'presented_in_location_prob_percent': 100,
                         'day_of_week': enums.WeekDays[dayName],
                         'hour_index': hour,
                         'minute_index': minute,
@@ -494,6 +508,7 @@ const operations = {
     updateRunningProfile: updateRunningProfile,
     addBattery: addBattery,
     addBatteryFirstProfile: addBatteryFirstProfile,
+    updateBatteryProfile: updateBatteryProfile,
     addLocation: addLocation,
     addLocationFirstProfile: addLocationFirstProfile,
     deleteAllData: deleteAllData,

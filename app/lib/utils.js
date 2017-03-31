@@ -11,16 +11,18 @@ module.exports = {
     getDayNum,
     standardizeObject,
     standardizeNumberObject,
-    getDistanceFromLatLonInKm,
-    distanceLatLonKm,
     getMinutesOfHour,
-    getMinutesOfHourForLocation
+    getMinutesOfHourForLocation,
+    getHoursOfDayOneMinuteBefore,
+    getMinutesOfHourOneMinuteBefore,
+    getDayOfWeekOneMinuteBefore
 }
 
 const fkey = require('firebase-safekey')
 const _ = require('lodash')
 const log = require('./log')
 const enums = require('./enums')
+const moment = require('moment')
 
 fkey.config({
     '.': '-',
@@ -109,6 +111,25 @@ function getDayOfWeek() {
     }
 }
 
+function getDayOfWeekOneMinuteBefore() {
+    switch (moment().subtract(1, 'minutes').toDate().getDay()) {
+        case 0:
+            return enums.WeekDays.SUNDAY
+        case 1:
+            return enums.WeekDays.MONDAY
+        case 2:
+            return enums.WeekDays.TUESDAY
+        case 3:
+            return enums.WeekDays.WEDNESDAY
+        case 4:
+            return enums.WeekDays.THURSDAY
+        case 5:
+            return enums.WeekDays.FRIDAY
+        case 6:
+            return enums.WeekDays.SATURDAY
+    }
+}
+
 function getDayNum(d) {
     switch (d) {
         case 'sun':
@@ -156,6 +177,15 @@ function getMinutesOfHour() {
     return new Date().getMinutes()
 }
 
+function getHoursOfDayOneMinuteBefore() {
+    return moment().subtract(1, 'minutes').hours()
+}
+
+function getMinutesOfHourOneMinuteBefore() {
+    return moment().subtract(1, 'minutes').minutes()
+}
+
+
 function getMinutesOfHourForLocation() {
     let minutes = new Date().getMinutes()
     if (minutes < 15) {
@@ -187,33 +217,4 @@ function standardizeNumberObject(dirty) {
         }
     }
     return dirty
-}
-
-function distanceLatLonKm(lat1, lon1, lat2, lon2) {
-    let radLat1 = Math.PI * lat1 / 180
-    let radLat2 = Math.PI * lat2 / 180
-    let theta = lon1 - lon2
-    let radtheta = Math.PI * theta / 180
-    let dist = Math.sin(radLat1) * Math.sin(radLat2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radtheta)
-    dist = Math.acos(dist)
-    dist = dist * 180 / Math.PI
-    dist = dist * 60 * 1.1515 * 1.609344
-    return dist
-}
-
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    let R = 6371 // Radius of the earth in km
-    let dLat = deg2rad(lat2 - lat1)  // deg2rad below
-    let dLon = deg2rad(lon2 - lon1)
-    let a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2)
-
-    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c // Distance in km
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI / 180)
 }

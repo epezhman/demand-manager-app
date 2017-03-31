@@ -63,6 +63,16 @@ function updateRunningProfile() {
     setTimeout(updateRunningProfile, config.MONITOR_RUNNING_PROFILE_INTERVAL)
 }
 
+function updateBatteryProfile() {
+    if (shouldAppBeRunning()) {
+        windows.db.runQuery({
+            'fn': 'updateBatteryProfile',
+            'params': []
+        })
+    }
+    setTimeout(updateBatteryProfile, config.UPDATE_BATTERY_PROFILE_INTERVAL)
+}
+
 function deleteOutdatedData() {
     if (shouldAppBeRunning()) {
         windows.db.runQuery({
@@ -125,8 +135,9 @@ function calculateSavedMinutes() {
 
 function init() {
     monitorPower()
-    setTimeout(addRunningProfile, 3000)
-    setTimeout(updateRunningProfile, 6000)
-    setTimeout(monitorGeoLocation, 9000)
+    setTimeout(updateBatteryProfile, 3000)
+    setTimeout(addRunningProfile, 6000)
+    setTimeout(updateRunningProfile, 9000)
+    setTimeout(monitorGeoLocation, 12000)
     setTimeout(deleteOutdatedData, 60000)
 }

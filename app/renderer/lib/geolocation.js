@@ -16,6 +16,7 @@ const db = remote.require('./main/windows').db
 let freegeoipLocation = null
 let navigatorLocation = null
 let googleMapLocation = null
+let locationGlobalData = null
 
 function freegeoipLocationFinder(cb) {
     freegeoipLocation = null
@@ -63,6 +64,38 @@ function googleMapLocationFinder(cb) {
             cb(null)
         }
     )
+}
+
+function googleMapGecoding(cb) {
+    locationGlobalData = aggregateLocations()
+    if (locationGlobalData && locationGlobalData['latitude'] && locationGlobalData['longitude']) {
+        request.post(`${config.GOOGLE_GEOCODING}${locationGlobalData['latitude']},${locationGlobalData['longitude']}`,
+            (err, res, data) => {
+                if (err) {
+                    log.sendError(err)
+                }
+                else if (res.statusCode === 200) {
+                    let postalData = JSON.parse(data)
+                    if(postalData && postalData['results'] && postalData['results'][0]['address_components'])
+                    {
+                        for (let component of postalData['results'][0]['address_components'])
+                        {
+                            if(component['types'][0] === 'postal_code')
+                            {
+                                locationGlobalData['zip-code'] = component['long_name']
+                                return cb(null)
+                            }
+                        }
+                    }
+                } else {
+                    log.sendError({'message': `Google Maps Geocoding Unexpected status code: ${res.statusCode}`})
+                }
+            }
+        )
+    }
+    else {
+        cb(null)
+    }
 }
 
 function aggregateLocations(err) {
@@ -124,40 +157,40 @@ function aggregateLocations(err) {
 }
 
 function findLocation() {
-    let locationData = aggregateLocations()
-    if (locationData['latitude'] && locationData['longitude']) {
+    if (locationGlobalData && locationGlobalData['latitude'] && locationGlobalData['longitude']) {
         db.runQuery({
             'fn': 'addLocation',
-            'params': locationData
+            'params': locationGlobalData
         })
     }
     window.close()
 }
 
 function makeLocationProfile() {
-    let locationData = aggregateLocations()
-    if (locationData['latitude'] && locationData['longitude']) {
+    if (locationGlobalData && locationGlobalData['latitude'] && locationGlobalData['longitude']) {
         db.runQuery({
             'fn': 'addLocationFirstProfile',
-            'params': locationData
+            'params': locationGlobalData
         })
     }
     window.close()
 }
 
 ipcRenderer.on('find-location', (event, msg) => {
-    async.parallel([
+    async.series([
         freegeoipLocationFinder,
         navigatorLocationFinder,
-        googleMapLocationFinder
+        googleMapLocationFinder,
+        googleMapGecoding
     ], findLocation)
 })
 
 ipcRenderer.on('make-location-profile', (event, msg) => {
-    async.parallel([
+    async.series([
         freegeoipLocationFinder,
         navigatorLocationFinder,
-        googleMapLocationFinder
+        googleMapLocationFinder,
+        googleMapGecoding
     ], makeLocationProfile)
 })
 

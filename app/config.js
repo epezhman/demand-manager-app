@@ -59,6 +59,7 @@ module.exports = {
     MONITOR_GEOLOCATION_INTERVAL: IS_DEVELOPMENT ? 900000 : 900000,
     RUN_DM_INTERVAL_CHECK: IS_DEVELOPMENT ? 2000 : 30000,
     MONITOR_POWER_INTERVAL: IS_DEVELOPMENT ? 1000 : 1000,
+    UPDATE_BATTERY_PROFILE_INTERVAL: IS_DEVELOPMENT ? 59000 : 59000,
     MONITOR_RUNNING_PROFILE_INTERVAL: IS_DEVELOPMENT ? 900000 : 900000,
     ADD_RUNNING_PROFILE_INTERVAL: IS_DEVELOPMENT ? 3600000 : 3600000,
     UPDATE_POWER_STATS_DAILY: IS_DEVELOPMENT ? 86400000 : 86400000,
@@ -71,9 +72,11 @@ module.exports = {
     FREEGEOIP_URL: 'http://geoip.i13dr.de/json/',
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
     'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
+    GOOGLE_GEOCODING: 'https://maps.googleapis.com/maps/api/geocode/json' +
+    '?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8&result_type=postal_code&latlng=',
     GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
     LOVEFIELD_DB_NAME: 'dmtum',
-    LOVEFIELD_DB_VERSION: 38
+    LOVEFIELD_DB_VERSION: 40
 }
 
 function getConfigPath() {
