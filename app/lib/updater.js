@@ -32,6 +32,11 @@ function installUpdate(downloadPath) {
             The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
         }
         notify(`Update was installed successfully.`)
+        fs.unlink(downloadPath, (err) => {
+            if (err) {
+                log.sendError(err)
+            }
+        })
         app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
         app.exit(0)
     })
