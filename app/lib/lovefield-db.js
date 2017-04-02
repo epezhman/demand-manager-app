@@ -54,6 +54,8 @@ function checkIfUndefinedNumber(value) {
 }
 
 function calculateAveragePowerProfile(records) {
+    if (!(records && records.length))
+        return {}
     let powerAverage = {}
     if (records.length === 2) {
         let count1 = records[0]['ac_connected_count']
@@ -75,6 +77,9 @@ function calculateAveragePowerProfile(records) {
 }
 
 function calculateAverageLocationProfile(records) {
+    if (!(records && records.length))
+        return {}
+
     let locationAverage = {}
     let maxZipCodeCount = 0
     let counter = 0
@@ -164,44 +169,46 @@ function updateRunningProfile() {
                 running.computer_running_bool)
             .exec()
     }).then((profileRecords) => {
-        profileRecords.forEach((profileRecord) => {
-            let profileKey = `${profileRecord['day_of_week']}_${profileRecord['hour_index']}_${profileRecord['minute_index']}`
-            let count = profileRecord['count']
-            if (sumAll[profileKey]) {
-                sumAll[profileKey]['app_running_true'] += profileRecord['app_running_bool'] ? count : 0
-                sumAll[profileKey]['app_running_false'] += profileRecord['app_running_bool'] ? 0 : count
-                sumAll[profileKey]['computer_running_true'] += profileRecord['computer_running_bool'] ? count : 0
-                sumAll[profileKey]['computer_running_false'] += profileRecord['computer_running_bool'] ? 0 : count
-                sumAll[profileKey]['count'] += profileRecord['count']
-            }
-            else {
-                sumAll[profileKey] = {
-                    'app_running_true': profileRecord['app_running_bool'] ? count : 0,
-                    'app_running_false': profileRecord['app_running_bool'] ? 0 : count,
-                    'computer_running_true': profileRecord['computer_running_bool'] ? count : 0,
-                    'computer_running_false': profileRecord['computer_running_bool'] ? 0 : count,
-                    'count': profileRecord['count'],
+        if (profileRecords && profileRecords.length) {
+            profileRecords.forEach((profileRecord) => {
+                let profileKey = `${profileRecord['day_of_week']}_${profileRecord['hour_index']}_${profileRecord['minute_index']}`
+                let count = profileRecord['count']
+                if (sumAll[profileKey]) {
+                    sumAll[profileKey]['app_running_true'] += profileRecord['app_running_bool'] ? count : 0
+                    sumAll[profileKey]['app_running_false'] += profileRecord['app_running_bool'] ? 0 : count
+                    sumAll[profileKey]['computer_running_true'] += profileRecord['computer_running_bool'] ? count : 0
+                    sumAll[profileKey]['computer_running_false'] += profileRecord['computer_running_bool'] ? 0 : count
+                    sumAll[profileKey]['count'] += profileRecord['count']
                 }
+                else {
+                    sumAll[profileKey] = {
+                        'app_running_true': profileRecord['app_running_bool'] ? count : 0,
+                        'app_running_false': profileRecord['app_running_bool'] ? 0 : count,
+                        'computer_running_true': profileRecord['computer_running_bool'] ? count : 0,
+                        'computer_running_false': profileRecord['computer_running_bool'] ? 0 : count,
+                        'count': profileRecord['count'],
+                    }
+                }
+            })
+            let batteryProfile = db.getSchema().table('BatteryProfile')
+            for (let _key in sumAll) if (sumAll.hasOwnProperty(_key)) {
+                let count = sumAll[_key]['count']
+                let app_running = Math.round((sumAll[_key]['app_running_false'] / count) * 100)
+                let computer_running = Math.round((sumAll[_key]['computer_running_true'] / count) * 100)
+                let days_hours_minutes = _key.split('_')
+                db.update(batteryProfile)
+                    .set(batteryProfile.app_running_prob_percent, app_running)
+                    .set(batteryProfile.computer_running_prob_percent, computer_running)
+                    .where(lf.op.and(
+                        batteryProfile.day_of_week.eq(days_hours_minutes[0]),
+                        batteryProfile.hour_index.eq(days_hours_minutes[1]),
+                        batteryProfile.minute_index.eq(days_hours_minutes[2])))
+                    .exec()
+                    .then(() => {
+                        firebase.updateRunningProfile(days_hours_minutes[0], days_hours_minutes[1],
+                            days_hours_minutes[2], app_running, computer_running)
+                    })
             }
-        })
-        let batteryProfile = db.getSchema().table('BatteryProfile')
-        for (let _key in sumAll) if (sumAll.hasOwnProperty(_key)) {
-            let count = sumAll[_key]['count']
-            let app_running = Math.round((sumAll[_key]['app_running_false'] / count) * 100)
-            let computer_running = Math.round((sumAll[_key]['computer_running_true'] / count) * 100)
-            let days_hours_minutes = _key.split('_')
-            db.update(batteryProfile)
-                .set(batteryProfile.app_running_prob_percent, app_running)
-                .set(batteryProfile.computer_running_prob_percent, computer_running)
-                .where(lf.op.and(
-                    batteryProfile.day_of_week.eq(days_hours_minutes[0]),
-                    batteryProfile.hour_index.eq(days_hours_minutes[1]),
-                    batteryProfile.minute_index.eq(days_hours_minutes[2])))
-                .exec()
-                .then(() => {
-                    firebase.updateRunningProfile(days_hours_minutes[0], days_hours_minutes[1],
-                        days_hours_minutes[2], app_running, computer_running)
-                })
         }
     })
 }
@@ -261,23 +268,24 @@ function updateBatteryProfile() {
                 batteryProfile.minute_index.eq(minutesOfHours)))
             .exec()
     }).then((batteryProfileRecords) => {
-        let batteryProfile = db.getSchema().table('BatteryProfile')
-
-        batteryProfileRecords.forEach((batteryProfileRecord) => {
-            if (!batteryProfileRecord['is_checked'] || batteryProfileRecord['day_of_week'] === dayOfWeek) {
-                db.update(batteryProfile)
-                    .set(batteryProfile.is_checked, powerAverage['is_checked'])
-                    .set(batteryProfile.estimated_power_save_w, powerAverage['estimated_power_save_w'])
-                    .set(batteryProfile.estimated_power_consume_w, powerAverage['estimated_power_consume_w'])
-                    .set(batteryProfile.ac_connected_prob_percent, powerAverage['ac_connected_prob_percent'])
-                    .where(batteryProfile.id.eq(batteryProfileRecord['id']))
-                    .exec()
-                    .then(() => {
-                        firebase.updateBatteryProfile(batteryProfileRecord['day_of_week'], hoursOfDay,
-                            minutesOfHours, powerAverage)
-                    })
-            }
-        })
+        if (batteryProfileRecords && batteryProfileRecords.length) {
+            let batteryProfile = db.getSchema().table('BatteryProfile')
+            batteryProfileRecords.forEach((batteryProfileRecord) => {
+                if (!batteryProfileRecord['is_checked'] || batteryProfileRecord['day_of_week'] === dayOfWeek) {
+                    db.update(batteryProfile)
+                        .set(batteryProfile.is_checked, powerAverage['is_checked'])
+                        .set(batteryProfile.estimated_power_save_w, powerAverage['estimated_power_save_w'])
+                        .set(batteryProfile.estimated_power_consume_w, powerAverage['estimated_power_consume_w'])
+                        .set(batteryProfile.ac_connected_prob_percent, powerAverage['ac_connected_prob_percent'])
+                        .where(batteryProfile.id.eq(batteryProfileRecord['id']))
+                        .exec()
+                        .then(() => {
+                            firebase.updateBatteryProfile(batteryProfileRecord['day_of_week'], hoursOfDay,
+                                minutesOfHours, powerAverage)
+                        })
+                }
+            })
+        }
     })
 }
 
@@ -385,25 +393,27 @@ function addLocation(locationData) {
                 locationProfile.minute_index.eq(minutesOfHours)))
             .exec()
     }).then((locationProfileRecords) => {
-        let locationProfile = db.getSchema().table('LocationProfile')
-        locationProfileRecords.forEach((locationProfileRecord) => {
-            if (!locationProfileRecord['is_checked'] || locationProfileRecord['day_of_week'] === dayOfWeek) {
-                db.update(locationProfile)
-                    .set(locationProfile.is_checked, locationAverage['is_checked'])
-                    .set(locationProfile.latitude, locationAverage['latitude'])
-                    .set(locationProfile.longitude, locationAverage['longitude'])
-                    .set(locationProfile.zip_code, locationAverage['zip_code'])
-                    .set(locationProfile.presented_in_location_prob_percent,
-                        locationAverage['presented_in_location_prob_percent'])
-                    .set(locationProfile.accuracy, locationAverage['accuracy'])
-                    .where(locationProfile.id.eq(locationProfileRecord['id']))
-                    .exec()
-                    .then(() => {
-                        firebase.updateLocationProfile(locationProfileRecord['day_of_week'], hoursOfDay,
-                            minutesOfHours, locationAverage)
-                    })
-            }
-        })
+        if (locationProfileRecords && locationProfileRecords.length) {
+            let locationProfile = db.getSchema().table('LocationProfile')
+            locationProfileRecords.forEach((locationProfileRecord) => {
+                if (!locationProfileRecord['is_checked'] || locationProfileRecord['day_of_week'] === dayOfWeek) {
+                    db.update(locationProfile)
+                        .set(locationProfile.is_checked, locationAverage['is_checked'])
+                        .set(locationProfile.latitude, locationAverage['latitude'])
+                        .set(locationProfile.longitude, locationAverage['longitude'])
+                        .set(locationProfile.zip_code, locationAverage['zip_code'])
+                        .set(locationProfile.presented_in_location_prob_percent,
+                            locationAverage['presented_in_location_prob_percent'])
+                        .set(locationProfile.accuracy, locationAverage['accuracy'])
+                        .where(locationProfile.id.eq(locationProfileRecord['id']))
+                        .exec()
+                        .then(() => {
+                            firebase.updateLocationProfile(locationProfileRecord['day_of_week'], hoursOfDay,
+                                minutesOfHours, locationAverage)
+                        })
+                }
+            })
+        }
     })
 }
 

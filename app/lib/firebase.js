@@ -55,7 +55,8 @@ function registerDevice() {
         'schedule': 'NA'
     })
     firebase.database().ref(`power-model/${global.machineId}`).set({
-        'power-model': 'NA'
+        'power-model': 'NA',
+        'power-save-model': 'NA'
     })
 }
 
