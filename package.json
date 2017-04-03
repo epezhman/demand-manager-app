@@ -20,10 +20,11 @@
     "reload": "live-reload app --port 35729"
   },
   "devDependencies": {
-    "async": "2.1.5",
-    "aws-sdk": "2.32.0",
+    "async": "2.3.0",
+    "aws-sdk": "2.36.0",
     "del": "2.2.2",
-    "electron-builder": "16.3.0",
+    "electron-builder": "16.6.1",
+    "electron-builder-squirrel-windows": "^16.6.0",
     "electron-prebuilt": "1.4.13",
     "gulp": "3.9.1",
     "gulp-if": "2.0.2",
@@ -49,6 +50,13 @@
       "**/*",
       "!assets/stylesheets/sass"
     ],
+    "win": {
+      "target": "squirrel",
+      "icon": "app/assets/img/icon.ico"
+    },
+    "squirrelWindows": {
+      "iconUrl": "https://s3.eu-central-1.amazonaws.com/demand-manager-resources/icons/icon.ico"
+    },
     "linux": {
       "icon": "app/assets/img/",
       "category": "Utility",

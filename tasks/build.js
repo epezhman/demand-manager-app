@@ -29,12 +29,12 @@ gulp.task('set-code-signing-vars', function () {
     process.env.CSC_KEY_PASSWORD = secrets.CSC_KEY_PASSWORD
 })
 
-var addBuildVersionFile = (platformDist) => {
+let addBuildVersionFile = (platformDist) => {
     fs.writeFile(baseDistDir + platformDist + config.latestBuildVersionFile,
         config.appVersion)
 }
 
-var buildForOS = (platform) => {
+const buildForOS = (platform) => {
 
     if (platform === 'linux') {
         return Q.fcall(() => {
@@ -43,7 +43,7 @@ var buildForOS = (platform) => {
                 return builder.build({
                     targets: Platform.LINUX.createTarget(null, Arch.x64)
                 }).then(() => {
-                    var fileName = config.appName + '_' + config.appVersion + '_amd64.deb'
+                    let fileName = config.appName + '_' + config.appVersion + '_amd64.deb'
                     mv(baseDistDir + fileName,
                         baseDistDir + config.distLinux64Dir + fileName,
                         {mkdirp: true}, () => {
@@ -56,7 +56,7 @@ var buildForOS = (platform) => {
                 return builder.build({
                     targets: Platform.LINUX.createTarget(null, Arch.ia32)
                 }).then(() => {
-                    var fileName = config.appName + '_' + config.appVersion + '_ia32.deb'
+                    let fileName = config.appName + '_' + config.appVersion + '_ia32.deb'
                     mv(baseDistDir + fileName,
                         baseDistDir + config.distLinux32Dir + fileName,
                         {mkdirp: true}, () => {
@@ -71,28 +71,14 @@ var buildForOS = (platform) => {
         return Q.fcall(() => {
             utils.log('Building for Windows 64-bit')
             return builder.build({
-                targets: Platform.WINDOWS.createTarget(null, Arch.x64),
-                devMetadata: {
-                    'build': {
-                        'win': {
-                            'remoteReleases': ''
-                        }
-                    }
-                }
+                targets: Platform.WINDOWS.createTarget(null, Arch.x64)
             })
         }).then(() => {
             addBuildVersionFile(config.distWin64Dir)
         }).then(() => {
             utils.log('Building for Windows 32-bit')
             return builder.build({
-                targets: Platform.WINDOWS.createTarget(null, Arch.ia32),
-                devMetadata: {
-                    'build': {
-                        'win': {
-                            'remoteReleases': ''
-                        }
-                    }
-                }
+                targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
             })
         }).then(() => {
             addBuildVersionFile(config.distWin32Dir)

@@ -23,6 +23,9 @@ const env = require('../lib/envs')
 const powerControl = require('../lib/power-control')
 const db = windows.db
 
+process.on('uncaughtException', (err) => {
+    log.sendError(err)
+});
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -90,6 +93,3 @@ app.on('ready', () => {
     })
 })
 
-process.on('uncaughtException', (err) => {
-    log.sendError(err)
-});

@@ -50,7 +50,7 @@ function monitorPower() {
             require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY)
         }
     }
-    setTimeout(monitorPower, config.MONITOR_POWER_INTERVAL)
+    setTimeout(monitorPower, conf.get('power-monitor-interval'))
 }
 
 function updateRunningProfile() {

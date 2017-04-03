@@ -48,7 +48,6 @@ function getLshwCommandData(cb) {
             cb(null, false)
         })
     })
-
 }
 
 function getDmidecodeCommandData(performThisMethod, cb) {

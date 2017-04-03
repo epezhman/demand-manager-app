@@ -76,7 +76,6 @@ function onLinuxResponse(err, res, data) {
     } else {
         // Unexpected status code
         log.sendError({'message': 'Unexpected update status code', 'lineNumber': res.statusCode})
-
     }
 }
 

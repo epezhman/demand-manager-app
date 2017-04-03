@@ -16,6 +16,6 @@ function init() {
     conf.set('power-model', 'NA')
     conf.set('schedule-period', 'NA')
     conf.set('logging-enabled', false)
-    conf.set('days-delete-db', 30)
-    conf.set('power-monitor-interval', 1000)
+    conf.set('days-delete-db', config.DAYS_TO_DELETE_DB)
+    conf.set('power-monitor-interval', config.MONITOR_POWER_INTERVAL)
 }

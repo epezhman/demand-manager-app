@@ -16,6 +16,7 @@ const wmicParams = require('./wmic-params')
 const firebase = require('./firebase')
 const enums = require('./enums')
 const db = require('../main/windows').db
+const powerModel = require('./power-model')
 
 const wmic = require('ms-wmic')
 const _ = require('lodash/string')
@@ -50,7 +51,6 @@ function runWMIC(wmicCommand, paramCallback) {
                 batteryCapabilitiesData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
                     utils.convertWmicStringToList(stdOut)
             }
-
             paramCallback()
         })
     }
@@ -82,11 +82,11 @@ function runAsyncCommands(wmicCommands) {
         if (err) {
             log.error(err.message)
         }
-        log.error(Object.keys(batteryData).length)
-        if (Object.keys(batteryData).length < 33)
-        {
-            log(batteryData)
-        }
+        // log.error(Object.keys(batteryData).length)
+        // if (Object.keys(batteryData).length < 33)
+        // {
+        //     log(batteryData)
+        // }
 
         if (wmicCommands.commandType === enums.WMICommandType.DEVICE) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
@@ -95,14 +95,7 @@ function runAsyncCommands(wmicCommands) {
             wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
             let chargeRate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
             let dischargeRate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
-            // 0.6 came from my own laptop, it's only an rough estimation
-            //let drainEstimation = dischargeRate > 0 ? dischargeRate : chargeRate * 0.6
             let remainingTime = parseInt(batteryData['win32_battery-estimatedruntime'])
-            // if (chargeRate > 0) {
-            //     remainingTime = utils.hoursToMinutes(Math.round(
-            //             (parseInt(batteryData['batterystatus-remainingcapacity']) /
-            //             (drainEstimation * 1000) ) * 100) / 100)
-            // }
             let downloadRate = __.remove(batteryData['win32_perfformatteddata_tcpip_' +
                 'networkinterface-bytesreceivedpersec'],
                 (n) => n !== '0')
@@ -154,48 +147,33 @@ function runAsyncCommands(wmicCommands) {
                     batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'].length - 1 : 'NaN',
                 'download_kb': downloadRate.length ? Math.round(parseInt(downloadRate[0]) / 1024) : 0,
                 'upload_kb': uploadRate.length ? Math.round(parseInt(uploadRate[0]) / 1024) : 0,
-                'wifi': true
+                'wifi': true,
+                'internet_connected': false,
+                'dm_enabled': !!conf.get('dm-already-start')
             }
-            let fs = require('fs');
-            fs.open('C:\\Users\\epezh\\Desktop\\Thesis\\dm-data\\dm_windows.csv', 'a', 666, function (e, file) {
-                let dataToExport = batteryObject['remaining_time_minutes'] + ', ' +
-                    batteryObject['power_rate_w'] + ', ' +
-                    batteryObject['remaining_capacity_percent'] + ', ' +
-                    batteryObject['voltage_v'] + ', ' +
-                    batteryObject['charging_bool'] + ', ' +
-                    batteryObject['discharging_bool'] + ', ' +
-                    batteryObject['ac_connected_bool'] + ', ' +
-                    batteryObject['brightness_percent'] + ', ' +
-                    batteryObject['memory_percent'] + ', ' +
-                    batteryObject['memory_mb'] + ', ' +
-                    batteryObject['read_request_per_s'] + ', ' +
-                    batteryObject['read_kb_per_s'] + ', ' +
-                    batteryObject['write_request_per_s'] + ', ' +
-                    batteryObject['write_kb_per_s'] + ', ' +
-                    batteryObject['cpu_usage_percent'] + ', ' +
-                    batteryObject['cpu_cores'] + ', ' +
-                    batteryObject['download_kb'] + ', ' +
-                    batteryObject['upload_kb'] + ', ' +
-                    batteryObject['wifi'] + ', ' +
-                    conf.get('dm-already-start') + ', ' +
-                    moment().format() + '\r\n'
-                fs.write(file, dataToExport, null, 'utf8', function () {
-                    fs.close(file, function () {
-                    });
-                });
-            });
-            // if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
-            //     db.runQuery({
-            //         'fn': 'addBattery',
-            //         'params': batteryObject
-            //     })
-            // }
-            // else {
-            //     db.runQuery({
-            //         'fn': 'addBatteryFirstProfile',
-            //         'params': batteryObject
-            //     })
-            // }
+            batteryObject = utils.standardizeNumberObject(batteryObject)
+            if (wmicCommands.commandType === enums.LinuxPowerMonitor.BATTERY) {
+                if (conf.get('logging-enabled')) {
+                    firebase.saveBatteryLogging(batteryObject)
+                }
+                db.runQuery({
+                    'fn': 'addBattery',
+                    'params': {
+                        'ac_connected_bool': batteryObject['ac_connected_bool'],
+                        'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
+                        'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                    }
+                })
+            }
+            else if (wmicCommands.commandType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
+                db.runQuery({
+                    'fn': 'addBatteryFirstProfile',
+                    'params': {
+                        'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
+                        'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                    }
+                })
+            }
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
             firebase.saveBatteryCapabilities(batteryCapabilitiesData)

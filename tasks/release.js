@@ -10,10 +10,10 @@ const utils = require('./utils')
 const async = require('async')
 const config = require('./gulp.config')
 
-var AWS = require('aws-sdk')
+const AWS = require('aws-sdk')
 AWS.config.update(utils.awsConfig())
 
-var s3 = new AWS.S3({params: {Bucket: config.awsS3BucketName}})
+const s3 = new AWS.S3({params: {Bucket: config.awsS3BucketName}})
 
 const baseDistDir = config.baseDir + config.distDir
 
@@ -23,8 +23,8 @@ gulp.task('clean:release', ()=> {
     ])
 })
 
-var platformReleaseDirs = (awsDir, distDir) => {
-    var deferred = Q.defer()
+const platformReleaseDirs = (awsDir, distDir) => {
+    let deferred = Q.defer()
     return {
         awsDir: awsDir,
         distDir: distDir,
@@ -32,13 +32,13 @@ var platformReleaseDirs = (awsDir, distDir) => {
     }
 }
 
-var uploadLatestRelease = (platformDirs)=> {
-    var toUploadFiles = []
+const uploadLatestRelease = (platformDirs)=> {
+    let toUploadFiles = []
     toUploadFiles = fs.readdirSync(baseDistDir + platformDirs.distDir)
-    var cnt = 0
+    let cnt = 0
     if (toUploadFiles.length) {
         async.each(toUploadFiles, (localFile) => {
-            var uploadBody = fs.createReadStream(baseDistDir + platformDirs.distDir + localFile)
+            let uploadBody = fs.createReadStream(baseDistDir + platformDirs.distDir + localFile)
             utils.logInfo('Uploading: ' + localFile)
             s3.upload({
                 Key: config.awsS3UpdateKeyPrefix + platformDirs.awsDir + localFile,
@@ -58,12 +58,12 @@ var uploadLatestRelease = (platformDirs)=> {
     }
 }
 
-var copyLatestVersionRelease = (platformDirs, version) => {
+const copyLatestVersionRelease = (platformDirs, version) => {
     s3.listObjects({Prefix: config.awsS3UpdateKeyPrefix + platformDirs.awsDir}, (err, toCopyFiles) => {
         if (err) {
             utils.logError(err)
         }
-        var cnt = 0
+        let cnt = 0
         if (toCopyFiles.Contents.length) {
             async.each(toCopyFiles.Contents, (s3File) => {
                 s3.copyObject({
@@ -86,11 +86,11 @@ var copyLatestVersionRelease = (platformDirs, version) => {
     })
 }
 
-var getLatestReleasedVersionAndUploadNewRelease = (platformDirs)=> {
-    var latestVersionPath = config.baseDir + config.latestBuildVersionDir + platformDirs.awsDir
+const getLatestReleasedVersionAndUploadNewRelease = (platformDirs)=> {
+    let latestVersionPath = config.baseDir + config.latestBuildVersionDir + platformDirs.awsDir
     mkdirp.sync(latestVersionPath)
-    var latestVersionFileName = latestVersionPath + '/' + config.latestBuildVersionFile
-    var latestVersionFile = fs.createWriteStream(latestVersionFileName)
+    let latestVersionFileName = latestVersionPath + '/' + config.latestBuildVersionFile
+    let latestVersionFile = fs.createWriteStream(latestVersionFileName)
     s3.getObject({
         Key: config.awsS3UpdateKeyPrefix + platformDirs.awsDir + config.latestBuildVersionFile
     }).createReadStream().pipe(latestVersionFile).on('close', ()=> {
@@ -98,29 +98,34 @@ var getLatestReleasedVersionAndUploadNewRelease = (platformDirs)=> {
     })
 }
 
-var releaseForOS = (platform) => {
+const releaseForOS = (platform) => {
     if (platform === 'linux') {
-        return Q.fcall(()=> {
-            utils.log('Releasing for Linux 64-bit')
-            var pDirs = platformReleaseDirs(config.awsS3Linux64Dir, config.distLinux64Dir)
-            getLatestReleasedVersionAndUploadNewRelease(pDirs)
-            return pDirs.deferredPromised.promise
-        }).then(()=> {
-            utils.log('Releasing for Linux 32-bit')
-            // var pDirs = platformReleaseDirs(config.awsS3Linux32Dir, config.distLinux32Dir)
-            // getLatestReleasedVersionAndUploadNewRelease(pDirs)
-            // return pDirs.deferredPromised.promise
-        })
+        if (process.arch === 'x64') {
+            return Q.fcall(()=> {
+                utils.log('Releasing for Linux 64-bit')
+                let pDirs = platformReleaseDirs(config.awsS3Linux64Dir, config.distLinux64Dir)
+                getLatestReleasedVersionAndUploadNewRelease(pDirs)
+                return pDirs.deferredPromised.promise
+            })
+        }
+        else{
+            return Q.fcall(()=> {
+                utils.log('Releasing for Linux 32-bit')
+                let pDirs = platformReleaseDirs(config.awsS3Linux32Dir, config.distLinux32Dir)
+                getLatestReleasedVersionAndUploadNewRelease(pDirs)
+                return pDirs.deferredPromised.promise
+            })
+        }
     }
     else if (platform === 'windows') {
         return Q.fcall(()=> {
             utils.log('Releasing for Windows 64-bit')
-            var pDirs = platformReleaseDirs(config.awsS3Win64Dir, config.distWin64Dir)
+            let pDirs = platformReleaseDirs(config.awsS3Win64Dir, config.distWin64Dir)
             getLatestReleasedVersionAndUploadNewRelease(pDirs)
             return pDirs.deferredPromised.promise
         }).then(()=> {
             utils.log('Releasing for Windows 32-bit')
-            var pDirs = platformReleaseDirs(config.awsS3Win32Dir, config.distWin32Dir)
+            let pDirs = platformReleaseDirs(config.awsS3Win32Dir, config.distWin32Dir)
             getLatestReleasedVersionAndUploadNewRelease(pDirs)
             return pDirs.deferredPromised.promise
         })
