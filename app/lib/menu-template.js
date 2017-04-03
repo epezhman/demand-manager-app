@@ -50,19 +50,19 @@ function getMenu() {
         submenu: [{
             label: 'Reload',
             accelerator: 'CmdOrCtrl+R',
-            click: ()=> {
+            click: () => {
                 BrowserWindow.getFocusedWindow().webContents.reloadIgnoringCache()
             }
         }, {
             label: 'Toggle DevTools',
             accelerator: 'Alt+CmdOrCtrl+I',
-            click: ()=> {
+            click: () => {
                 BrowserWindow.getFocusedWindow().toggleDevTools({detach: true})
             }
         }]
     }]
 
-    //if (config.IS_DEVELOPMENT) {
+    if (config.IS_DEVELOPMENT) {
         template.push({
             label: 'Experimental',
             submenu: [{
@@ -72,12 +72,12 @@ function getMenu() {
                 }
             }, {
                 label: 'Clear Saved Settings',
-                click: ()=> {
+                click: () => {
                     conf.clear()
                 }
             }, {
                 label: 'Clear Database',
-                click: ()=> {
+                click: () => {
                     windows.db.runQuery({
                         'fn': 'deleteAllData',
                         'params': []
@@ -85,7 +85,7 @@ function getMenu() {
                 }
             }, {
                 label: 'Clear All Data',
-                click: ()=> {
+                click: () => {
                     conf.clear()
                     windows.db.runQuery({
                         'fn': 'deleteAllData',
@@ -94,7 +94,7 @@ function getMenu() {
                 }
             }]
         })
-    //}
+    }
     return template
 }
 
