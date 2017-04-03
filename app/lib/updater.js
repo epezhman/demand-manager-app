@@ -38,7 +38,9 @@ function installUpdate(downloadPath) {
             }
             else {
                 app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
-                app.exit(0)
+                setTimeout(() => {
+                    app.exit(0)
+                }, 50)
             }
         })
     })
