@@ -76,6 +76,12 @@ module.exports.BatteryInfoMonitor = {
         'DesignVoltage', 'DeviceID', 'EstimatedChargeRemaining', 'EstimatedRunTime',
         'Name', 'PowerManagementCapabilities', 'Status', 'TimeOnBattery',
         'PowerManagementSupported'],
+    WMI$WmiMonitorBrightness: ['CurrentBrightness'],
+    CIMV2$Win32_OperatingSystem: ['FreePhysicalMemory', 'TotalVisibleMemorySize'],
+    CIMV2$Win32_PerfFormattedData_Tcpip_NetworkInterface: ['BytesReceivedPersec', 'BytesSentPersec'],
+    CIMV2$Win32_PerfFormattedData_PerfOS_Processor: ['PercentProcessorTime'],
+    CIMV2$Win32_PerfFormattedData_PerfDisk_PhysicalDisk: ['DiskReadBytesPersec', 'DiskReadsPersec',
+        'DiskWriteBytesPersec', 'DiskWritesPersec']
 }
 
 /* jshint ignore:end */

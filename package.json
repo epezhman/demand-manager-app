@@ -20,7 +20,7 @@
     "reload": "live-reload app --port 35729"
   },
   "devDependencies": {
-    "async": "2.1.2",
+    "async": "2.1.5",
     "aws-sdk": "2.6.9",
     "del": "2.2.2",
     "electron-builder": "7.14.1",

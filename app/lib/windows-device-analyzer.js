@@ -19,11 +19,15 @@ const db = require('../main/windows').db
 
 const wmic = require('ms-wmic')
 const _ = require('lodash/string')
+const __ = require('lodash/array')
 const async = require('async')
+const moment = require('moment')
+const ConfigStore = require('configstore')
+const conf = new ConfigStore(config.APP_SHORT_NAME)
 
-var windowsDeviceData = {}
-var batteryData = {}
-var batteryCapabilitiesData = {}
+let windowsDeviceData = {}
+let batteryData = {}
+let batteryCapabilitiesData = {}
 
 function runWMIC(wmicCommand, paramCallback) {
     try {
@@ -59,9 +63,9 @@ function runWMIC(wmicCommand, paramCallback) {
 function runAsyncCommands(wmicCommands) {
     async.eachOfLimit(wmicCommands.commands, 2, (wmiClassProps, wmiClass, commandCallback) => {
         async.eachLimit(wmiClassProps, 3, (wmiClassProp, paramCallback) => {
-            var nameSpaceRoot = '\\\\root\\'
-            var wmiClassParts = wmiClass.split('$')
-            var command = {
+            let nameSpaceRoot = '\\\\root\\'
+            let wmiClassParts = wmiClass.split('$')
+            let command = {
                 wmiClass: wmiClassParts[1],
                 command: wmiClassProp,
                 nameSpace: nameSpaceRoot + wmiClassParts[0],
@@ -78,42 +82,120 @@ function runAsyncCommands(wmicCommands) {
         if (err) {
             log.error(err.message)
         }
+        log.error(Object.keys(batteryData).length)
+        if (Object.keys(batteryData).length < 33)
+        {
+            log(batteryData)
+        }
+
         if (wmicCommands.commandType === enums.WMICommandType.DEVICE) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY ||
             wmicCommands.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
-            var chargeRate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
-            var dischargeRate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
+            let chargeRate = Math.round((parseInt(batteryData['batterystatus-chargerate']) / 1000) * 100) / 100
+            let dischargeRate = Math.round((parseInt(batteryData['batterystatus-dischargerate']) / 1000) * 100) / 100
             // 0.6 came from my own laptop, it's only an rough estimation
-            var drainEstimation = dischargeRate > 0 ? dischargeRate : chargeRate * 0.6
-            var remainingTime = parseInt(batteryData['win32_battery-estimatedruntime'])
-            if (chargeRate > 0) {
-                remainingTime = utils.hoursToMinutes(Math.round(
-                        (parseInt(batteryData['batterystatus-remainingcapacity']) /
-                        (drainEstimation * 1000) ) * 100) / 100)
-            }
-            var batteryObject = {
+            //let drainEstimation = dischargeRate > 0 ? dischargeRate : chargeRate * 0.6
+            let remainingTime = parseInt(batteryData['win32_battery-estimatedruntime'])
+            // if (chargeRate > 0) {
+            //     remainingTime = utils.hoursToMinutes(Math.round(
+            //             (parseInt(batteryData['batterystatus-remainingcapacity']) /
+            //             (drainEstimation * 1000) ) * 100) / 100)
+            // }
+            let downloadRate = __.remove(batteryData['win32_perfformatteddata_tcpip_' +
+                'networkinterface-bytesreceivedpersec'],
+                (n) => n !== '0')
+            let uploadRate = __.remove(batteryData['win32_perfformatteddata_tcpip_networkinterface-bytessentpersec'],
+                (n) => n !== '0')
+            let cpuUsage = batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'] ?
+                Math.round((batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime']
+                        .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
+                    batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'].length) : 0
+            let readRate = batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskreadbytespersec'] ?
+                Math.round((batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskreadbytespersec']
+                        .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
+                    batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskreadbytespersec'].length) : 0
+            let readRequest = batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskreadspersec'] ?
+                Math.round((batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskreadspersec']
+                        .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
+                    batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskreadspersec'].length) : 0
+            let writeRate = batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritebytespersece'] ?
+                Math.round((batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritebytespersec']
+                        .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
+                    batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritebytespersec'].length) : 0
+            let writeRequest = batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec'] ?
+                Math.round((batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec']
+                        .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
+                    batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec'].length) : 0
+            let batteryObject = {
                 'remaining_time_minutes': remainingTime,
                 'power_rate_w': dischargeRate > 0 ? dischargeRate : chargeRate,
                 'remaining_capacity_percent': parseInt(batteryData['win32_battery-estimatedchargeremaining']),
                 'voltage_v': Math.round((parseInt(batteryData['batterystatus-voltage']) / 1000) * 100) / 100,
-                'charging_bool': batteryData['batterystatus-charging'].toLowerCase() === 'true',
-                'discharging_bool': batteryData['batterystatus-discharging'].toLowerCase() === 'true',
-                'ac_connected_bool': batteryData['batterystatus-poweronline'].toLowerCase() === 'true'
+                'charging_bool': batteryData['batterystatus-charging'] ?
+                    batteryData['batterystatus-charging'].toLowerCase() === 'true' : 'NaN',
+                'discharging_bool': batteryData['batterystatus-discharging'] ?
+                    batteryData['batterystatus-discharging'].toLowerCase() === 'true' : 'NaN',
+                'ac_connected_bool': batteryData['batterystatus-poweronline'] ?
+                    batteryData['batterystatus-poweronline'].toLowerCase() === 'true' : 'NaN',
+                'brightness_percent': parseInt(batteryData['wmimonitorbrightness-currentbrightness']),
+                'memory_percent': Math.round(((parseInt(batteryData['win32_operatingsystem-totalvisiblememorysize']) -
+                    parseInt(batteryData['win32_operatingsystem-freephysicalmemory'])) * 100) /
+                    parseInt(batteryData['win32_operatingsystem-totalvisiblememorysize'])),
+                'memory_mb': Math.round((parseInt(batteryData['win32_operatingsystem-totalvisiblememorysize']) -
+                    parseInt(batteryData['win32_operatingsystem-freephysicalmemory'])) / 1000),
+                'read_request_per_s': readRequest,
+                'read_kb_per_s': Math.round(readRate / 1024),
+                'write_request_per_s': writeRequest,
+                'write_kb_per_s': Math.round(writeRate / 1024),
+                'cpu_usage_percent': cpuUsage,
+                'cpu_cores': batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'] ?
+                    batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'].length - 1 : 'NaN',
+                'download_kb': downloadRate.length ? Math.round(parseInt(downloadRate[0]) / 1024) : 0,
+                'upload_kb': uploadRate.length ? Math.round(parseInt(uploadRate[0]) / 1024) : 0,
+                'wifi': true
             }
-            if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
-                db.runQuery({
-                    'fn': 'addBattery',
-                    'params': batteryObject
-                })
-            }
-            else {
-                db.runQuery({
-                    'fn': 'addBatteryFirstProfile',
-                    'params': batteryObject
-                })
-            }
+            let fs = require('fs');
+            fs.open('C:\\Users\\epezh\\Desktop\\Thesis\\dm-data\\dm_windows.csv', 'a', 666, function (e, file) {
+                let dataToExport = batteryObject['remaining_time_minutes'] + ', ' +
+                    batteryObject['power_rate_w'] + ', ' +
+                    batteryObject['remaining_capacity_percent'] + ', ' +
+                    batteryObject['voltage_v'] + ', ' +
+                    batteryObject['charging_bool'] + ', ' +
+                    batteryObject['discharging_bool'] + ', ' +
+                    batteryObject['ac_connected_bool'] + ', ' +
+                    batteryObject['brightness_percent'] + ', ' +
+                    batteryObject['memory_percent'] + ', ' +
+                    batteryObject['memory_mb'] + ', ' +
+                    batteryObject['read_request_per_s'] + ', ' +
+                    batteryObject['read_kb_per_s'] + ', ' +
+                    batteryObject['write_request_per_s'] + ', ' +
+                    batteryObject['write_kb_per_s'] + ', ' +
+                    batteryObject['cpu_usage_percent'] + ', ' +
+                    batteryObject['cpu_cores'] + ', ' +
+                    batteryObject['download_kb'] + ', ' +
+                    batteryObject['upload_kb'] + ', ' +
+                    batteryObject['wifi'] + ', ' +
+                    conf.get('dm-already-start') + ', ' +
+                    moment().format() + '\r\n'
+                fs.write(file, dataToExport, null, 'utf8', function () {
+                    fs.close(file, function () {
+                    });
+                });
+            });
+            // if (wmicCommands.commandType === enums.WMICommandType.BATTERY) {
+            //     db.runQuery({
+            //         'fn': 'addBattery',
+            //         'params': batteryObject
+            //     })
+            // }
+            // else {
+            //     db.runQuery({
+            //         'fn': 'addBatteryFirstProfile',
+            //         'params': batteryObject
+            //     })
+            // }
         }
         else if (wmicCommands.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
             firebase.saveBatteryCapabilities(batteryCapabilitiesData)
@@ -122,7 +204,7 @@ function runAsyncCommands(wmicCommands) {
 }
 
 function deviceAnalysis() {
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.DeviceDataExtraction,
         commandType: enums.WMICommandType.DEVICE,
     }
@@ -130,7 +212,7 @@ function deviceAnalysis() {
 }
 
 function batteryCapabilities() {
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.BatteryCapabilitiesInfo,
         commandType: enums.WMICommandType.BATTERY_CAPABILITY,
     }
@@ -139,7 +221,7 @@ function batteryCapabilities() {
 
 function monitorPower() {
     batteryData = {}
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
         commandType: enums.WMICommandType.BATTERY,
     }
@@ -148,7 +230,7 @@ function monitorPower() {
 
 function batteryFirstTimeProfile() {
     batteryData = {}
-    var wmicCommands = {
+    let wmicCommands = {
         commands: wmicParams.BatteryInfoMonitor,
         commandType: enums.WMICommandType.BATTERY_FIRST_PROFILE,
     }

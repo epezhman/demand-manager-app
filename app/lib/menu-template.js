@@ -62,7 +62,7 @@ function getMenu() {
         }]
     }]
 
-    if (config.IS_DEVELOPMENT) {
+    //if (config.IS_DEVELOPMENT) {
         template.push({
             label: 'Experimental',
             submenu: [{
@@ -94,7 +94,7 @@ function getMenu() {
                 }
             }]
         })
-    }
+    //}
     return template
 }
 
