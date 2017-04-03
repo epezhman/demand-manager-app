@@ -7,5 +7,4 @@ const windows = require('../main/windows')
 
 function notify(msg) {
     windows.notify.init(msg)
-
 }

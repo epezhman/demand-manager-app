@@ -1,4 +1,4 @@
-var main = module.exports = {
+let main = module.exports = {
     init,
     logMessage,
     logErrorMessage,
@@ -23,7 +23,7 @@ function init(windowType) {
         }
         return main.win.focus()
     }
-    var win = main.win = new electron.BrowserWindow({
+    let win = main.win = new electron.BrowserWindow({
         backgroundColor: '#ECECEC',
         center: true,
         fullscreen: false,

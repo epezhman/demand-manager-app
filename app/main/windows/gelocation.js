@@ -1,4 +1,4 @@
-var gelocation = module.exports = {
+let gelocation = module.exports = {
     init,
     win: null
 }
@@ -11,7 +11,7 @@ function init(locationCommand) {
     if (gelocation.win) {
         return gelocation.win.webContents.send(locationCommand, true)
     }
-    var win = gelocation.win = new electron.BrowserWindow({
+    let win = gelocation.win = new electron.BrowserWindow({
         icon: config.APP_ICON,
         title: config.APP_WINDOW_TITLE + ' - Gelocation',
         width: 400,

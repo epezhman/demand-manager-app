@@ -4,8 +4,8 @@ module.exports = {
     init
 }
 
-var config = require('../config')
-var electron = require('electron')
+const config = require('../config')
+const electron = require('electron')
 
 function init(extra) {
     electron.crashReporter.start({

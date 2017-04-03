@@ -1,4 +1,4 @@
-var notify = module.exports = {
+let notify = module.exports = {
     init,
     win: null
 }
@@ -11,7 +11,7 @@ function init(msg) {
     if (notify.win) {
         return notify.win.webContents.send('notify', msg)
     }
-    var win = notify.win = new electron.BrowserWindow({
+    let win = notify.win = new electron.BrowserWindow({
         icon: config.APP_ICON,
         title: config.APP_WINDOW_TITLE + ' - Notify',
         show: false

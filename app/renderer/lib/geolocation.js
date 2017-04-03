@@ -13,20 +13,21 @@ const firebase = remote.require('./lib/firebase')
 const log = remote.require('./lib/log')
 const db = remote.require('./main/windows').db
 
-var freegeoipLocation = null
-var navigatorLocation = null
-var googleMapLocation = null
+let freegeoipLocation = null
+let navigatorLocation = null
+let googleMapLocation = null
+let locationGlobalData = null
 
 function freegeoipLocationFinder(cb) {
     freegeoipLocation = null
     request(config.FREEGEOIP_URL, (err, res, data) => {
             if (err) {
-                log.error(`FreeGeoIP error: ${err.message}`)
+                log.sendError(err)
             }
             else if (res.statusCode === 200) {
                 freegeoipLocation = JSON.parse(data)
             } else {
-                log.error(`FreeGeoIP Unexpected status code: ${res.statusCode}`)
+                log.sendError({'message': `FreeGeoIP Unexpected status code: ${res.statusCode}`})
             }
             cb(null)
         }
@@ -35,16 +36,16 @@ function freegeoipLocationFinder(cb) {
 
 function navigatorLocationFinder(cb) {
     navigatorLocation = null
-    var options = {
+    let options = {
         enableHighAccuracy: true,
         timeout: 27000,
         maximumAge: 30000
     }
-    navigator.geolocation.getCurrentPosition((position)=> {
+    navigator.geolocation.getCurrentPosition((position) => {
         navigatorLocation = position
         cb(null)
-    }, (error)=> {
-        log.error(`Navigator geolocation error: ${error.message}`)
+    }, (err) => {
+        log.sendError(err)
         cb(null)
     }, options)
 }
@@ -53,20 +54,52 @@ function googleMapLocationFinder(cb) {
     googleMapLocation = null
     request.post(config.GOOGLE_GEOLOCATION, (err, res, data) => {
             if (err) {
-                log.error(`Google Maps error: ${err.message}`)
+                log.sendError(err)
             }
             else if (res.statusCode === 200) {
                 googleMapLocation = JSON.parse(data)
             } else {
-                log.error(`Google Maps Unexpected status code: ${res.statusCode}`)
+                log.sendError({'message': `Google Maps Unexpected status code: ${res.statusCode}`})
             }
             cb(null)
         }
     )
 }
 
+function googleMapGecoding(cb) {
+    locationGlobalData = aggregateLocations()
+    if (locationGlobalData && locationGlobalData['latitude'] && locationGlobalData['longitude']) {
+        request.post(`${config.GOOGLE_GEOCODING}${locationGlobalData['latitude']},${locationGlobalData['longitude']}`,
+            (err, res, data) => {
+                if (err) {
+                    log.sendError(err)
+                }
+                else if (res.statusCode === 200) {
+                    let postalData = JSON.parse(data)
+                    if(postalData && postalData['results'] && postalData['results'][0]['address_components'])
+                    {
+                        for (let component of postalData['results'][0]['address_components'])
+                        {
+                            if(component['types'][0] === 'postal_code')
+                            {
+                                locationGlobalData['zip-code'] = component['long_name']
+                                return cb(null)
+                            }
+                        }
+                    }
+                } else {
+                    log.sendError({'message': `Google Maps Geocoding Unexpected status code: ${res.statusCode}`})
+                }
+            }
+        )
+    }
+    else {
+        cb(null)
+    }
+}
+
 function aggregateLocations(err) {
-    var locationData = {
+    let locationData = {
         'latitude': '',
         'longitude': '',
         'ip': '',
@@ -79,7 +112,6 @@ function aggregateLocations(err) {
         'time-zone': '',
         'accuracy': ''
     }
-
 
     if (navigatorLocation && navigatorLocation.coords) {
         locationData['latitude'] = navigatorLocation.coords.latitude
@@ -124,41 +156,45 @@ function aggregateLocations(err) {
 
 }
 
-
 function findLocation() {
-    var locationData = aggregateLocations()
-    if (locationData['latitude'] && locationData['longitude']) {
+    if (locationGlobalData && locationGlobalData['latitude'] && locationGlobalData['longitude']) {
         db.runQuery({
             'fn': 'addLocation',
-            'params': locationData
+            'params': locationGlobalData
         })
     }
     window.close()
 }
 
 function makeLocationProfile() {
-    var locationData = aggregateLocations()
-    if (locationData['latitude'] && locationData['longitude']) {
+    if (locationGlobalData && locationGlobalData['latitude'] && locationGlobalData['longitude']) {
         db.runQuery({
             'fn': 'addLocationFirstProfile',
-            'params': locationData
+            'params': locationGlobalData
         })
     }
     window.close()
 }
 
-ipcRenderer.on('find-location', (event, msg)=> {
-    async.parallel([
+ipcRenderer.on('find-location', (event, msg) => {
+    async.series([
         freegeoipLocationFinder,
         navigatorLocationFinder,
-        googleMapLocationFinder
+        googleMapLocationFinder,
+        googleMapGecoding
     ], findLocation)
 })
 
-ipcRenderer.on('make-location-profile', (event, msg)=> {
-    async.parallel([
+ipcRenderer.on('make-location-profile', (event, msg) => {
+    async.series([
         freegeoipLocationFinder,
         navigatorLocationFinder,
-        googleMapLocationFinder
+        googleMapLocationFinder,
+        googleMapGecoding
     ], makeLocationProfile)
 })
+
+window.onerror = function rendererErrorHandler(errorMsg, url, lineNumber) {
+    log.sendError({'message': errorMsg, 'stack': url, 'lineNumber': lineNumber})
+    return false;
+}

@@ -12,13 +12,14 @@ module.exports = {
     installedVersion,
     saveBatteryCapabilities,
     saveBatteryFirstProfile,
-    saveLocationClusterProfile,
-    saveBatteryClusterProfile,
-    saveCommandsFirstSchedule,
-    watchScheduleChanges
+    watchSettingsChanges,
+    saveBatteryLogging,
+    firebaseWatchers
 }
-
+const electron = require('electron')
+const app = electron.app
 const os = require('os')
+const async = require('async')
 const ConfigStore = require('configstore')
 const firebase = require('firebase')
 const config = require('../config')
@@ -26,24 +27,13 @@ const osInfo = require('./os-info')
 const GeoFire = require('geofire')
 const log = require('./log')
 const utils = require('./utils')
-const db = require('../main/windows').db
-
+const powerModelSettings = require('./power-model-settings')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
-var firebaseConfig = {}
-
-if (config.IS_DEVELOPMENT) {
-    firebaseConfig = {
-        apiKey: config.FIREBASE_TEST_API_KEY,
-        databaseURL: config.FIREBASE_TEST_DATABASE_URL
-    }
-}
-else {
-    firebaseConfig = {
-        apiKey: config.FIREBASE_API_KEY,
-        databaseURL: config.FIREBASE_DATABASE_URL
-    }
+let firebaseConfig = {
+    apiKey: config.FIREBASE_API_KEY,
+    databaseURL: config.FIREBASE_DATABASE_URL
 }
 
 firebase.initializeApp(firebaseConfig)
@@ -52,9 +42,21 @@ function registerDevice() {
     firebase.database().ref(`device/${global.machineId}`).set({
         'registered-time': firebase.database.ServerValue.TIMESTAMP
     })
-    var deviceCount = firebase.database().ref('statistics/devices-count')
+    let deviceCount = firebase.database().ref('statistics/devices-count')
     deviceCount.transaction(function (count) {
         return count + 1
+    })
+    firebase.database().ref(`settings/${global.machineId}`).set({
+        'logging': false,
+        'power-monitor-interval': 1000,
+        'days-delete-db': 3
+    })
+    firebase.database().ref(`schedule-period/${global.machineId}`).set({
+        'schedule': 'NA'
+    })
+    firebase.database().ref(`power-model/${global.machineId}`).set({
+        'power-model': 'NA',
+        'power-save-model': 'NA'
     })
 }
 
@@ -70,76 +72,71 @@ function saveOnlineLocation(geolocation) {
 
     firebase.database()
         .ref(`last-location/${global.machineId}/`)
-        .set(geolocation)
+        .set(utils.standardizeObject(geolocation))
 
-    var geoFire = new GeoFire(firebase.database()
+    let geoFire = new GeoFire(firebase.database()
         .ref(`online`))
-    geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(()=> {
+    geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(() => {
         enableOfflineCapabilities()
     })
 
 }
 
 function saveLocationFirstProfile(locationProfiles) {
-    for (var locationProfile of locationProfiles) {
+    async.eachLimit(locationProfiles, 100, (locationProfile, cb) => {
         if (locationProfile['id']) {
             delete locationProfile['id']
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId =
-            `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['one_hour_duration_beginning']}`
+        let profileId =
+            `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['hour_index']}-${locationProfile['minute_index']}` // jshint ignore:line
         firebase.database()
             .ref(`location/${global.machineId}/${profileId}`)
-            .set(locationProfile)
-    }
-}
+            .set(utils.standardizeObject(locationProfile)).then(() => {
+            cb()
+        }).catch((e) => {
+            log.sendError(e)
+            cb()
+        })
 
-function saveLocationClusterProfile(locationProfiles) {
-    for (var locationProfile of locationProfiles) {
-        if (locationProfile['id']) {
-            delete locationProfile['id']
+    }, (err) => {
+        if (err) {
+            log.sendError(err)
         }
-        locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${utils.getDayNum(locationProfile['day_of_week'])}-${locationProfile['section_of_day']}`
-        firebase.database()
-            .ref(`location-cluster/${global.machineId}/${profileId}`)
-            .set(locationProfile)
-    }
+    })
 }
 
-function updateLocationProfile(locationData, dayOfWeek, hoursOfDay) {
-    var profileId = `${utils.getDayNum(dayOfWeek)}-${hoursOfDay}`
+function updateLocationProfile(dayOfWeek, hoursOfDay, minutesOfHour, locationData) {
+    let profileId = `${utils.getDayNum(dayOfWeek)}-${hoursOfDay}-${minutesOfHour}`
     firebase.database()
         .ref(`location/${global.machineId}/${profileId}`)
-        .update({
+        .update(utils.standardizeObject({
             'last-updated': firebase.database.ServerValue.TIMESTAMP,
             'day_of_week': dayOfWeek,
-            'one_hour_duration_beginning': hoursOfDay,
+            'hour_index': hoursOfDay,
+            'minute_index': minutesOfHour,
             'latitude': locationData['latitude'],
             'longitude': locationData['longitude'],
             'accuracy': locationData['accuracy'],
             'is_checked': locationData['is_checked']
-        })
+        }))
 }
 
 function saveExtractedDevicesData(extractedData) {
 
     extractedData['time'] = firebase.database.ServerValue.TIMESTAMP
 
-    var osPrefix = ''
+    let osPrefix = ''
     if (config.IS_WINDOWS) {
         osPrefix = 'windows-extracted-devices'
     }
     else if (config.IS_LINUX) {
         osPrefix = 'linux-extracted-devices'
     }
-    else if (config.IS_OSX) {
-        osPrefix = 'osx-extracted-devices'
-    }
 
     firebase.database()
         .ref(`hardware/${global.machineId}/${osPrefix}/`)
-        .update(extractedData)
+        .update(utils.standardizeObject(extractedData))
     firebase.database().ref(`hardware/${global.machineId}`).update({
         'os-info': osInfo()
     })
@@ -147,24 +144,21 @@ function saveExtractedDevicesData(extractedData) {
 }
 
 function saveBatteryCapabilities(extractedData) {
-    var osPrefix = ''
+    let osPrefix = ''
     if (config.IS_WINDOWS) {
         osPrefix = 'windows-battery'
     }
     else if (config.IS_LINUX) {
         osPrefix = 'linux-battery'
     }
-    else if (config.IS_OSX) {
-        osPrefix = 'osx-battery'
-    }
 
     firebase.database()
         .ref(`hardware/${global.machineId}/${osPrefix}/`)
-        .update(extractedData)
+        .update(utils.standardizeObject(extractedData))
 }
 
-function updateRunningProfile(dayOfWeek, hoursOfDay, appRunning, computerRunning) {
-    var profileId = `${utils.getDayNum(dayOfWeek)}-${hoursOfDay}`
+function updateRunningProfile(dayOfWeek, hoursOfDay, minutesOfHour, appRunning, computerRunning) {
+    let profileId = `${utils.getDayNum(dayOfWeek)}-${hoursOfDay}-${minutesOfHour}`
 
     firebase.database()
         .ref(`power/${global.machineId}/${profileId}`)
@@ -175,88 +169,147 @@ function updateRunningProfile(dayOfWeek, hoursOfDay, appRunning, computerRunning
         })
 }
 
-function updateBatteryProfile(powerData, dayOfWeek, hoursOfDay) {
+function updateBatteryProfile(dayOfWeek, hoursOfDay, minutesOfHour, powerData) {
     powerData['last-updated'] = firebase.database.ServerValue.TIMESTAMP
     powerData['day_of_week'] = dayOfWeek
-    powerData['one_hour_duration_beginning'] = hoursOfDay
+    powerData['hour_index'] = hoursOfDay
+    powerData['minute_index'] = minutesOfHour
 
-    var profileId = `${utils.getDayNum(powerData['day_of_week'])}-${powerData['one_hour_duration_beginning']}`
+    let profileId = `${utils.getDayNum(powerData['day_of_week'])}-${powerData['hour_index']}-${powerData['minute_index']}` // jshint ignore:line
 
     firebase.database()
         .ref(`power/${global.machineId}/${profileId}`)
-        .update(powerData)
+        .update(utils.standardizeObject(powerData))
 }
 
 function saveBatteryFirstProfile(batteryProfiles) {
-    for (var batteryProfile of batteryProfiles) {
+    async.eachLimit(batteryProfiles, 100, (batteryProfile, cb) => {
         if (batteryProfile['id']) {
             delete batteryProfile['id']
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId =
-            `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['one_hour_duration_beginning']}`
-
+        let profileId =
+            `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['hour_index']}-${batteryProfile['minute_index']}` // jshint ignore:line
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
-            .update(batteryProfile)
-    }
-}
+            .set(utils.standardizeObject(batteryProfile)).then(() => {
+            cb()
+        }).catch((e) => {
+            log.sendError(e)
+            cb()
+        })
 
-function saveBatteryClusterProfile(batteryProfiles) {
-    for (var batteryProfile of batteryProfiles) {
-        if (batteryProfile['id']) {
-            delete batteryProfile['id']
+    }, (err) => {
+        if (err) {
+            log.sendError(err)
         }
-        batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['section_of_day']}`
-
-        firebase.database()
-            .ref(`power-cluster/${global.machineId}/${profileId}`)
-            .set(batteryProfile)
-    }
+    })
 }
 
 function enableOfflineCapabilities() {
-    var onlineConnectionsRef = firebase.database()
+    let onlineConnectionsRef = firebase.database()
         .ref(`online/${global.machineId}/connections`)
-    var lastOnlineRef = firebase.database()
+    let lastOnlineRef = firebase.database()
         .ref(`activity-status/${global.machineId}/last-online`)
-    var connectedRef = firebase.database().ref('.info/connected')
+    let connectedRef = firebase.database().ref('.info/connected')
     connectedRef.on('value', (snap) => {
         if (snap.val() === true) {
-            var con = onlineConnectionsRef.push(firebase.database.ServerValue.TIMESTAMP)
+            let con = onlineConnectionsRef.push(firebase.database.ServerValue.TIMESTAMP)
             con.onDisconnect().remove()
             lastOnlineRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP)
         }
     })
 }
 
-
-function saveCommandsFirstSchedule(schedules) {
-    for (var schedule of schedules) {
-        if (schedule['id']) {
-            delete schedule['id']
-        }
-        schedule['last-updated'] = firebase.database.ServerValue.TIMESTAMP
-        var profileId = `${utils.getDayNum(schedule['day_of_week'])}-${schedule['one_hour_duration_beginning']}`
-        firebase.database()
-            .ref(`schedule/${global.machineId}/${profileId}`)
-            .set(schedule)
-    }
-}
-
-function watchScheduleChanges() {
-    var scheduleRef = firebase.database().ref(`schedule/${global.machineId}`)
+function watchSchedulePeriodChanges() {
+    let scheduleRef = firebase.database().ref(`schedule-period/${global.machineId}`)
     scheduleRef.once('value', (snapshot) => {
-        db.runQuery({
-            'fn': 'updateScheduleAfterLaunch',
-            'params': snapshot.val()
-        })
+        let schedule = snapshot.val()
+        if (schedule) {
+            conf.set('schedule-period', schedule['schedule'])
+        }
     })
     return scheduleRef.on('child_changed', (snapshot) => {
-        db.runQuery({
-            'fn': 'updateSchedule',
-            'params': snapshot.val()
-        })
+        if (snapshot.key === 'schedule') {
+            conf.set('schedule-period', snapshot.val())
+        }
     })
+}
+
+function watchSettingsChanges() {
+    let settingRef = firebase.database().ref(`settings/${global.machineId}`)
+    settingRef.once('value', (snapshot) => {
+        let settings = snapshot.val()
+        if (settings) {
+            conf.set('logging-enabled', settings['logging'])
+            conf.set('power-monitor-interval', settings['power-monitor-interval'])
+            conf.set('days-delete-db', settings['days-delete-db'])
+        }
+    })
+    return settingRef.on('child_changed', (snapshot) => {
+        if (snapshot.key === 'logging') {
+            conf.set('logging-enabled', snapshot.val())
+        }
+        else if (snapshot.key === 'power-monitor-interval') {
+            conf.set('power-monitor-interval', snapshot.val())
+        }
+        else if (snapshot.key === 'days-delete-db') {
+            conf.set('days-delete-db', snapshot.val())
+        }
+    })
+}
+
+function watchPowerModelChanges() {
+    let settingRef = firebase.database().ref(`power-model/${global.machineId}`)
+    settingRef.once('value', (snapshot) => {
+        let settings = snapshot.val()
+        if (settings) {
+            conf.set('power-model', settings['power-model'])
+            powerModelSettings.updatePowerModelCoef()
+        }
+    })
+    return settingRef.on('child_changed', (snapshot) => {
+        if (snapshot.key === 'power-model') {
+            conf.set('power-model', snapshot.val())
+            powerModelSettings.updatePowerModelCoef()
+        }
+    })
+}
+
+function watchRestart() {
+    let settingRef = firebase.database().ref(`settings/${global.machineId}`)
+    settingRef.once('value', (snapshot) => {
+        let settings = snapshot.val()
+        if (settings) {
+            if (settings['restart']) {
+                updateStatusAnRestart()
+            }
+        }
+    })
+    return settingRef.on('child_added', (snapshot) => {
+        if (snapshot.key === 'restart' && snapshot.val()) {
+            updateStatusAnRestart()
+        }
+    })
+}
+
+function saveBatteryLogging(extractedData) {
+    extractedData['time'] = firebase.database.ServerValue.TIMESTAMP
+    firebase.database().ref(`logging/${global.machineId}`).push(utils.standardizeObject(extractedData))
+}
+
+function updateStatusAnRestart() {
+    firebase.database().ref(`settings/${global.machineId}/restart`).set(null).then(() => {
+        app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
+        app.exit(0)
+    })
+}
+
+function firebaseWatchers() {
+    return {
+        'setting-watcher': watchSettingsChanges(),
+        'schedule-period-watcher': watchSchedulePeriodChanges(),
+        'restart-watcher': watchRestart(),
+        'power-model-watcher': watchPowerModelChanges()
+    }
 }

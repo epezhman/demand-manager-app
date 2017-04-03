@@ -1,37 +1,37 @@
 {
   "name": "i13dmdesktop",
-  "productName": "i13 Demand Manager",
+  "productName": "i13DemandManager",
   "description": "i13 Demand Manager for Desktop",
-  "version": "0.1.41",
+  "version": "0.1.51",
   "author": {
     "name": "TUM, Institute of Informatics",
     "email": "p.nasirifard@tum.de",
-    "url": ""
+    "url": "http://i13dr.de/"
   },
   "main": "./main.js",
   "license": "MIT",
-  "homepage": "https://www.i13.in.tum.de/",
+  "homepage": "http://i13dr.de/",
   "dependencies": {
     "@paulcbetts/system-idle-time": "1.0.4",
     "application-config": "1.0.1",
     "async": "2.1.5",
     "auto-launch": "5.0.1",
     "bindings": "1.2.1",
-    "configstore": "2.1.0",
+    "configstore": "3.0.0",
     "electron-positioner": "3.0.0",
     "electron-squirrel-startup": "1.0.0",
-    "firebase": "3.5.0",
-    "firebase-safekey": "0.1.7",
+    "firebase": "3.7.3",
+    "firebase-safekey": "0.1.8",
     "geofire": "4.1.2",
-    "is-online": "5.1.2",
-    "jquery": "3.1.1",
-    "lodash": "4.16.4",
-    "lovefield": "2.1.10",
-    "moment": "2.15.1",
+    "is-online": "7.0.0",
+    "jquery": "3.2.1",
+    "lodash": "4.17.4",
+    "lovefield": "2.1.12",
+    "moment": "2.18.1",
     "ms-wmic": "1.0.4",
-    "node-uuid": "1.4.7",
-    "q": "1.4.1",
-    "request": "2.75.0",
-    "sudo-prompt": "6.2.0"
+    "node-uuid": "1.4.8",
+    "q": "1.5.0",
+    "request": "2.81.0",
+    "sudo-prompt": "7.0.0"
   }
 }

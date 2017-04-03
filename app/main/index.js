@@ -20,7 +20,9 @@ const monitor = require('../lib/monitor')
 const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
 const env = require('../lib/envs')
-const cm = require('../lib/command-manager')
+const powerControl = require('../lib/power-control')
+const db = windows.db
+
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -35,18 +37,26 @@ if (shouldQuit) {
 
 global.machineId = null
 
-var firebaseScheduleWatch = null
+
+let firebaseWatchers = null
 
 function delayedStart() {
     monitor.init()
     monitor.initDMFlags()
-    cm.init()
+    powerControl.init()
     firebase.enableOfflineCapabilities()
     firebase.installedVersion()
-    firebaseScheduleWatch = firebase.watchScheduleChanges()
+    firebaseWatchers = firebase.firebaseWatchers()
     if (!config.IS_DEVELOPMENT) {
         updater.init()
     }
+}
+
+function initDB() {
+    db.runQuery({
+        'fn': 'getDB',
+        'params': []
+    })
 }
 
 app.on('will-finish-launching', () => {
@@ -72,9 +82,14 @@ app.on('ready', () => {
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
     setTimeout(monitor.extractDevicesData, config.DELAY_START_TIME_FIRST_TIME)
+    initDB()
     electron.powerMonitor.on('resume', () => {
         firebase.enableOfflineCapabilities()
-        firebaseScheduleWatch = firebase.watchScheduleChanges()
+        firebaseWatchers = firebase.firebaseWatchers()
         monitor.initDMFlags()
     })
 })
+
+process.on('uncaughtException', (err) => {
+    log.sendError(err)
+});

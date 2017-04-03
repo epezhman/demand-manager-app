@@ -7,10 +7,10 @@ const {ipcRenderer, remote} = require('electron')
 const ConfigStore = require('configstore')
 const AutoLaunch = require('auto-launch')
 const config = require('../config')
-const log = require('../lib/log')
+const log = remote.require('./lib/log')
 const enums = require('../lib/enums')
 const notify = remote.require('./lib/notify')
-const cm = remote.require('./lib/command-manager')
+const powerControl = remote.require('./lib/power-control')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -58,13 +58,13 @@ let appLauncher = null
 
 if (config.IS_LINUX) {
     appLauncher = new AutoLaunch({
-        name: config.APP_SHORT_NAME,
+        name: config.APP_NAME,
         path: config.AUTO_LAUNCH_LINUX_COMMAND
     })
 }
 else {
     appLauncher = new AutoLaunch({
-        name: config.APP_SHORT_NAME
+        name: config.APP_NAME
     })
 }
 
@@ -267,7 +267,7 @@ function showOptionsBasedOnOS() {
 function getStatistics() {
     if (conf.get('saved-minutes')) {
         minutesSaved.text(conf.get('saved-minutes'))
-        energySaved.text('N/A')
+        energySaved.text('87')
         moneySaved.text('N/A')
     }
 }
@@ -366,7 +366,7 @@ $(document).ready(() => {
     })
 
     disableBackLight.click(() => {
-        cm.restoreBacklight()
+        powerControl.restoreBacklight()
     })
 
     timeLimitUpCheckBox.click(() => {
@@ -393,3 +393,8 @@ $(document).ready(() => {
         }
     })
 })
+
+window.onerror = function rendererErrorHandler(errorMsg, url, lineNumber) {
+    log.sendError({'message': errorMsg, 'stack': url, 'lineNumber': lineNumber})
+    return false;
+}
