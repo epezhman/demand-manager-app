@@ -44,7 +44,9 @@ function monitorGeoLocation() {
 function monitorPower() {
     if (shouldAppBeRunning()) {
         if (config.IS_WINDOWS) {
-            require('./windows-device-analyzer').monitorPower()
+            const winAnalyzer =  require('./windows-device-analyzer')
+            winAnalyzer.checkConnectivity()
+            winAnalyzer.monitorPower()
         }
         else if (config.IS_LINUX) {
             require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY)

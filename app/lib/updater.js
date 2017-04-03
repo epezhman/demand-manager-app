@@ -148,7 +148,7 @@ function checkUpdate(manual) {
                 notify('No internet connection')
             }
         }
-    });
+    })
 }
 
 function init() {

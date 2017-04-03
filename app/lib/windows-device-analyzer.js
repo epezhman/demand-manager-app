@@ -6,7 +6,8 @@ module.exports = {
     monitorPower,
     batteryCapabilities,
     batteryFirstTimeProfile,
-    addRunning
+    addRunning,
+    checkConnectivity
 }
 
 const config = require('../config')
@@ -17,6 +18,7 @@ const firebase = require('./firebase')
 const enums = require('./enums')
 const db = require('../main/windows').db
 const powerModel = require('./power-model')
+const isOnline = require('is-online')
 
 const wmic = require('ms-wmic')
 const _ = require('lodash/string')
@@ -29,6 +31,13 @@ const conf = new ConfigStore(config.APP_SHORT_NAME)
 let windowsDeviceData = {}
 let batteryData = {}
 let batteryCapabilitiesData = {}
+let isComputerOnline = false
+
+function checkConnectivity() {
+    isOnline().then(online => {
+        isComputerOnline = !!online;
+    })
+}
 
 function runWMIC(wmicCommand, paramCallback) {
     try {
@@ -82,12 +91,6 @@ function runAsyncCommands(wmicCommands) {
         if (err) {
             log.error(err.message)
         }
-        // log.error(Object.keys(batteryData).length)
-        // if (Object.keys(batteryData).length < 33)
-        // {
-        //     log(batteryData)
-        // }
-
         if (wmicCommands.commandType === enums.WMICommandType.DEVICE) {
             firebase.saveExtractedDevicesData(windowsDeviceData)
         }
@@ -148,10 +151,12 @@ function runAsyncCommands(wmicCommands) {
                 'download_kb': downloadRate.length ? Math.round(parseInt(downloadRate[0]) / 1024) : 0,
                 'upload_kb': uploadRate.length ? Math.round(parseInt(uploadRate[0]) / 1024) : 0,
                 'wifi': true,
-                'internet_connected': false,
+                'internet_connected': isComputerOnline,
                 'dm_enabled': !!conf.get('dm-already-start')
             }
             batteryObject = utils.standardizeNumberObject(batteryObject)
+            log(batteryObject)
+
             if (wmicCommands.commandType === enums.LinuxPowerMonitor.BATTERY) {
                 if (conf.get('logging-enabled')) {
                     firebase.saveBatteryLogging(batteryObject)
