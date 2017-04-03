@@ -36,9 +36,11 @@ function installUpdate(downloadPath) {
             if (err) {
                 log.sendError(err)
             }
+            else {
+                app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
+                app.exit(0)
+            }
         })
-        app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
-        app.exit(0)
     })
 }
 
