@@ -132,7 +132,9 @@ function runAsyncCommands(wmicCommands) {
                     batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec'].length) : 0
             let indexOfWLAN = batteryData['win32_networkadapter-netconnectionid'] ?
                 batteryData['win32_networkadapter-netconnectionid'].indexOf('WLAN') : -1
-            let wifiEnabled = indexOfWLAN > -1 ? !!batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] &&
+            let wifiEnabled = indexOfWLAN > -1 ?
+                !!batteryData['win32_networkadapter-netconnectionstatus'] &&
+                !!batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] &&
                 batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] === '2' : false
             let batteryObject = {
                 'remaining_time_minutes': remainingTime,
