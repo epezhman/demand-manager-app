@@ -32,6 +32,7 @@ const battery = {
 
 function powerNormalEstimate(systemMetrics, math) {
     return math.sqrt(-4);
+    //return math.log(10000, 10);
     //return 5 * systemMetrics['power_rate_w'] + 10
 }
 
