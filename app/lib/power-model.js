@@ -39,7 +39,6 @@ function powerSaveEstimate(systemMetrics) {
 function tryLoadingPowerModelFileAgain() {
     try {
         log('Power reload')
-        powerModelCal = null
         powerModelCal =
             reload(`${app.getPath('userData')}${config.POWER_MODEL_FILE_BASE_DIR}/${config.POWER_MODEL_FILE_NAME}`)
     } catch (err) {
