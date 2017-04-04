@@ -2,6 +2,7 @@
 
 module.exports = {
     convertWmicStringToList,
+    convertWmicStringWithSpaceToList,
     standardizeForFirebase,
     tryConvertToJson,
     hoursToMinutes,
@@ -40,6 +41,12 @@ function convertWmicStringToList(str) {
     return str
 }
 
+function convertWmicStringWithSpaceToList(str) {
+    if (str.includes(`\r\r`)) {
+        return _.split(str.replace(/\r\r/g, ',').replace(/[ ]+/g, ''), /[,]+/g)
+    }
+    return str
+}
 
 function standardizeForFirebase(jsonStr) {
     return JSON.parse(jsonStr, (key, value) => {

@@ -53,8 +53,14 @@ function runWMIC(wmicCommand, paramCallback) {
             }
             else if (wmicCommand.commandType === enums.WMICommandType.BATTERY ||
                 wmicCommand.commandType === enums.WMICommandType.BATTERY_FIRST_PROFILE) {
-                batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
-                    utils.convertWmicStringToList(stdOut)
+                if (wmicCommand.wmiClass === 'Win32_NetworkAdapter') {
+                    batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
+                        utils.convertWmicStringWithSpaceToList(stdOut)
+                }
+                else {
+                    batteryData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
+                        utils.convertWmicStringToList(stdOut)
+                }
             }
             else if (wmicCommand.commandType === enums.WMICommandType.BATTERY_CAPABILITY) {
                 batteryCapabilitiesData[_.toLower(`${wmicCommand.wmiClass}-${wmicCommand.command}`)] =
@@ -124,6 +130,10 @@ function runAsyncCommands(wmicCommands) {
                 Math.round((batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec']
                         .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
                     batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec'].length) : 0
+            let indexOfWLAN = batteryData['win32_networkadapter-netconnectionid'] ?
+                batteryData['win32_networkadapter-netconnectionid'].indexOf('WLAN') : -1
+            let wifiEnabled = indexOfWLAN > -1 ? !!batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] &&
+                batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] === '2' : false
             let batteryObject = {
                 'remaining_time_minutes': remainingTime,
                 'power_rate_w': dischargeRate > 0 ? dischargeRate : chargeRate,
@@ -150,13 +160,11 @@ function runAsyncCommands(wmicCommands) {
                     batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'].length - 1 : 'NaN',
                 'download_kb': downloadRate.length ? Math.round(parseInt(downloadRate[0]) / 1024) : 0,
                 'upload_kb': uploadRate.length ? Math.round(parseInt(uploadRate[0]) / 1024) : 0,
-                'wifi': true,
+                'wifi': wifiEnabled,
                 'internet_connected': isComputerOnline,
                 'dm_enabled': !!conf.get('dm-already-start')
             }
             batteryObject = utils.standardizeNumberObject(batteryObject)
-            log(batteryObject)
-
             if (wmicCommands.commandType === enums.LinuxPowerMonitor.BATTERY) {
                 if (conf.get('logging-enabled')) {
                     firebase.saveBatteryLogging(batteryObject)
