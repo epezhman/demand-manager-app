@@ -13,7 +13,7 @@ function init() {
     conf.set('turn-off-screen', true)
     conf.set('suspend-computer', false)
 
-    conf.set('power-model', 'NA')
+    conf.set('power-model-url', config.POWER_MODEL_URL)
     conf.set('schedule-period', 'NA')
     conf.set('logging-enabled', false)
     conf.set('days-delete-db', config.DAYS_TO_DELETE_DB)

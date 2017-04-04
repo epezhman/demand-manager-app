@@ -32,8 +32,8 @@ function sendError(err) {
     /* jshint ignore:start */
     request.post(config.EXCEPTION_REPORT_URL, {form: {device_id: tempId, error: errorString}}, (err, res, data) => {
         if (err) {
-            error(res);
-            error(data);
+            error(res)
+            error(data)
         }
     })
     /* jshint ignore:end */

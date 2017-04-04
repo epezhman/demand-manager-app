@@ -35,7 +35,7 @@ let isComputerOnline = false
 
 function checkConnectivity() {
     isOnline().then(online => {
-        isComputerOnline = !!online;
+        isComputerOnline = !!online
     })
 }
 

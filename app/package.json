@@ -27,11 +27,14 @@
     "jquery": "3.2.1",
     "lodash": "4.17.4",
     "lovefield": "2.1.12",
+    "mathjs": "3.11.4",
+    "mkdirp": "0.5.1",
     "moment": "2.18.1",
     "ms-wmic": "1.0.4",
     "node-uuid": "1.4.8",
     "q": "1.5.0",
     "request": "2.81.0",
+    "require-reload": "^0.2.2",
     "sudo-prompt": "7.0.0"
   }
 }

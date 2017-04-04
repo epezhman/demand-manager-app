@@ -55,8 +55,7 @@ function registerDevice() {
         'schedule': 'NA'
     })
     firebase.database().ref(`power-model/${global.machineId}`).set({
-        'power-model': 'NA',
-        'power-save-model': 'NA'
+        'power-model-url': config.POWER_MODEL_URL
     })
 }
 
@@ -264,14 +263,14 @@ function watchPowerModelChanges() {
     settingRef.once('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
-            conf.set('power-model', settings['power-model'])
-            powerModelSettings.updatePowerModelCoef()
+            conf.set('power-model-url', settings['power-model-url'])
+            powerModelSettings.updatePowerModelFile()
         }
     })
     return settingRef.on('child_changed', (snapshot) => {
-        if (snapshot.key === 'power-model') {
-            conf.set('power-model', snapshot.val())
-            powerModelSettings.updatePowerModelCoef()
+        if (snapshot.key === 'power-model-url') {
+            conf.set('power-model-url', snapshot.val())
+            powerModelSettings.updatePowerModelFile()
         }
     })
 }

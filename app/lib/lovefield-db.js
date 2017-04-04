@@ -535,7 +535,7 @@ function genericCaller(op, cb) {
 
 window.onerror = function rendererErrorHandler(errorMsg, url, lineNumber) {
     log.sendError({'message': errorMsg, 'stack': url, 'lineNumber': lineNumber})
-    return false;
+    return false
 }
 
 /* jshint ignore:end */

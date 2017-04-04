@@ -101,7 +101,6 @@ function addRunningProfile() {
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
         InitialSettings.init()
-        powerModelSettings.init()
         windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')

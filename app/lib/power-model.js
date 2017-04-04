@@ -2,40 +2,47 @@
 
 module.exports = {
     powerNormalEstimate,
-    powerSaveEstimate
+    powerSaveEstimate,
+    tryLoadingPowerModelFileAgain
 }
 
-const ConfigStore = require('configstore')
-
+const fs = require('fs')
+const electron = require('electron')
+const app = electron.app
+const log = require('./log')
+const math = require('mathjs')
 const config = require('../config')
+const reload = require('require-reload')(require)
 
-const conf = new ConfigStore(config.APP_SHORT_NAME)
-
+let powerModelCal = null
+try {
+    powerModelCal =
+        reload(`${app.getPath('userData')}${config.POWER_MODEL_FILE_BASE_DIR}/${config.POWER_MODEL_FILE_NAME}`)
+} catch (err) {
+    log.sendError(err)
+}
 
 function powerNormalEstimate(systemMetrics) {
-    return conf.get('intercept') +
-        conf.get('remaining_time_coef') * systemMetrics['remaining_time_minutes'] +
-        conf.get('power_rate_coef') * systemMetrics['power_rate_w'] +
-        conf.get('remaining_capacity_coef') * systemMetrics['remaining_capacity_percent'] +
-        conf.get('voltage_coef') * systemMetrics['voltage_v'] +
-        conf.get('charging_coef') * systemMetrics['charging_bool'] +
-        conf.get('discharging_coef') * systemMetrics['discharging_bool'] +
-        conf.get('ac_connected_coef') * systemMetrics['ac_connected_bool'] +
-        conf.get('brightness_coef') * systemMetrics['brightness_percent'] +
-        conf.get('memory_percent_coef') * systemMetrics['memory_percent'] +
-        conf.get('memory_mb_coef') * systemMetrics['memory_mb'] +
-        conf.get('read_request_per_s_coef') * systemMetrics['read_request_per_s'] +
-        conf.get('read_kb_per_s_coef') * systemMetrics['read_kb_per_s'] +
-        conf.get('write_request_per_s_coef') * systemMetrics['write_request_per_s'] +
-        conf.get('write_kb_per_s_coef') * systemMetrics['write_kb_per_s'] +
-        conf.get('cpu_usage_percent_coef') * systemMetrics['cpu_usage_percent'] +
-        conf.get('cpu_cores_coef') * systemMetrics['cpu_cores'] +
-        conf.get('download_kb_coef') * systemMetrics['download_kb'] +
-        conf.get('upload_kb_coef') * systemMetrics['upload_kb'] +
-        conf.get('wifi_coef') * systemMetrics['wifi'] +
-        conf.get('internet_connected_coef') * systemMetrics['internet_connected'];
+    if (powerModelCal) {
+        log(powerModelCal.powerNormalEstimate(systemMetrics, math))
+    }
+    return 0
 }
 
 function powerSaveEstimate(systemMetrics) {
-    return conf.get('power_save_coef') * powerNormalEstimate(systemMetrics)
+    if (powerModelCal) {
+        log(powerModelCal.powerNormalEstimate(systemMetrics, math))
+    }
+    return 0
+}
+
+function tryLoadingPowerModelFileAgain() {
+    try {
+        log('Power reload')
+        powerModelCal = null
+        powerModelCal =
+            reload(`${app.getPath('userData')}${config.POWER_MODEL_FILE_BASE_DIR}/${config.POWER_MODEL_FILE_NAME}`)
+    } catch (err) {
+        log.sendError(err)
+    }
 }

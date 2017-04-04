@@ -79,7 +79,12 @@ module.exports = {
     LOVEFIELD_DB_NAME: 'dmtum',
     LOVEFIELD_DB_VERSION: 40,
 
-    DAYS_TO_DELETE_DB: 30
+    DAYS_TO_DELETE_DB: 30,
+
+    POWER_MODEL_URL: 'https://firebasestorage.googleapis.com/v0/b/tum-dm-fireb.appspot.com/o/power_model_cal.js?' +
+    'alt=media&token=d2d02c69-6de2-4d15-8097-d6ca6812c54e',
+    POWER_MODEL_FILE_BASE_DIR: '/powerModels',
+    POWER_MODEL_FILE_NAME: 'power_model.js'
 }
 
 function getConfigPath() {
