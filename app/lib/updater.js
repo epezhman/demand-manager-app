@@ -8,9 +8,8 @@ module.exports = {
 const os = require('os')
 const path = require('path')
 const electron = require('electron')
-const autoUpdater = require('electron-updater').autoUpdater
+const autoUpdaterElectron = require('electron-updater')
 const app = electron.app
-const logElectron = require('electron-log');
 const request = require('request')
 const https = require('https')
 const fs = require('fs')
@@ -21,8 +20,6 @@ const config = require('../config')
 const log = require('./log')
 const notify = require('./notify')
 
-autoUpdater.logger = logElectron
-autoUpdater.logger.transports.file.level = 'info'
 
 let manualUpdate = false
 
@@ -88,6 +85,7 @@ function initLinux() {
 }
 
 function initWin32() {
+    let autoUpdater = autoUpdaterElectron.autoUpdater
     autoUpdater.on(
         'error',
         (err) => {
