@@ -23,6 +23,12 @@ const notify = require('./notify')
 let manualUpdate = false
 
 
+function deleteLinuxDownloadAndRestart(downloadPath) {
+    fs.unlinkSync(downloadPath)
+    app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
+    app.exit(0)
+}
+
 function installUpdate(downloadPath) {
     notify(`The latest version of the ${config.APP_NAME} is being installed.`)
     sudo.exec(`dpkg -i ${downloadPath}`, {name: config.APP_NAME}, (lshwJsonErr, lshwJsonStdout, lshwJsonStderr) => {
@@ -32,17 +38,9 @@ function installUpdate(downloadPath) {
             The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
         }
         notify(`Update was installed successfully.`)
-        fs.unlink(downloadPath, (err) => {
-            if (err) {
-                log.sendError(err)
-            }
-            else {
-                app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
-                setTimeout(() => {
-                    app.exit(0)
-                }, 50)
-            }
-        })
+        setTimeout(()=>{
+            deleteLinuxDownloadAndRestart(downloadPath)
+        }, 2000)
     })
 }
 
