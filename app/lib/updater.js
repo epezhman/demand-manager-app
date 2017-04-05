@@ -8,8 +8,9 @@ module.exports = {
 const os = require('os')
 const path = require('path')
 const electron = require('electron')
-const autoUpdater = electron.autoUpdater
+const autoUpdater = require('electron-updater').autoUpdater
 const app = electron.app
+const logElectron = require('electron-log');
 const request = require('request')
 const https = require('https')
 const fs = require('fs')
@@ -20,8 +21,10 @@ const config = require('../config')
 const log = require('./log')
 const notify = require('./notify')
 
-let manualUpdate = false
+autoUpdater.logger = logElectron
+autoUpdater.logger.transports.file.level = 'info'
 
+let manualUpdate = false
 
 function deleteLinuxDownloadAndRestart(downloadPath) {
     fs.unlinkSync(downloadPath)
@@ -38,7 +41,7 @@ function installUpdate(downloadPath) {
             The latest version of ${config.APP_NAME} can be found in your home dir, please update it.`)
         }
         notify(`Update was installed successfully.`)
-        setTimeout(()=>{
+        setTimeout(() => {
             deleteLinuxDownloadAndRestart(downloadPath)
         }, 2000)
     })
@@ -68,7 +71,6 @@ function onLinuxResponse(err, res, data) {
                 installUpdate(downloadPath)
             }
         })
-
     } else if (res.statusCode === 204) {
         if (manualUpdate) {
             notify('No new update is available.')
@@ -86,7 +88,6 @@ function initLinux() {
 }
 
 function initWin32() {
-    let feedURL = config.AUTO_UPDATE_WIN_BASE_URL + (os.arch() === 'x64' ? '64' : '32')
     autoUpdater.on(
         'error',
         (err) => {
@@ -94,22 +95,19 @@ function initWin32() {
             log.sendError(err)
         }
     )
-
     autoUpdater.on(
         'checking-for-update',
         () => {
         }
     )
-
     autoUpdater.on(
         'update-available',
         () => {
             if (manualUpdate) {
-                notify('Update is available and will be installed automatically.')
+                notify('Update is available and will be installed.')
             }
         }
     )
-
     autoUpdater.on(
         'update-not-available',
         () => {
@@ -118,16 +116,13 @@ function initWin32() {
             }
         }
     )
-
     autoUpdater.on(
         'update-downloaded',
         (e, notes, name, date, url) => {
+            notify('Update is being installed.')
             autoUpdater.quitAndInstall()
         }
     )
-
-    feedURL += '?v=' + config.APP_VERSION
-    autoUpdater.setFeedURL(feedURL)
     autoUpdater.checkForUpdates()
 }
 
@@ -153,4 +148,3 @@ function init() {
     checkUpdate()
     setTimeout(init, config.AUTO_UPDATE_CHECK_INTERVAL)
 }
-

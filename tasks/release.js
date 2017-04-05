@@ -43,7 +43,7 @@ const uploadLatestRelease = (platformDirs)=> {
             s3.upload({
                 Key: config.awsS3UpdateKeyPrefix + platformDirs.awsDir + localFile,
                 Body: uploadBody,
-                ACL: 'public-read-write',
+                ACL: 'public-read',
                 StorageClass: 'REDUCED_REDUNDANCY'
             }).send((err, data) => {
                 if (err) {
@@ -70,7 +70,7 @@ const copyLatestVersionRelease = (platformDirs, version) => {
                     CopySource: config.awsS3BucketName + '/' + s3File.Key,
                     Key: s3File.Key.replace(config.awsS3UpdateKeyPrefix + platformDirs.awsDir,
                         config.awsS3ArchivedUpdateKeyPrefix + 'v' + version + '/' + platformDirs.awsDir),
-                    ACL: 'public-read-write',
+                    ACL: 'public-read',
                     StorageClass: 'REDUCED_REDUNDANCY'
                 }).on('success', () => {
                     utils.logInfo('Copied: ' + s3File.Key)

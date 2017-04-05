@@ -1,6 +1,5 @@
 'use strict'
 
-
 module.exports = {
     init,
     runCheckDM,
@@ -9,7 +8,6 @@ module.exports = {
     restoreBacklight,
     powerToggle
 }
-
 
 const config = require('../config')
 const _ = require('lodash')
@@ -65,7 +63,7 @@ function checkSchedulePeriod() {
                     return enums.DMCheck.RUN_DM
                 }
                 if (tempSplitWeekly.length === 2) {
-                    let time1 =_.split(tempSplitWeekly[0], 'W')
+                    let time1 = _.split(tempSplitWeekly[0], 'W')
                     let time2 = _.split(tempSplitWeekly[1], 'W')
                     let day1 = parseInt(time1[0])
                     let day2 = parseInt(time2[0])
@@ -92,7 +90,6 @@ function runCheckDM() {
         else if (checkDM === enums.DMCheck.NOT_RUN_DM) {
             stopDM()
         }
-
     }
     setTimeout(runCheckDM, config.RUN_DM_INTERVAL_CHECK)
 }

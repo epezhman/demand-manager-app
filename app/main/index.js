@@ -1,9 +1,5 @@
 'use strict'
 
-if (require('electron-squirrel-startup')) {
-    return
-}
-
 const electron = require('electron')
 const app = electron.app
 const ConfigStore = require('configstore')

@@ -74,14 +74,28 @@ const buildForOS = (platform) => {
                 targets: Platform.WINDOWS.createTarget(null, Arch.x64)
             })
         }).then(() => {
-            addBuildVersionFile(config.distWin64Dir)
+            let fileName = config.appProductName + ' Setup ' + config.appVersion + '.exe'
+            mv(baseDistDir + fileName,
+                baseDistDir + config.distWin64Dir + fileName,
+                {mkdirp: true}, () => {
+                    addBuildVersionFile(config.distWin64Dir)
+                })
+            mv(baseDistDir + 'latest.yml', baseDistDir + config.distWin64Dir + 'latest.yml', {}, () => {
+            })
         }).then(() => {
             utils.log('Building for Windows 32-bit')
             return builder.build({
                 targets: Platform.WINDOWS.createTarget(null, Arch.ia32)
             })
         }).then(() => {
-            addBuildVersionFile(config.distWin32Dir)
+            let fileName = config.appProductName + ' Setup ' + config.appVersion + '.exe'
+            mv(baseDistDir + fileName,
+                baseDistDir + config.distWin32Dir + fileName,
+                {mkdirp: true}, () => {
+                    addBuildVersionFile(config.distWin32Dir)
+                })
+            mv(baseDistDir + 'latest.yml', baseDistDir + config.distWin32Dir + 'latest.yml', {}, () => {
+            })
         })
     }
 }
