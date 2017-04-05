@@ -3,6 +3,7 @@
 const appConfig = require('application-config')('i13DMDesktop')
 const fs = require('fs')
 const path = require('path')
+const secrets = require('./secrets.config')
 
 const appPackage = require('./package.json')
 const APP_SHORT_NAME = appPackage.name
@@ -44,13 +45,9 @@ module.exports = {
     APP_WINDOW_TITLE: APP_NAME,
     WINDOW_MIN_HEIGHT: 400,
     WINDOW_MIN_WIDTH: 800,
-    FIREBASE_DATABASE_URL: 'https://tum-dm-fireb.firebaseio.com',
-    FIREBASE_API_KEY: 'AIzaSyAtWT98dejyLr9BQXkmxiTHbBtbKQ1ObnY',
-    FIREBASE_AUTH_DOMAIN: 'tum-dm-fireb.firebaseapp.com',
-
-    FIREBASE_TEST_DATABASE_URL: 'https://dm-test-data.firebaseio.com',
-    FIREBASE_TEST_API_KEY: 'AIzaSyBUurlevQCRuK5n62-MBhjCeIFWm97gYIM',
-    FIREBASE_TEST_AUTH_DOMAIN: 'dm-test-data.firebaseapp.com',
+    FIREBASE_DATABASE_URL: secrets.FIREBASE_DATABASE_URL,
+    FIREBASE_API_KEY: secrets.FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN: secrets.FIREBASE_AUTH_DOMAIN,
 
     IS_DEVELOPMENT: IS_DEVELOPMENT,
 
@@ -72,17 +69,17 @@ module.exports = {
 
     FREEGEOIP_URL: 'http://geoip.i13dr.de/json/',
     GOOGLE_GEOLOCATION: 'https://www.googleapis.com/geolocation/v1/' +
-    'geolocate?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8',
+    'geolocate?key=' + secrets.GOOGLE_MAPS_API_KEY,
     GOOGLE_GEOCODING: 'https://maps.googleapis.com/maps/api/geocode/json' +
-    '?key=AIzaSyCnrXBo3KQiqcLOGWxzPMrrZ3EIFlObow8&result_type=postal_code&latlng=',
-    GOOGLE_API_KEY: 'AIzaSyDmvKy8vA3OjWV4nV-mmRPh5_uXQM4-zKA',
+    '?key=' + secrets.GOOGLE_MAPS_API_KEY + '&result_type=postal_code&latlng=',
+    GOOGLE_API_KEY: secrets.GOOGLE_API_KEY,
     LOVEFIELD_DB_NAME: 'dmtum',
     LOVEFIELD_DB_VERSION: 40,
 
     DAYS_TO_DELETE_DB: 30,
 
     POWER_MODEL_URL: 'https://firebasestorage.googleapis.com/v0/b/tum-dm-fireb.appspot.com/o/power_model_cal.js?' +
-    'alt=media&token=bf521210-6100-4736-96a5-8cd0e76c8065',
+    'alt=media&token=957338aa-166a-4209-87b7-26acc12adf52',
     POWER_MODEL_FILE_BASE_DIR: '/powerModels',
     POWER_MODEL_FILE_NAME: 'power_model.js'
 }

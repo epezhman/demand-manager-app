@@ -4,3 +4,4 @@ dist
 *.log
 tasks/secrets.config.js
 npm-debug*
+app/secrets.config.js
