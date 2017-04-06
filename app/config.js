@@ -1,6 +1,5 @@
 'use strict'
 
-const appConfig = require('application-config')('i13DMDesktop')
 const fs = require('fs')
 const path = require('path')
 const secrets = require('./secrets.config')
@@ -27,10 +26,9 @@ module.exports = {
     AUTO_UPDATE_WIN_BASE_URL: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win',
     AUTO_UPDATE_LINUX_BASE_URL: 'http://update.i13dr.de/updates/latest/linux',
     AUTO_UPDATE_CHECK_INTERVAL: 3600000,
-    AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13DemandManager/i13dmdesktop',
+    AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13DemandManager/i13dr',
     CRASH_REPORT_URL: 'http://crashreport.i13dr.de/post',
     EXCEPTION_REPORT_URL: 'http://www.admindata.i13dr.de/crashes/',
-    CONFIG_PATH: getConfigPath(),
     GITHUB_URL: 'https://github.com/epezhman/demand-manager-app',
     GITHUB_URL_ISSUES: 'https://github.com/epezhman/demand-manager-app/issues',
     ROOT_PATH: __dirname,
@@ -82,8 +80,4 @@ module.exports = {
     'alt=media&token=957338aa-166a-4209-87b7-26acc12adf52',
     POWER_MODEL_FILE_BASE_DIR: '/powerModels',
     POWER_MODEL_FILE_NAME: 'power_model.js'
-}
-
-function getConfigPath() {
-    return path.dirname(appConfig.filePath)
 }

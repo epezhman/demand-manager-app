@@ -1,8 +1,8 @@
 {
-  "name": "i13dmdesktop",
+  "name": "i13dr",
   "productName": "i13DemandManager",
   "description": "i13 Demand Manager for Desktop",
-  "version": "0.1.63",
+  "version": "0.1.64",
   "author": {
     "name": "TUM, Institute of Informatics",
     "email": "p.nasirifard@tum.de",
@@ -13,7 +13,6 @@
   "homepage": "http://i13dr.de/",
   "dependencies": {
     "@paulcbetts/system-idle-time": "1.0.4",
-    "application-config": "1.0.1",
     "async": "2.3.0",
     "auto-launch": "5.0.1",
     "bindings": "1.2.1",
