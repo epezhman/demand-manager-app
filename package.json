@@ -1,7 +1,7 @@
 {
-  "name": "i13dmdesktop",
+  "name": "i13dr",
   "productName": "i13DemandManager",
-  "description": "i13 Demand Manager for Computers.",
+  "description": "i13 Demand Manager for Laptops",
   "author": {
     "name": "TUM, Institute of Informatics",
     "email": "p.nasirifard@tum.de",
@@ -45,7 +45,7 @@
     "yargs": "7.0.2"
   },
   "build": {
-    "appId": "de.tum.i13dmdesktop",
+    "appId": "de.tum.i13dr",
     "files": [
       "**/*",
       "!assets/stylesheets/sass"
@@ -69,6 +69,7 @@
     "linux": {
       "icon": "app/assets/img/",
       "category": "Utility",
+      "description": "i13 Demand Manager for Laptops",
       "target": [
         "deb"
       ]
