@@ -44,8 +44,8 @@ function delayedStart() {
     monitor.init()
     powerControl.init()
     powerModel.init()
-    firebase.init()
     firebaseWatchers = firebase.firebaseWatchers()
+    firebase.init()
     if (!config.IS_DEVELOPMENT) {
         updater.init()
     }
@@ -61,6 +61,7 @@ function initDB() {
 app.on('will-finish-launching', () => {
     env()
     crashReporter.init({'scope': 'main'})
+    firebase.signInAnonymously()
     machineIdInit.init()
     if (!config.IS_DEVELOPMENT) {
         autoStart.init()

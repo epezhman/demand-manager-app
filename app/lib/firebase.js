@@ -15,7 +15,8 @@ module.exports = {
     saveBatteryFirstProfile,
     watchSettingsChanges,
     saveBatteryLogging,
-    firebaseWatchers
+    firebaseWatchers,
+    signInAnonymously
 }
 const electron = require('electron')
 const app = electron.app
@@ -46,17 +47,6 @@ function registerDevice() {
     let deviceCount = firebase.database().ref('statistics/devices-count')
     deviceCount.transaction(function (count) {
         return count + 1
-    })
-    firebase.database().ref(`settings/${global.machineId}`).set({
-        'logging': false,
-        'power-monitor-interval': config.MONITOR_POWER_INTERVAL,
-        'days-delete-db': config.DAYS_TO_DELETE_DB
-    })
-    firebase.database().ref(`schedule-period/${global.machineId}`).set({
-        'schedule': 'NA'
-    })
-    firebase.database().ref(`power-model/${global.machineId}`).set({
-        'power-model-url': config.POWER_MODEL_URL
     })
 }
 
@@ -225,7 +215,7 @@ function watchSchedulePeriodChanges() {
     let scheduleRef = firebase.database().ref(`schedule-period/${global.machineId}`)
     scheduleRef.once('value', (snapshot) => {
         let schedule = snapshot.val()
-        if (schedule) {
+        if (schedule && schedule['schedule']) {
             conf.set('schedule-period', schedule['schedule'])
         }
     })
@@ -241,9 +231,15 @@ function watchSettingsChanges() {
     settingRef.once('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
-            conf.set('logging-enabled', settings['logging'])
-            conf.set('power-monitor-interval', settings['power-monitor-interval'])
-            conf.set('days-delete-db', settings['days-delete-db'])
+            if (settings['logging']) {
+                conf.set('logging-enabled', settings['logging'])
+            }
+            if (settings['power-monitor-interval']) {
+                conf.set('power-monitor-interval', settings['power-monitor-interval'])
+            }
+            if (settings['days-delete-db']) {
+                conf.set('days-delete-db', settings['days-delete-db'])
+            }
         }
     })
     return settingRef.on('child_changed', (snapshot) => {
@@ -264,8 +260,10 @@ function watchPowerModelChanges() {
     settingRef.once('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
-            conf.set('power-model-url', settings['power-model-url'])
-            powerModelSettings.updatePowerModelFile()
+            if (settings['power-model-url']) {
+                conf.set('power-model-url', settings['power-model-url'])
+                powerModelSettings.updatePowerModelFile()
+            }
         }
     })
     return settingRef.on('child_changed', (snapshot) => {
@@ -293,6 +291,16 @@ function watchRestart() {
     })
 }
 
+function loggedInUserWatcher() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+            firebase.auth().signInAnonymously().catch((err) => {
+                log.sendError(err)
+            })
+        }
+    })
+}
+
 function saveBatteryLogging(extractedData) {
     extractedData['time'] = firebase.database.ServerValue.TIMESTAMP
     firebase.database().ref(`logging/${global.machineId}`).push(utils.standardizeObject(extractedData))
@@ -305,12 +313,19 @@ function updateStatusAnRestart() {
     })
 }
 
+function signInAnonymously() {
+    firebase.auth().signInAnonymously().catch((err) => {
+        log.sendError(err)
+    })
+}
+
 function firebaseWatchers() {
     return {
         'setting-watcher': watchSettingsChanges(),
         'schedule-period-watcher': watchSchedulePeriodChanges(),
         'restart-watcher': watchRestart(),
-        'power-model-watcher': watchPowerModelChanges()
+        'power-model-watcher': watchPowerModelChanges(),
+        'logged-in-user-watcher': loggedInUserWatcher()
     }
 }
 
@@ -318,3 +333,4 @@ function init() {
     enableOfflineCapabilities()
     installedVersion()
 }
+
