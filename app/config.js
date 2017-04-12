@@ -76,8 +76,8 @@ module.exports = {
 
     DAYS_TO_DELETE_DB: 30,
 
-    POWER_MODEL_URL: 'https://firebasestorage.googleapis.com/v0/b/tum-dm-fireb.appspot.com/o/power_model_cal.js?' +
-    'alt=media&token=957338aa-166a-4209-87b7-26acc12adf52',
+    POWER_MODEL_URL: 'hhttps://firebasestorage.googleapis.com/v0/b/tum-dm-fireb.appspot.com/o/power_model_cal.js' +
+    '?alt=media&token=b2b4545c-4be4-4d93-a363-8b1319f1427e',
     POWER_MODEL_FILE_BASE_DIR: '/powerModels',
     POWER_MODEL_FILE_NAME: 'power_model.js'
 }

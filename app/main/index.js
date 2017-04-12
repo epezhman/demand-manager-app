@@ -17,6 +17,7 @@ const firebase = require('../lib/firebase')
 const enums = require('../lib/enums')
 const env = require('../lib/envs')
 const powerControl = require('../lib/power-control')
+const powerModel = require('../lib/power-model')
 const db = windows.db
 
 process.on('uncaughtException', (err) => {
@@ -41,10 +42,9 @@ let firebaseWatchers = null
 
 function delayedStart() {
     monitor.init()
-    monitor.initDMFlags()
     powerControl.init()
-    firebase.enableOfflineCapabilities()
-    firebase.installedVersion()
+    powerModel.init()
+    firebase.init()
     firebaseWatchers = firebase.firebaseWatchers()
     if (!config.IS_DEVELOPMENT) {
         updater.init()

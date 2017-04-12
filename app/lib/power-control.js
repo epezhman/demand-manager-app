@@ -88,7 +88,9 @@ function runCheckDM() {
             startDM()
         }
         else if (checkDM === enums.DMCheck.NOT_RUN_DM) {
-            stopDM()
+            if (conf.get('dm-already-start')) {
+                stopDM()
+            }
         }
     }
     setTimeout(runCheckDM, config.RUN_DM_INTERVAL_CHECK)

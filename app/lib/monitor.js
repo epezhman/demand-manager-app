@@ -135,6 +135,7 @@ function calculateSavedMinutes() {
 }
 
 function init() {
+    initDMFlags()
     monitorPower()
     setTimeout(updateBatteryProfile, 3000)
     setTimeout(addRunningProfile, 6000)

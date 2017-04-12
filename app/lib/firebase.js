@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = {
+    init,
     registerDevice,
     saveOnlineLocation,
     saveLocationFirstProfile,
@@ -49,7 +50,7 @@ function registerDevice() {
     firebase.database().ref(`settings/${global.machineId}`).set({
         'logging': false,
         'power-monitor-interval': config.MONITOR_POWER_INTERVAL,
-        'days-delete-db':  config.DAYS_TO_DELETE_DB
+        'days-delete-db': config.DAYS_TO_DELETE_DB
     })
     firebase.database().ref(`schedule-period/${global.machineId}`).set({
         'schedule': 'NA'
@@ -311,4 +312,9 @@ function firebaseWatchers() {
         'restart-watcher': watchRestart(),
         'power-model-watcher': watchPowerModelChanges()
     }
+}
+
+function init() {
+    enableOfflineCapabilities()
+    installedVersion()
 }

@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = {
+    init,
     powerNormalEstimate,
     powerSaveEstimate,
     tryLoadingPowerModelFileAgain
@@ -14,17 +15,9 @@ const math = require('mathjs')
 const config = require('../config')
 const reload = require('require-reload')(require)
 
-const powerModelFilePath =
-    `${app.getPath('userData')}${config.POWER_MODEL_FILE_BASE_DIR}/${config.POWER_MODEL_FILE_NAME}`
+let powerModelFilePath = null
 let powerModelCal = null
 
-try {
-    if (fs.existsSync(powerModelFilePath)) {
-        powerModelCal = reload(powerModelFilePath)
-    }
-} catch (err) {
-    log.sendError(err)
-}
 
 function powerNormalEstimate(systemMetrics) {
     if (powerModelCal) {
@@ -42,10 +35,16 @@ function powerSaveEstimate(systemMetrics) {
 
 function tryLoadingPowerModelFileAgain() {
     try {
+        powerModelFilePath =
+            `${app.getPath('userData')}${config.POWER_MODEL_FILE_BASE_DIR}/${config.POWER_MODEL_FILE_NAME}`
         if (fs.existsSync(powerModelFilePath)) {
             powerModelCal = reload(powerModelFilePath)
         }
     } catch (err) {
         log.sendError(err)
     }
+}
+
+function init() {
+    tryLoadingPowerModelFileAgain()
 }
