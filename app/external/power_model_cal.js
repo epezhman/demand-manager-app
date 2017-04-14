@@ -9,5 +9,5 @@ function powerNormalEstimate(systemMetrics, math) {
 }
 
 function powerSaveEstimate(systemMetrics, math) {
-    return 2 * systemMetrics['power_rate_w'] + 15
+    return (2 * systemMetrics['power_rate_w'] + 15) * 0.8
 }

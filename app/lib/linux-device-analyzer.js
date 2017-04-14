@@ -22,6 +22,7 @@ const notify = require('./notify')
 const db = require('../main/windows').db
 const enums = require('./enums')
 const powerModel = require('./power-model')
+const monitor = require('./monitor')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -37,7 +38,7 @@ function getLshwCommandData(cb) {
         if (lshwStdout.includes('command not found')) {
             return cb(null, true)
         }
-        notify('We need to collect some data about the your hardware with a SUDO command. ' +
+        notify('We need to collect your hardware information with "sudo lshw" command. ' +
             'Your password will not be saved')
         sudo.exec('lshw -json', {name: config.APP_NAME}, (lshwJsonErr, lshwJsonStdout, lshwJsonStderr) => {
             if (lshwJsonErr) {
@@ -201,13 +202,17 @@ function monitorPower(monitorType) {
             if (conf.get('logging-enabled')) {
                 firebase.saveBatteryLogging(batteryObject)
             }
+            let powerData = {
+                'ac_connected_bool': batteryObject['ac_connected_bool'],
+                'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
+                'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+            }
+            if (conf.get('dm-already-start')) {
+                monitor.calculateSavedEnergy(powerData)
+            }
             db.runQuery({
                 'fn': 'addBattery',
-                'params': {
-                    'ac_connected_bool': batteryObject['ac_connected_bool'],
-                    'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
-                    'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
-                }
+                'params': powerData
             })
         }
         else if (monitorType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {

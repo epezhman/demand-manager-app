@@ -69,7 +69,6 @@ function saveOnlineLocation(geolocation) {
     geoFire.set(global.machineId, [geolocation['latitude'], geolocation['longitude']]).then(() => {
         enableOfflineCapabilities()
     })
-
 }
 
 function saveLocationFirstProfile(locationProfiles) {
@@ -213,22 +212,17 @@ function enableOfflineCapabilities() {
 
 function watchSchedulePeriodChanges() {
     let scheduleRef = firebase.database().ref(`schedule-period/${global.machineId}`)
-    scheduleRef.once('value', (snapshot) => {
+    return scheduleRef.on('value', (snapshot) => {
         let schedule = snapshot.val()
         if (schedule && schedule['schedule']) {
             conf.set('schedule-period', schedule['schedule'])
-        }
-    })
-    return scheduleRef.on('child_changed', (snapshot) => {
-        if (snapshot.key === 'schedule') {
-            conf.set('schedule-period', snapshot.val())
         }
     })
 }
 
 function watchSettingsChanges() {
     let settingRef = firebase.database().ref(`settings/${global.machineId}`)
-    settingRef.once('value', (snapshot) => {
+    return settingRef.on('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
             if (settings['logging']) {
@@ -242,51 +236,29 @@ function watchSettingsChanges() {
             }
         }
     })
-    return settingRef.on('child_changed', (snapshot) => {
-        if (snapshot.key === 'logging') {
-            conf.set('logging-enabled', snapshot.val())
-        }
-        else if (snapshot.key === 'power-monitor-interval') {
-            conf.set('power-monitor-interval', snapshot.val())
-        }
-        else if (snapshot.key === 'days-delete-db') {
-            conf.set('days-delete-db', snapshot.val())
-        }
-    })
 }
 
 function watchPowerModelChanges() {
-    let settingRef = firebase.database().ref(`power-model/${global.machineId}`)
-    settingRef.once('value', (snapshot) => {
-        let settings = snapshot.val()
-        if (settings) {
-            if (settings['power-model-url']) {
-                conf.set('power-model-url', settings['power-model-url'])
+    let modelRef = firebase.database().ref(`power-model/${global.machineId}`)
+    return modelRef.on('value', (snapshot) => {
+        let models = snapshot.val()
+        if (models) {
+            if (models['power-model-url']) {
+                conf.set('power-model-url', models['power-model-url'])
                 powerModelSettings.updatePowerModelFile()
             }
-        }
-    })
-    return settingRef.on('child_changed', (snapshot) => {
-        if (snapshot.key === 'power-model-url') {
-            conf.set('power-model-url', snapshot.val())
-            powerModelSettings.updatePowerModelFile()
         }
     })
 }
 
 function watchRestart() {
     let settingRef = firebase.database().ref(`settings/${global.machineId}`)
-    settingRef.once('value', (snapshot) => {
+    return settingRef.on('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
             if (settings['restart']) {
                 updateStatusAnRestart()
             }
-        }
-    })
-    return settingRef.on('child_added', (snapshot) => {
-        if (snapshot.key === 'restart' && snapshot.val()) {
-            updateStatusAnRestart()
         }
     })
 }

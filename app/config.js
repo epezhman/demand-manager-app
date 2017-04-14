@@ -50,7 +50,7 @@ module.exports = {
     IS_DEVELOPMENT: IS_DEVELOPMENT,
 
     DELAY_START_TIME: IS_DEVELOPMENT ? 15000 : 60000,
-    DELAY_START_TIME_FIRST_TIME: IS_DEVELOPMENT ? 10000 : 10000,
+    DELAY_START_TIME_FIRST_TIME: IS_DEVELOPMENT ? 5000 : 5000,
     MONITOR_GEOLOCATION_INTERVAL: IS_DEVELOPMENT ? 900000 : 900000,
     RUN_DM_INTERVAL_CHECK: IS_DEVELOPMENT ? 2000 : 30000,
     MONITOR_POWER_INTERVAL: IS_WINDOWS ? 3000 : 1000,
@@ -60,6 +60,8 @@ module.exports = {
     UPDATE_POWER_STATS_DAILY: IS_DEVELOPMENT ? 86400000 : 86400000,
     DELETE_OUTDATED_DATA: 86400000,
     CHECK_CONNECTIVITY: 60000,
+
+    CHECK_CONF: 5000,
 
     MONITOR_IDLE: IS_DEVELOPMENT ? 10000 : 10000,
     MONITOR_IDLE_TIMEOUT: IS_DEVELOPMENT ? 60000 : 60000,
@@ -76,8 +78,10 @@ module.exports = {
 
     DAYS_TO_DELETE_DB: 30,
 
-    POWER_MODEL_URL: 'hhttps://firebasestorage.googleapis.com/v0/b/tum-dm-fireb.appspot.com/o/power_model_cal.js' +
-    '?alt=media&token=b2b4545c-4be4-4d93-a363-8b1319f1427e',
+    POWER_MODEL_URL: 'https://firebasestorage.googleapis.com/v0/b/tum-dm-fireb.appspot.com/o/power_model_cal.js?' +
+    'alt=media&token=b997a087-9e03-4c99-8beb-6574c16078e2',
     POWER_MODEL_FILE_BASE_DIR: '/powerModels',
-    POWER_MODEL_FILE_NAME: 'power_model.js'
+    POWER_MODEL_FILE_NAME: 'power_model.js',
+
+    ELECTRICITY_PRICE_EURO_PER_KWH: 0.29
 }

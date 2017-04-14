@@ -7,7 +7,8 @@ module.exports = {
     monitorPower,
     shouldAppBeRunning,
     initDMFlags,
-    calculateSavedMinutes
+    calculateSavedMinutes,
+    calculateSavedEnergy
 }
 
 const ConfigStore = require('configstore')
@@ -19,7 +20,6 @@ const enums = require('./enums')
 const log = require('./log')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 const InitialSettings = require('./initial-settings')
-const powerModelSettings = require('../lib/power-model-settings')
 
 
 function shouldAppBeRunning() {
@@ -44,7 +44,7 @@ function monitorGeoLocation() {
 function monitorPower() {
     if (shouldAppBeRunning()) {
         if (config.IS_WINDOWS) {
-            const winAnalyzer =  require('./windows-device-analyzer')
+            const winAnalyzer = require('./windows-device-analyzer')
             winAnalyzer.checkConnectivity()
             winAnalyzer.monitorPower()
         }
@@ -122,10 +122,10 @@ function initDMFlags() {
 }
 
 function calculateSavedMinutes() {
-    if (!conf.get('saved-minutes')) {
+    if (!conf.has('saved-minutes')) {
         conf.set('saved-minutes', 0)
     }
-    if (conf.get('started-running')) {
+    if (conf.has('started-running')) {
         let currentTime = new Date()
         let startTime = new Date(conf.get('started-running'))
         let minutes = Math.ceil((currentTime - startTime) / 60000)
@@ -134,7 +134,28 @@ function calculateSavedMinutes() {
     }
 }
 
+function calculateSavedEnergy(powerData) {
+    if (!conf.has('saved-energy-watts-second')) {
+        conf.set('saved-energy-watts-second', 0)
+    }
+    if (conf.has('saved-energy-watts-second')) {
+        let savedEnergy = (powerData['estimated_power_save_w'] - powerData['estimated_power_consume_w']) *
+            (conf.get('power-monitor-interval') / 1000)
+        conf.set('saved-energy-watts-second', conf.get('saved-energy-watts-second') + savedEnergy)
+    }
+}
+
+function checkConf() {
+    log(conf.get('power-model-url'))
+    log(conf.get('schedule-period'))
+    log(conf.get('logging-enabled'))
+    log(conf.get('days-delete-db'))
+    log(conf.get('power-monitor-interval'))
+    setTimeout(checkConf, config.CHECK_CONF)
+}
+
 function init() {
+    checkConf()
     initDMFlags()
     monitorPower()
     setTimeout(updateBatteryProfile, 3000)

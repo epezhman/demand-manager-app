@@ -265,10 +265,13 @@ function showOptionsBasedOnOS() {
 }
 
 function getStatistics() {
-    if (conf.get('saved-minutes')) {
+    if (conf.has('saved-minutes')) {
         minutesSaved.text(conf.get('saved-minutes'))
-        energySaved.text('87')
-        moneySaved.text('N/A')
+    }
+    if (conf.has('saved-energy-watts-second')) {
+        let savedEnergy = conf.get('saved-energy-watts-second') / 3600
+        energySaved.text(savedEnergy)
+        moneySaved.text((savedEnergy / 1000) * config.ELECTRICITY_PRICE_EURO_PER_KWH)
     }
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "i13dr",
+  "name": "i13dm",
   "description": "i13 Demand Manager for Computers.",
   "main": "",
   "license": "MIT",
@@ -12,6 +12,6 @@
     "tests"
   ],
   "dependencies": {
-    "firebase": "^3.2.1"
+    "firebase": "3.2.1"
   }
 }

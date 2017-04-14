@@ -27,6 +27,7 @@ const async = require('async')
 const moment = require('moment')
 const ConfigStore = require('configstore')
 const conf = new ConfigStore(config.APP_SHORT_NAME)
+const monitor = require('./monitor')
 
 let windowsDeviceData = {}
 let batteryData = {}
@@ -171,13 +172,17 @@ function runAsyncCommands(wmicCommands) {
                 if (conf.get('logging-enabled')) {
                     firebase.saveBatteryLogging(batteryObject)
                 }
+                let powerData = {
+                    'ac_connected_bool': batteryObject['ac_connected_bool'],
+                    'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
+                    'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                }
+                if (conf.get('dm-already-start')) {
+                    monitor.calculateSavedEnergy(powerData)
+                }
                 db.runQuery({
                     'fn': 'addBattery',
-                    'params': {
-                        'ac_connected_bool': batteryObject['ac_connected_bool'],
-                        'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
-                        'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
-                    }
+                    'params': powerData
                 })
             }
             else if (wmicCommands.commandType === enums.LinuxPowerMonitor.BATTERY_FIRST_PROFILE) {
