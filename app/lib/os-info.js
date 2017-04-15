@@ -11,7 +11,6 @@ function getOSInfo() {
         'os-arch': os.arch(),
         'os-cpus': os.cpus(),
         'os-loadavg': os.loadavg(),
-        'os-network-interfaces': os.networkInterfaces(),
         'os-totalmem': os.totalmem()
     }
 }

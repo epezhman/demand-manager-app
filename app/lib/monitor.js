@@ -145,17 +145,7 @@ function calculateSavedEnergy(powerData) {
     }
 }
 
-function checkConf() {
-    log(conf.get('power-model-url'))
-    log(conf.get('schedule-period'))
-    log(conf.get('logging-enabled'))
-    log(conf.get('days-delete-db'))
-    log(conf.get('power-monitor-interval'))
-    setTimeout(checkConf, config.CHECK_CONF)
-}
-
 function init() {
-    checkConf()
     initDMFlags()
     monitorPower()
     setTimeout(updateBatteryProfile, 3000)

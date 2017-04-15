@@ -49,6 +49,7 @@ function convertWmicStringWithSpaceToList(str) {
 }
 
 function standardizeForFirebase(jsonStr) {
+    log(jsonStr)
     return JSON.parse(jsonStr, (key, value) => {
         if (value && typeof value === 'object') {
             for (let k in value) {

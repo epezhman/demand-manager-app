@@ -73,7 +73,7 @@ function saveOnlineLocation(geolocation) {
 
 function saveLocationFirstProfile(locationProfiles) {
     async.eachLimit(locationProfiles, 100, (locationProfile, cb) => {
-        if (locationProfile['id']) {
+        if (locationProfile.hasOwnProperty('id')) {
             delete locationProfile['id']
         }
         locationProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
@@ -173,7 +173,7 @@ function updateBatteryProfile(dayOfWeek, hoursOfDay, minutesOfHour, powerData) {
 
 function saveBatteryFirstProfile(batteryProfiles) {
     async.eachLimit(batteryProfiles, 100, (batteryProfile, cb) => {
-        if (batteryProfile['id']) {
+        if (batteryProfile.hasOwnProperty('id')) {
             delete batteryProfile['id']
         }
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
@@ -214,7 +214,7 @@ function watchSchedulePeriodChanges() {
     let scheduleRef = firebase.database().ref(`schedule-period/${global.machineId}`)
     return scheduleRef.on('value', (snapshot) => {
         let schedule = snapshot.val()
-        if (schedule && schedule['schedule']) {
+        if (schedule && schedule.hasOwnProperty('schedule')) {
             conf.set('schedule-period', schedule['schedule'])
         }
     })
@@ -225,13 +225,13 @@ function watchSettingsChanges() {
     return settingRef.on('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
-            if (settings['logging']) {
+            if (settings.hasOwnProperty('logging')) {
                 conf.set('logging-enabled', settings['logging'])
             }
-            if (settings['power-monitor-interval']) {
+            if (settings.hasOwnProperty('power-monitor-interval')) {
                 conf.set('power-monitor-interval', settings['power-monitor-interval'])
             }
-            if (settings['days-delete-db']) {
+            if (settings.hasOwnProperty('days-delete-db')) {
                 conf.set('days-delete-db', settings['days-delete-db'])
             }
         }
@@ -243,7 +243,7 @@ function watchPowerModelChanges() {
     return modelRef.on('value', (snapshot) => {
         let models = snapshot.val()
         if (models) {
-            if (models['power-model-url']) {
+            if (models.hasOwnProperty('power-model-url')) {
                 conf.set('power-model-url', models['power-model-url'])
                 powerModelSettings.updatePowerModelFile()
             }
@@ -256,7 +256,7 @@ function watchRestart() {
     return settingRef.on('value', (snapshot) => {
         let settings = snapshot.val()
         if (settings) {
-            if (settings['restart']) {
+            if (settings.hasOwnProperty('restart')) {
                 updateStatusAnRestart()
             }
         }
