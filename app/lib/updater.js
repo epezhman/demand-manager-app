@@ -144,5 +144,6 @@ function checkUpdate(manual) {
 
 function init() {
     checkUpdate()
-    setTimeout(init, config.AUTO_UPDATE_CHECK_INTERVAL)
+    log.loggingV('checkUpdate')
+    return setTimeout(init, config.AUTO_UPDATE_CHECK_INTERVAL)
 }

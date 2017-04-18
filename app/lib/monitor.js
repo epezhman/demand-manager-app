@@ -12,7 +12,8 @@ module.exports = {
 }
 
 const ConfigStore = require('configstore')
-
+const electron = require('electron')
+const app = electron.app
 const config = require('../config')
 const windows = require('../main/windows')
 const enums = require('./enums')
@@ -38,7 +39,8 @@ function monitorGeoLocation() {
     if (shouldAppBeRunning()) {
         windows.gelocation.init(enums.LocationMonitor.FIND_LOCATION)
     }
-    setTimeout(monitorGeoLocation, config.MONITOR_GEOLOCATION_INTERVAL)
+    log.loggingV('monitorGeoLocation')
+    return setTimeout(monitorGeoLocation, config.MONITOR_GEOLOCATION_INTERVAL)
 }
 
 function monitorPower() {
@@ -52,7 +54,7 @@ function monitorPower() {
             require('./linux-device-analyzer').monitorPower(enums.LinuxPowerMonitor.BATTERY)
         }
     }
-    setTimeout(monitorPower, conf.get('power-monitor-interval'))
+    return setTimeout(monitorPower, conf.get('power-monitor-interval'))
 }
 
 function updateRunningProfile() {
@@ -62,7 +64,8 @@ function updateRunningProfile() {
             'params': []
         })
     }
-    setTimeout(updateRunningProfile, config.MONITOR_RUNNING_PROFILE_INTERVAL)
+    log.loggingV('updateRunningProfile')
+    return setTimeout(updateRunningProfile, config.MONITOR_RUNNING_PROFILE_INTERVAL)
 }
 
 function updateBatteryProfile() {
@@ -72,7 +75,8 @@ function updateBatteryProfile() {
             'params': []
         })
     }
-    setTimeout(updateBatteryProfile, config.UPDATE_BATTERY_PROFILE_INTERVAL)
+    log.loggingV('updateBatteryProfile')
+    return setTimeout(updateBatteryProfile, config.UPDATE_BATTERY_PROFILE_INTERVAL)
 }
 
 function deleteOutdatedData() {
@@ -82,7 +86,8 @@ function deleteOutdatedData() {
             'params': []
         })
     }
-    setTimeout(deleteOutdatedData, config.DELETE_OUTDATED_DATA)
+    log.loggingV('deleteOutdatedData')
+    return setTimeout(deleteOutdatedData, config.DELETE_OUTDATED_DATA)
 }
 
 function addRunningProfile() {
@@ -93,9 +98,9 @@ function addRunningProfile() {
         else if (config.IS_LINUX) {
             require('./linux-device-analyzer').addRunning()
         }
-
     }
-    setTimeout(addRunningProfile, config.ADD_RUNNING_PROFILE_INTERVAL)
+    log.loggingV('addRunningProfile')
+    return setTimeout(addRunningProfile, config.ADD_RUNNING_PROFILE_INTERVAL)
 }
 
 function extractDevicesData() {
@@ -145,12 +150,30 @@ function calculateSavedEnergy(powerData) {
     }
 }
 
+function restartApp() {
+    log.loggingV('restartApp')
+    return setTimeout(()=>{
+        app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
+        app.exit(0)
+    }, config.RESTART_TIMEOUT)
+}
+
 function init() {
     initDMFlags()
-    monitorPower()
-    setTimeout(updateBatteryProfile, 3000)
-    setTimeout(addRunningProfile, 6000)
-    setTimeout(updateRunningProfile, 9000)
-    setTimeout(monitorGeoLocation, 12000)
-    setTimeout(deleteOutdatedData, 60000)
+    return {
+        'monitor-power': monitorPower(),
+        'update-batery-profile': updateBatteryProfile(),
+        'add-running-profile': addRunningProfile(),
+        'update-running-profile': updateRunningProfile(),
+        'monitor-geo-location': monitorGeoLocation(),
+        'delete-outdated-data': deleteOutdatedData(),
+        'restart-app': restartApp()
+    }
+    // monitorPower()
+    // setTimeout(updateBatteryProfile, 3000)
+    // setTimeout(addRunningProfile, 6000)
+    // setTimeout(updateRunningProfile, 9000)
+    // setTimeout(monitorGeoLocation, 12000)
+    // setTimeout(deleteOutdatedData, 60000)
+    // setTimeout(restartApp, config.RESTART_TIMEOUT)
 }

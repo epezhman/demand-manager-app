@@ -3,12 +3,14 @@
 module.exports = log
 module.exports.error = error
 module.exports.sendError = sendError
+module.exports.loggingV = loggingV
 
 const windows = require('../main/windows')
 const config = require('../config')
 const request = require('request')
 const logElectron = require('electron-log');
 
+logElectron.transports.console.level = false;
 
 function log(...args) {
     if (config.IS_DEVELOPMENT) {
@@ -16,6 +18,13 @@ function log(...args) {
     }
     else {
         windows.main.logMessage(...args)
+    }
+}
+
+function loggingV(...args) {
+    if(config.IS_V_LOGGING)
+    {
+        logElectron.warn(args);
     }
 }
 

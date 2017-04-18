@@ -93,7 +93,8 @@ function runCheckDM() {
             }
         }
     }
-    setTimeout(runCheckDM, config.RUN_DM_INTERVAL_CHECK)
+    log.loggingV('runCheckDM')
+    return setTimeout(runCheckDM, config.RUN_DM_INTERVAL_CHECK)
 }
 
 function startDM() {
@@ -121,5 +122,7 @@ function restoreBacklight() {
 }
 
 function init() {
-    runCheckDM()
+    return {
+        'check-dm': runCheckDM(),
+    }
 }

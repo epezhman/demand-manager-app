@@ -39,15 +39,18 @@ global.machineId = null
 
 
 let firebaseWatchers = null
+let monitorTimeouts = null
+let powerControlTimeout = null
+let updaterTimeout = null
 
 function delayedStart() {
-    monitor.init()
-    powerControl.init()
+    monitorTimeouts = monitor.init()
+    powerControlTimeout = powerControl.init()
     powerModel.init()
     firebaseWatchers = firebase.firebaseWatchers()
     firebase.init()
     if (!config.IS_DEVELOPMENT) {
-        updater.init()
+        updaterTimeout = updater.init()
     }
 }
 
@@ -89,4 +92,3 @@ app.on('ready', () => {
         monitor.initDMFlags()
     })
 })
-
