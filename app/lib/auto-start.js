@@ -13,19 +13,10 @@ const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 let appLauncher = null
 
-if(config.IS_LINUX)
-{
-    appLauncher = new AutoLaunch({
-        name: config.APP_NAME,
-        path: config.AUTO_LAUNCH_LINUX_COMMAND
-    })
-}
-else
-{
-    appLauncher = new AutoLaunch({
-        name: config.APP_NAME
-    })
-}
+
+appLauncher = new AutoLaunch({
+    name: config.APP_NAME
+})
 
 
 function init() {

@@ -26,7 +26,6 @@ module.exports = {
     AUTO_UPDATE_WIN_BASE_URL: 'https://s3.eu-central-1.amazonaws.com/demand-manager-resources/updates/latest/win',
     AUTO_UPDATE_LINUX_BASE_URL: 'http://update.i13dr.de/updates/latest/linux',
     AUTO_UPDATE_CHECK_INTERVAL: 3600000,
-    AUTO_LAUNCH_LINUX_COMMAND: '/opt/i13DemandManager/i13dr',
     CRASH_REPORT_URL: 'http://crashreport.i13dr.de/post',
     EXCEPTION_REPORT_URL: 'http://www.admindata.i13dr.de/crashes/',
     GITHUB_URL: 'https://github.com/epezhman/demand-manager-app',
