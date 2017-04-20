@@ -46,6 +46,9 @@
   },
   "build": {
     "appId": "de.tum.in.i13.i13dr",
+    "asarUnpack": [
+      "assets/power/*"
+    ],
     "files": [
       "**/*",
       "!assets/stylesheets/sass"

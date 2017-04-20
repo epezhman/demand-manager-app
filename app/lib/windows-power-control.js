@@ -27,9 +27,12 @@ function goToPowerSaveMode(guid) {
                 return exec(`powercfg -setactive ${guid}`)
             }
         })
-        if(notIncluded)
-        {
-            exec(`powercfg -import  %CD%\\app\\assets\\power\\power_save_suspend_5`, (error, guidLine, stderr) => {
+        if (notIncluded) {
+            let schemePath = `powercfg -import  %CD%\\resources\\app.asar.unpacked\\assets\\power\\power_save_suspend_5`
+            if (config.IS_DEVELOPMENT) {
+                schemePath = `powercfg -import  %CD%\\app\\assets\\power\\power_save_suspend_5`
+            }
+            exec(schemePath, (error, guidLine, stderr) => {
                 if (error) {
                     log.sendError(error)
                 }
@@ -66,7 +69,11 @@ function startDM() {
             return goToPowerSaveMode(conf.get('power-save-guid'))
         }
         else {
-            exec(`powercfg -import  %CD%\\app\\assets\\power\\power_save_suspend_5`, (error, guidLine, stderr) => {
+            let schemePath = `powercfg -import  %CD%\\resources\\app.asar.unpacked\\assets\\power\\power_save_suspend_5`
+            if (config.IS_DEVELOPMENT) {
+                schemePath = `powercfg -import  %CD%\\app\\assets\\power\\power_save_suspend_5`
+            }
+            exec(schemePath, (error, guidLine, stderr) => {
                 if (error) {
                     log.sendError(error)
                 }
