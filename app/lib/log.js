@@ -8,7 +8,7 @@ module.exports.loggingV = loggingV
 const windows = require('../main/windows')
 const config = require('../config')
 const request = require('request')
-const logElectron = require('electron-log');
+const logElectron = require('electron-log')
 
 
 function log(...args) {
@@ -23,8 +23,8 @@ function log(...args) {
 function loggingV(...args) {
     if(config.IS_V_LOGGING)
     {
-        logElectron.transports.console.level = false;
-        logElectron.warn(args);
+        logElectron.transports.console.level = false
+        logElectron.warn(args)
     }
 }
 
@@ -38,7 +38,7 @@ function error(...args) {
 }
 
 function sendError(err) {
-    logElectron.error(err);
+    logElectron.error(err)
     let tempId = global.machineId ? global.machineId : 'NoId'
     let errorString = JSON.stringify(err, ['message', 'arguments', 'type', 'name', 'fileName', 'lineNumber', 'stack'])
     /* jshint ignore:start */
