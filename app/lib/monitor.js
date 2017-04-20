@@ -105,7 +105,6 @@ function addRunningProfile() {
 
 function extractDevicesData() {
     if (!conf.get('device-data-extracted')) {
-        InitialSettings.init()
         windows.gelocation.init(enums.LocationMonitor.MAKE_LOCATION_PROFILE)
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')
@@ -169,11 +168,4 @@ function init() {
         'delete-outdated-data': deleteOutdatedData(),
         'restart-app': restartApp()
     }
-    // monitorPower()
-    // setTimeout(updateBatteryProfile, 3000)
-    // setTimeout(addRunningProfile, 6000)
-    // setTimeout(updateRunningProfile, 9000)
-    // setTimeout(monitorGeoLocation, 12000)
-    // setTimeout(deleteOutdatedData, 60000)
-    // setTimeout(restartApp, config.RESTART_TIMEOUT)
 }

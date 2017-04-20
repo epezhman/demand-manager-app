@@ -19,6 +19,8 @@ const env = require('../lib/envs')
 const powerControl = require('../lib/power-control')
 const powerModel = require('../lib/power-model')
 const db = windows.db
+const InitialSettings = require('../lib/initial-settings')
+const powerModelSettings = require('../lib/power-model-settings')
 
 process.on('uncaughtException', (err) => {
     log.sendError(err)
@@ -44,10 +46,10 @@ let powerControlTimeout = null
 let updaterTimeout = null
 
 function delayedStart() {
-    monitorTimeouts = monitor.init()
-    powerControlTimeout = powerControl.init()
     powerModel.init()
     firebaseWatchers = firebase.firebaseWatchers()
+    monitorTimeouts = monitor.init()
+    powerControlTimeout = powerControl.init()
     firebase.init()
     if (!config.IS_DEVELOPMENT) {
         updaterTimeout = updater.init()
@@ -82,13 +84,18 @@ app.on('ready', () => {
         windows.main.init(enums.WindowType.ABOUT)
         conf.set('first-time-start', true)
     }
+    if (!conf.get('device-data-extracted')) {
+        InitialSettings.init()
+        powerModelSettings.updatePowerModelFile()
+        setTimeout(monitor.extractDevicesData, config.DELAY_START_TIME_FIRST_TIME)
+    }
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
-    setTimeout(monitor.extractDevicesData, config.DELAY_START_TIME_FIRST_TIME)
     initDB()
     electron.powerMonitor.on('resume', () => {
         firebase.enableOfflineCapabilities()
         firebaseWatchers = firebase.firebaseWatchers()
+        firebase.signInAnonymously()
         monitor.initDMFlags()
     })
 })

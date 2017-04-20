@@ -13,11 +13,9 @@ const conf = new ConfigStore(config.APP_SHORT_NAME)
 
 let appLauncher = null
 
-
 appLauncher = new AutoLaunch({
     name: config.APP_NAME
 })
-
 
 function init() {
     if (!conf.get('run-on-start-up')) {
@@ -29,11 +27,10 @@ function init() {
             return appLauncher.enable()
         })
     }
-    else
-    {
+    else {
         appLauncher.isEnabled().then((enabled) => {
             if (enabled) {
-                appLauncher.disable().then(()=>{
+                appLauncher.disable().then(() => {
                     return appLauncher.enable()
                 })
 

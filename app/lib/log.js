@@ -10,7 +10,6 @@ const config = require('../config')
 const request = require('request')
 const logElectron = require('electron-log');
 
-logElectron.transports.console.level = false;
 
 function log(...args) {
     if (config.IS_DEVELOPMENT) {
@@ -24,6 +23,7 @@ function log(...args) {
 function loggingV(...args) {
     if(config.IS_V_LOGGING)
     {
+        logElectron.transports.console.level = false;
         logElectron.warn(args);
     }
 }
