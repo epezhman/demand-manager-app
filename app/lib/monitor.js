@@ -122,7 +122,7 @@ function extractDevicesData() {
 
 function initDMFlags() {
     conf.set('dm-already-start', false)
-    conf.set('dm-already-stop', false)
+    //conf.set('dm-already-stop', false)
 }
 
 function calculateSavedMinutes() {

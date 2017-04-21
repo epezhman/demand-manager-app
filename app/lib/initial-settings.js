@@ -13,6 +13,9 @@ function init() {
     conf.set('turn-off-screen', true)
     conf.set('suspend-computer', false)
 
+    conf.set('dm-already-start', false)
+    conf.set('dm-already-stop', false)
+
     conf.set('power-model-url', config.POWER_MODEL_URL)
     conf.set('schedule-period', 'NA')
     conf.set('logging-enabled', false)
