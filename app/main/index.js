@@ -92,10 +92,4 @@ app.on('ready', () => {
     tray.init()
     setTimeout(delayedStart, config.DELAY_START_TIME)
     initDB()
-    electron.powerMonitor.on('resume', () => {
-        firebase.enableOfflineCapabilities()
-        firebaseWatchers = firebase.firebaseWatchers()
-        firebase.signInAnonymously()
-        monitor.initDMFlags()
-    })
 })
