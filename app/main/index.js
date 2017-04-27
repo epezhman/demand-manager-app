@@ -39,15 +39,21 @@ if (shouldQuit) {
 
 global.machineId = null
 
-
 let firebaseWatchers = null
+let firebaseWatchersTimeout = null
 let monitorTimeouts = null
 let powerControlTimeout = null
 let updaterTimeout = null
 
+
+function updateFirebaseWatcher() {
+    firebaseWatchers = firebase.firebaseWatchers()
+    return setTimeout(updateFirebaseWatcher, config.UPDATE_FIREBASE_WATCHERS)
+}
+
 function delayedStart() {
     powerModel.init()
-    firebaseWatchers = firebase.firebaseWatchers()
+    firebaseWatchersTimeout = updateFirebaseWatcher()
     monitorTimeouts = monitor.init()
     powerControlTimeout = powerControl.init()
     firebase.init()
