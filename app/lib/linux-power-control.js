@@ -25,7 +25,7 @@ function toggleDimScreen(dimOn) {
                 if (screenLine && screenLine.length) {
                     let screen = screenLine.substring(0, screenLine.indexOf('connected'))
                     if (dimOn) {
-                        exec('xrandr --output ' + screen + ' --brightness 0.75')
+                        exec('xrandr --output ' + screen + ' --brightness 0.8')
                     }
                     else {
                         exec('xrandr --output ' + screen + ' --brightness 1')
