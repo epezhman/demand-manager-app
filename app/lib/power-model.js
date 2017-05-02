@@ -21,14 +21,24 @@ let powerModelCal = null
 
 function powerNormalEstimate(systemMetrics) {
     if (powerModelCal) {
-        return powerModelCal.powerNormalEstimate(systemMetrics, math)
+        if (config.IS_LINUX) {
+            return powerModelCal.powerNormalEstimateLinux(systemMetrics, math)
+        }
+        else if (config.IS_WINDOWS) {
+            return powerModelCal.powerNormalEstimateWin(systemMetrics, math)
+        }
     }
     return 0
 }
 
 function powerSaveEstimate(systemMetrics) {
     if (powerModelCal) {
-        return powerModelCal.powerNormalEstimate(systemMetrics, math)
+        if (config.IS_LINUX) {
+            return powerModelCal.powerSaveEstimateLinux(systemMetrics, math)
+        }
+        else if (config.IS_WINDOWS) {
+            return powerModelCal.powerSaveEstimateWin(systemMetrics, math)
+        }
     }
     return 0
 }
