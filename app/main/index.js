@@ -47,6 +47,7 @@ let updaterTimeout = null
 
 
 function updateFirebaseWatcher() {
+    firebaseWatchers = null
     firebaseWatchers = firebase.firebaseWatchers()
     return setTimeout(updateFirebaseWatcher, config.UPDATE_FIREBASE_WATCHERS)
 }
