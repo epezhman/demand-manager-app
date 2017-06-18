@@ -185,8 +185,10 @@ function saveBatteryFirstProfile(batteryProfiles) {
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
         let profileId =
             `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['hour_index']}-${batteryProfile['minute_index']}` // jshint ignore:line
-        if (batteryProfile.hasOwnProperty('estimated_power_consume_w') && batteryProfile.hasOwnProperty('estimated_power_save_w')) {
-            batteryProfile['power_diff_w'] = batteryProfile['estimated_power_consume_w'] - batteryProfile['estimated_power_save_w']
+        if (batteryProfile.hasOwnProperty('estimated_power_consume_w') &&
+            batteryProfile.hasOwnProperty('estimated_power_save_w')) {
+            batteryProfile['power_diff_w'] = batteryProfile['estimated_power_consume_w'] -
+                batteryProfile['estimated_power_save_w']
         }
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
