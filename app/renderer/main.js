@@ -261,7 +261,7 @@ function getStatistics() {
         minutesSaved.text(conf.get('saved-minutes'))
     }
     if (conf.has('saved-energy-watts-second')) {
-        let savedEnergy = conf.get('saved-energy-watts-second') / 3600
+        let savedEnergy = Math.round((conf.get('saved-energy-watts-second') / 3600) * 1000) / 1000
         energySaved.text(savedEnergy)
         moneySaved.text((savedEnergy / 1000) * config.ELECTRICITY_PRICE_EURO_PER_KWH)
     }

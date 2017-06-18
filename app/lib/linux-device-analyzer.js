@@ -30,6 +30,7 @@ let linuxDeviceData = {}
 
 
 function getLshwCommandData(cb) {
+    return cb(null, true)
     exec('lshw -version', (lshwErr, lshwStdout, lshwStderr) => {
         if (lshwErr) {
             log.error(lshwErr)
@@ -52,6 +53,7 @@ function getLshwCommandData(cb) {
 }
 
 function getDmidecodeCommandData(performThisMethod, cb) {
+    return cb(null, true)
     if (performThisMethod) {
         exec('dmidecode --version', (dmiCheckErr, dmiCheckStdout, dmiCheckStderr) => {
             if (dmiCheckErr) {
@@ -120,14 +122,12 @@ function sendExtractedData(err, result) {
 }
 
 function deviceAnalysis() {
-    // async.waterfall([
-    //     getLshwCommandData,
-    //     getDmidecodeCommandData,
-    //     getCommandsSetData
-    // ], sendExtractedData)
     async.waterfall([
+        getLshwCommandData,
+        getDmidecodeCommandData,
         getCommandsSetData
     ], sendExtractedData)
+
 }
 
 function monitorPower(monitorType) {
