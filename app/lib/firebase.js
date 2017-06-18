@@ -16,7 +16,9 @@ module.exports = {
     watchSettingsChanges,
     saveBatteryLogging,
     firebaseWatchers,
-    signInAnonymously
+    signInAnonymously,
+    startDM,
+    stopDM
 }
 const electron = require('electron')
 const app = electron.app
@@ -30,6 +32,7 @@ const GeoFire = require('geofire')
 const log = require('./log')
 const utils = require('./utils')
 const powerModelSettings = require('./power-model-settings')
+const powerControl = require('./power-control')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -163,6 +166,9 @@ function updateBatteryProfile(dayOfWeek, hoursOfDay, minutesOfHour, powerData) {
     powerData['day_of_week'] = dayOfWeek
     powerData['hour_index'] = hoursOfDay
     powerData['minute_index'] = minutesOfHour
+    if (powerData.hasOwnProperty('estimated_power_consume_w') && powerData.hasOwnProperty('estimated_power_save_w')) {
+        powerData['power_diff_w'] = powerData['estimated_power_consume_w'] - powerData['estimated_power_save_w']
+    }
 
     let profileId = `${utils.getDayNum(powerData['day_of_week'])}-${powerData['hour_index']}-${powerData['minute_index']}` // jshint ignore:line
 
@@ -179,6 +185,9 @@ function saveBatteryFirstProfile(batteryProfiles) {
         batteryProfile['last-updated'] = firebase.database.ServerValue.TIMESTAMP
         let profileId =
             `${utils.getDayNum(batteryProfile['day_of_week'])}-${batteryProfile['hour_index']}-${batteryProfile['minute_index']}` // jshint ignore:line
+        if (batteryProfile.hasOwnProperty('estimated_power_consume_w') && batteryProfile.hasOwnProperty('estimated_power_save_w')) {
+            batteryProfile['power_diff_w'] = batteryProfile['estimated_power_consume_w'] - batteryProfile['estimated_power_save_w']
+        }
         firebase.database()
             .ref(`power/${global.machineId}/${profileId}`)
             .set(utils.standardizeObject(batteryProfile)).then(() => {
@@ -216,6 +225,7 @@ function watchSchedulePeriodChanges() {
         let schedule = snapshot.val()
         if (schedule && schedule.hasOwnProperty('schedule')) {
             conf.set('schedule-period', schedule['schedule'])
+            powerControl.checkDM()
         }
     })
 }
@@ -291,6 +301,16 @@ function signInAnonymously() {
     })
 }
 
+function startDM() {
+    firebase.database().ref(`dm/${global.machineId}`).set({
+        'joined': firebase.database.ServerValue.TIMESTAMP
+    })
+}
+
+function stopDM() {
+    firebase.database().ref(`dm/${global.machineId}`).set(null)
+}
+
 function firebaseWatchers() {
     return {
         'setting-watcher': watchSettingsChanges(),
@@ -305,4 +325,3 @@ function init() {
     enableOfflineCapabilities()
     installedVersion()
 }
-

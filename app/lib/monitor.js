@@ -47,7 +47,7 @@ function monitorPower() {
     if (shouldAppBeRunning()) {
         if (config.IS_WINDOWS) {
             const winAnalyzer = require('./windows-device-analyzer')
-            winAnalyzer.checkConnectivity()
+            //winAnalyzer.checkConnectivity()
             winAnalyzer.monitorPower()
         }
         else if (config.IS_LINUX) {

@@ -131,12 +131,7 @@ function runAsyncCommands(wmicCommands) {
                 Math.round((batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec']
                         .map((x) => parseInt(x))).reduce((a, b) => a + b, 0) /
                     batteryData['win32_perfformatteddata_perfdisk_physicaldisk-diskwritespersec'].length) : 0
-            let indexOfWLAN = batteryData['win32_networkadapter-netconnectionid'] ?
-                batteryData['win32_networkadapter-netconnectionid'].indexOf('WLAN') : -1
-            let wifiEnabled = indexOfWLAN > -1 ?
-                !!batteryData['win32_networkadapter-netconnectionstatus'] &&
-                !!batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] &&
-                batteryData['win32_networkadapter-netconnectionstatus'][indexOfWLAN] === '2' : false
+
             let batteryObject = {
                 'remaining_time_minutes': remainingTime,
                 'power_rate_w': dischargeRate > 0 ? dischargeRate : chargeRate,
@@ -159,12 +154,8 @@ function runAsyncCommands(wmicCommands) {
                 'write_request_per_s': writeRequest,
                 'write_kb_per_s': Math.round(writeRate / 1024),
                 'cpu_usage_percent': cpuUsage,
-                'cpu_cores': batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'] ?
-                    batteryData['win32_perfformatteddata_perfos_processor-percentprocessortime'].length - 1 : 'NaN',
                 'download_kb': downloadRate.length ? Math.round(parseInt(downloadRate[0]) / 1024) : 0,
                 'upload_kb': uploadRate.length ? Math.round(parseInt(uploadRate[0]) / 1024) : 0,
-                'wifi': wifiEnabled,
-                'internet_connected': isComputerOnline,
                 'dm_enabled': !!conf.get('dm-already-start')
             }
             batteryObject = utils.standardizeNumberObject(batteryObject)

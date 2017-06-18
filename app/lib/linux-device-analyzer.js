@@ -120,9 +120,12 @@ function sendExtractedData(err, result) {
 }
 
 function deviceAnalysis() {
+    // async.waterfall([
+    //     getLshwCommandData,
+    //     getDmidecodeCommandData,
+    //     getCommandsSetData
+    // ], sendExtractedData)
     async.waterfall([
-        getLshwCommandData,
-        getDmidecodeCommandData,
         getCommandsSetData
     ], sendExtractedData)
 }
@@ -144,10 +147,7 @@ function monitorPower(monitorType) {
         currentScreenLight: 'cat /sys/class/backlight/intel_backlight/brightness',
         memory: `free -m | grep -i "mem" | awk '{ print $2, $3 }'`,
         iodisk: `iostat -dx /dev/sda 1 2 | grep "sd" | awk '{ print $4, $6, $5, $7 }'`,
-        cpu: `vmstat 1 2|tail -1|awk '{print $15}'`,
-        cpuCores: `nproc`,
-        network: `ifstat 1 1 | tail -1 | awk '{ print $3, $4 }'`,
-        wifi: `ip route get 8.8.8.8 | grep 8.8.8.8 | awk '{ print $4 $5 }'`
+        cpu: `vmstat 1 2|tail -1|awk '{print $15}'`
     }
     async.eachOfSeries(commands, (commandValue, commandKey, commandCb) => {
         exec(commandValue, (commandErr, commandStdout, commandStderr) => {
@@ -189,12 +189,8 @@ function monitorPower(monitorType) {
             'write_request_per_s': parseInt(iodisk[2]),
             'write_kb_per_s': parseInt(iodisk[3]),
             'cpu_usage_percent': 100 - parseInt(batteryData['cpu']),
-            'cpu_cores': parseInt(batteryData['cpu-cores']),
             'download_kb': download,
             'upload_kb': upload,
-            'wifi': !!batteryData['wifi'] &&
-            (batteryData['wifi'].includes('less') || batteryData['wifi'].includes('wl')),
-            'internet_connected': !(isNaN(upload) && isNaN(download)),
             'dm_enabled': !!conf.get('dm-already-start')
         }
         batteryObject = utils.standardizeNumberObject(batteryObject)

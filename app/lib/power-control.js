@@ -3,6 +3,7 @@
 module.exports = {
     init,
     runCheckDM,
+    checkDM,
     startDM,
     stopDM,
     restoreBacklight,
@@ -82,6 +83,12 @@ function checkSchedulePeriod() {
 }
 
 function runCheckDM() {
+    checkDM()
+    log.loggingV('runCheckDM')
+    return setTimeout(runCheckDM, config.RUN_DM_INTERVAL_CHECK)
+}
+
+function checkDM() {
     if (monitor.shouldAppBeRunning()) {
         let checkDM = checkSchedulePeriod()
         if (checkDM === enums.DMCheck.RUN_DM) {
@@ -93,8 +100,6 @@ function runCheckDM() {
             }
         }
     }
-    log.loggingV('runCheckDM')
-    return setTimeout(runCheckDM, config.RUN_DM_INTERVAL_CHECK)
 }
 
 function startDM() {

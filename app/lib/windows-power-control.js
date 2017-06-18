@@ -11,6 +11,7 @@ const config = require('../config')
 const notify = require('./notify')
 const log = require('./log')
 const monitor = require('./monitor')
+const firebase = require('./firebase')
 
 const conf = new ConfigStore(config.APP_SHORT_NAME)
 
@@ -53,7 +54,8 @@ function startDM() {
     if (!conf.get('dm-already-start')) {
         conf.set('dm-already-start', true)
         conf.set('started-running', new Date())
-        notify('Power save mode has started')
+        notify('Demand control is activated.')
+        firebase.startDM()
         exec('powercfg -getactivescheme').stdout.on('data', function (activeScheme) {
             if (activeScheme) {
                 let schemeParts = activeScheme.split(' ')
@@ -94,7 +96,8 @@ function stopDM() {
     if (!conf.get('dm-already-stop')) {
         conf.set('dm-already-stop', true)
         monitor.calculateSavedMinutes()
-        notify('Power save mode has ended')
+        notify('Demand control is deactivated. Thank you for your participation.')
+        firebase.stopDM()
         if (conf.get('active-power-scheme')) {
             exec(`powercfg -setactive ${conf.get('active-power-scheme')}`)
             conf.delete('active-power-scheme')

@@ -81,8 +81,7 @@ module.exports.BatteryInfoMonitor = {
     CIMV2$Win32_PerfFormattedData_Tcpip_NetworkInterface: ['BytesReceivedPersec', 'BytesSentPersec'],
     CIMV2$Win32_PerfFormattedData_PerfOS_Processor: ['PercentProcessorTime'],
     CIMV2$Win32_PerfFormattedData_PerfDisk_PhysicalDisk: ['DiskReadBytesPersec', 'DiskReadsPersec',
-        'DiskWriteBytesPersec', 'DiskWritesPersec'],
-    CIMV2$Win32_NetworkAdapter: ['NetConnectionID', 'NetConnectionStatus']
+        'DiskWriteBytesPersec', 'DiskWritesPersec']
 }
 
 /* jshint ignore:end */
