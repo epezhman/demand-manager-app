@@ -143,7 +143,7 @@ function calculateSavedEnergy(powerData) {
         conf.set('saved-energy-watts-second', 0)
     }
     if (conf.has('saved-energy-watts-second')) {
-        let savedEnergy = (powerData['estimated_power_save_w'] - powerData['estimated_power_consume_w']) *
+        let savedEnergy = (powerData['estimated_power_consume_w'] - powerData['estimated_power_save_w']) *
             (conf.get('power-monitor-interval') / 1000)
         conf.set('saved-energy-watts-second', conf.get('saved-energy-watts-second') + savedEnergy)
     }
