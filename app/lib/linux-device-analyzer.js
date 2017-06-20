@@ -31,6 +31,7 @@ let linuxDeviceData = {}
 
 function getLshwCommandData(cb) {
     return cb(null, true)
+    // intentional return
     exec('lshw -version', (lshwErr, lshwStdout, lshwStderr) => {
         if (lshwErr) {
             log.error(lshwErr)
@@ -54,6 +55,7 @@ function getLshwCommandData(cb) {
 
 function getDmidecodeCommandData(performThisMethod, cb) {
     return cb(null, true)
+    // intentional return
     if (performThisMethod) {
         exec('dmidecode --version', (dmiCheckErr, dmiCheckStdout, dmiCheckStderr) => {
             if (dmiCheckErr) {
