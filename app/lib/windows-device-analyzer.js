@@ -165,8 +165,8 @@ function runAsyncCommands(wmicCommands) {
                 }
                 let powerData = {
                     'ac_connected_bool': batteryObject['ac_connected_bool'],
-                    'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
-                    'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                    'estimated_power_save_w': powerModel.powerSaveEstimate(batteryObject),
+                    'estimated_power_consume_w': powerModel.powerNormalEstimate(batteryObject)
                 }
                 if (conf.get('dm-already-start')) {
                     monitor.calculateSavedEnergy(powerData)
@@ -180,8 +180,8 @@ function runAsyncCommands(wmicCommands) {
                 db.runQuery({
                     'fn': 'addBatteryFirstProfile',
                     'params': {
-                        'estimated_power_save_w': powerModel.powerNormalEstimate(batteryObject),
-                        'estimated_power_consume_w': powerModel.powerSaveEstimate(batteryObject)
+                        'estimated_power_save_w': powerModel.powerSaveEstimate(batteryObject),
+                        'estimated_power_consume_w': powerModel.powerNormalEstimate(batteryObject)
                     }
                 })
             }
